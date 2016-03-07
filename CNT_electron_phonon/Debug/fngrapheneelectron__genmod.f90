@@ -1,0 +1,11 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Aug 08 08:55:05 2014
+        MODULE FNGRAPHENEELECTRON__genmod
+          INTERFACE 
+            SUBROUTINE FNGRAPHENEELECTRON(E,CC,CV,K)
+              REAL(KIND=8) :: E(2)
+              COMPLEX(KIND=8) :: CC(2)
+              COMPLEX(KIND=8) :: CV(2)
+              REAL(KIND=8) :: K(2)
+            END SUBROUTINE FNGRAPHENEELECTRON
+          END INTERFACE 
+        END MODULE FNGRAPHENEELECTRON__genmod
