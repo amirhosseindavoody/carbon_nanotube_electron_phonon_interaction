@@ -1,7 +1,0 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Fri Aug 08 08:54:56 2014
-        MODULE FNTEST__genmod
-          INTERFACE 
-            SUBROUTINE FNTEST
-            END SUBROUTINE FNTEST
-          END INTERFACE 
-        END MODULE FNTEST__genmod
