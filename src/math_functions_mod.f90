@@ -76,19 +76,23 @@ contains
 
 		interface
 			subroutine ZHEEV( JOBZ, UPLO,	N, A, LDA, W, WORK, LWORK, RWORK, INFO )
-				character (len=1) :: JOBZ, UPLO
-				integer :: INFO
-				integer :: LDA, LWORK, N
-				complex*16, dimension(N,N) :: A
-				real*8, dimension(N) :: W
-				complex*16, dimension(2*N-1) :: WORK
-				real*8, dimension(3*N-2) :: RWORK
+				character (len=1), intent(in) :: JOBZ
+				character (len=1), intent(in) :: UPLO
+				integer, intent(out) :: INFO
+				integer, intent(in) :: LDA
+				integer, intent(in) :: LWORK
+				integer, intent(in) :: N
+				complex*16, dimension(LDA,*), intent(inout) :: A
+				real*8, dimension(*), intent(out) :: W
+				complex*16, dimension(*), intent(out) :: WORK
+				real*8, dimension(*), intent(out) :: RWORK
 			end subroutine ZHEEV
 		end interface
 
 		integer, intent(in) :: nl
-		complex*16, dimension(nl,nl), intent(inout) :: matrix
+		complex*16, dimension(nl,nl), intent(in) :: matrix
 		complex*16, dimension(nl,nl), intent(out) :: A
+
 		complex*16, dimension(2*nl-1) :: WORK
 		character (len=1) :: JOBZ, UPLO
 		integer :: INFO, LDA, LWORK, N
@@ -96,15 +100,11 @@ contains
 		real*8, dimension(3*nl-2) :: RWORK
 
 		JOBZ = 'V'
-		UPLO = 'L'
-		N = size(matrix,1)
+		UPLO = 'U'
+		N = nl
 		A = matrix
-		LDA = N
-		LWORK = 2*size(matrix,1)-1
-
-		W = 0.d0
-		RWORK = 0.d0
-		WORK = dcmplx(0.d0)
+		LDA = nl
+		LWORK = 2*nl-1
 
 		call ZHEEV( JOBZ, UPLO,	N, A, LDA, W, WORK, LWORK, RWORK, INFO )
 

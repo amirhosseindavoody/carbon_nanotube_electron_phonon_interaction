@@ -12,18 +12,14 @@ contains
 
     type(cnt) :: currcnt
     integer :: ik
-    ! integer :: iq, nkc
     integer :: mu, ib
     real*8, dimension(2) :: k
-    ! real*8, dimension(2) :: q
     real*8, dimension(:), allocatable :: k_vec
-    ! real*8, dimension(:), allocatable :: q_vec
-    real*8, dimension(6) :: omega_tmp_1
-    real*8, dimension (:,:,:), allocatable :: omega_tmp
+    real*8, dimension(6) :: omega_tmp
     complex*16, dimension(6,6) :: u_ph
 
     allocate(k_vec(currcnt%ikc_min:currcnt%ikc_max))
-    allocate(omega_tmp(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
+    allocate(currcnt%omega_phonon(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
 
     do ik=currcnt%ikc_min,currcnt%ikc_max
 			k_vec(ik)=dble(ik)*currcnt%dk
@@ -34,8 +30,8 @@ contains
     do mu=1-currcnt%Nu/2,currcnt%Nu/2
       do ik=currcnt%ikc_min,currcnt%ikc_max
         k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
-        call graphene_phonon_dispersion(omega_tmp_1,u_ph,k,currcnt%aCC_vec)
-        omega_tmp(mu,ik,:) = omega_tmp_1(:)
+        call graphene_phonon_dispersion(omega_tmp,u_ph,k,currcnt%aCC_vec)
+        currcnt%omega_phonon(mu,ik,:) = omega_tmp(:)
       enddo
     enddo
 
@@ -52,32 +48,13 @@ contains
     do ib=1,6
       do mu=1-currcnt%Nu/2,currcnt%Nu/2
         do ik=currcnt%ikc_min,currcnt%ikc_max
-	        write(100,'(E16.8)', advance='no') omega_tmp(mu,ik,ib)
+	        write(100,'(E16.8)', advance='no') currcnt%omega_phonon(mu,ik,ib)
         end do
         write(100,*)
       enddo
     enddo
 
 		close(100)
-
-    ! ! calculate the CNT phonon dispersion for mu=0 and iq between bounds of max exciton momentum change *****************
-    ! iq_max=2*(iKcm_max-iKcm_min)
-    ! iq_min=-iq_max
-    !
-    ! allocate(q_vec(iq_min:iq_max))
-    ! allocate(omega(iq_min:iq_max,6))
-    !
-    ! do iq=iq_min,iq_max
-    !   q_vec(iq)=dble(iq)*dk
-    ! enddo
-    !
-    ! mu=0
-    ! do iq=iq_min,iq_max
-    !   q=dble(mu)*K1+dble(iq)*dk*K2
-    !   call graphene_phonon_dispersion(omega(iq,:),u_ph,q)
-    ! enddo
-    !
-    ! 10 FORMAT (E16.8)
 
   end subroutine cnt_phonon_dispersion
 
@@ -91,10 +68,10 @@ contains
 
     real*8, dimension(2), intent(in) :: aCC_vec
     real*8, dimension(2), intent(in) :: k
-    complex*16, dimension(6,6) :: u_ph
-    real*8, dimension(6) :: omega
+    complex*16, dimension(6,6), intent(out) :: u_ph
+    real*8, dimension(6), intent(out) :: omega
 
-    integer :: i, j, tmpi
+    integer :: i, j
     real*8 :: theta, tmpr
     real*8, dimension(2) :: deltaR
     real*8, dimension(2,2) :: Rot
@@ -219,8 +196,7 @@ contains
 
     D_tot=dcmplx(1.d0/2.d0)*(D_tot+conjg(transpose(D_tot)))
 
-    tmpi = 6
-    call eig(tmpi,D_tot,u_ph,omega)
+    call eig(6,D_tot,u_ph,omega)
 
     do i=1,6
       omega(i)=sqrt(abs(omega(i))/m_carbon_dispersion)

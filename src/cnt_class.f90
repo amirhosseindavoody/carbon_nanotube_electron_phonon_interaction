@@ -67,7 +67,7 @@ module cnt_class
 		real*8 :: Kcm_max
 
 		!cnt phonon dispersion
-		real*8, dimension (:,:), allocatable :: omega_phonon
+		real*8, dimension (:,:,:), allocatable :: omega_phonon
 
 		!directory that the CNT information is stored
 		character(len=200) :: directory
