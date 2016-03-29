@@ -2,16 +2,16 @@ module geometric_matrix_element_mod
 	implicit none
 	private
     public  :: calculate_finite_geometric_matrix_element, calculate_infinite_geometric_matrix_element, calculate_infinite_parallel_geometric_matrix_element
-    
+
 contains
 
 	!**************************************************************************************************************************
 	! calculate the geometric part of matrix element for two finite tubes forming angle theta
 	!**************************************************************************************************************************
-	
+
 	subroutine calculate_finite_geometric_matrix_element(iKcm1, iKcm2, geometricMatrixElement)
 		use comparams, only: cnt1, cnt2
-		use physicalConstants, only: i1, pi, A_u
+		use constants_mod, only: i1, pi, A_u
 
 		integer, intent(in) :: iKcm1, iKcm2
 		complex*16, intent(out) :: geometricMatrixElement
@@ -25,18 +25,18 @@ contains
 		do iu = lbound(cnt1%r_posA3,1), ubound(cnt1%r_posA3,1)
 			geometricMatrixElement = geometricMatrixElement + sum(exp(-i1*dcmplx(2.d0*(K1*cnt1%ur_posA3(iu,1)+dble(cnt1%mu_cm)*cnt1%az_angle(iu))))*exp(i1*dcmplx(2.d0*(K2*cnt2%ur_posA3(:,1)+dble(cnt2%mu_cm)*cnt2%az_angle(:))))/dcmplx(sqrt((cnt2%r_posA3(:,1)-cnt1%r_posA3(iu,1))**2+(cnt2%r_posA3(:,2)-cnt1%r_posA3(iu,2))**2+(cnt2%r_posA3(:,3)-cnt1%r_posA3(iu,3))**2)))
 		end do
-						
-		return		
+
+		return
 	end subroutine calculate_finite_geometric_matrix_element
 
 
 	!**************************************************************************************************************************
 	! calculate the geometric part of matrix element for two infinite tubes forming angle theta
 	!**************************************************************************************************************************
-	
+
 	subroutine calculate_infinite_geometric_matrix_element(iKcm1, iKcm2, theta, c2cDistance, geometricMatrixElement)
 		use comparams, only: cnt1, cnt2
-		use physicalConstants, only: i1, pi, A_u, a_l
+		use constants_mod, only: i1, pi, A_u, a_l
 
 		real*8, intent(in) :: theta
 		real*8, intent(in) :: c2cDistance
@@ -60,7 +60,7 @@ contains
 
 		nPhi1 = nint(2.d0*radius1*pi/a_l)
 		dPhi1 = 2.d0*pi/nPhi1
-		
+
 		nPhi2 = nint(2.d0*radius2*pi/a_l)
 		dPhi2 = 2.d0*pi/nPhi2
 
@@ -91,18 +91,18 @@ contains
 		end if
 
 		geometricMatrixElement = geometricMatrixElement * dcmplx(dPhi1*dPhi2*pi*radius1*radius2/(A_u**2))
-						
-		return		
+
+		return
 	end subroutine calculate_infinite_geometric_matrix_element
 
 
 	!**************************************************************************************************************************
 	! calculate the geometric part of matrix element for two infinite tubes parallel to each other
 	!**************************************************************************************************************************
-	
+
 	subroutine calculate_infinite_parallel_geometric_matrix_element(iKcm1, iKcm2, c2cDistance, geometricMatrixElement)
 		use comparams, only: cnt1, cnt2
-		use physicalConstants, only: i1, pi, A_u, a_l
+		use constants_mod, only: i1, pi, A_u, a_l
 		use math_functions_mod, only: bessk0
 
 		real*8, intent(in) :: c2cDistance
@@ -124,7 +124,7 @@ contains
 
 		nPhi1 = nint(2.d0*radius1*pi/a_l)
 		dPhi1 = 2.d0*pi/nPhi1
-		
+
 		nPhi2 = nint(2.d0*radius2*pi/a_l)
 		dPhi2 = 2.d0*pi/nPhi2
 
@@ -158,10 +158,10 @@ contains
 			end do
 		end if
 
-		geometricMatrixElement = geometricMatrixElement * dcmplx(dPhi1*dPhi2*2.d0*radius1*radius2/(A_u**2))			
+		geometricMatrixElement = geometricMatrixElement * dcmplx(dPhi1*dPhi2*2.d0*radius1*radius2/(A_u**2))
 
-		return		
+		return
 	end subroutine calculate_infinite_parallel_geometric_matrix_element
 
-				
+
 end module geometric_matrix_element_mod

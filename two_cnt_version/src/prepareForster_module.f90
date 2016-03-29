@@ -2,16 +2,16 @@ module prepareForster_module
 	implicit none
 	private
     public  :: calculateDOS,calculatePartitionFunction, saveDOS
-    
+
 contains
 	!**************************************************************************************************************************
 	! calculate the partition function for target or all exciton types of a given carbon nanotube
 	!**************************************************************************************************************************
-	
+
 	subroutine calculatePartitionFunction(partition_function_type, currcnt, partitionFunction)
 		use cnt_class, only: cnt
 		use comparams, only : Temperature
-		use physicalConstants, only : kb
+		use constants_mod, only : kb
 
 		integer, intent(in) :: partition_function_type
 		type(cnt), intent(in) :: currcnt
@@ -21,21 +21,21 @@ contains
 
 		min_energy = minval(currcnt%Ex_t)
 		deltaE = (-1.d0) * log(1.d-3) * kb * Temperature
-        
+
 		partitionFunction = 0.d0
-        
+
         if (partition_function_type .eq. 0) then
 			! partition function due to A-type excitons
 			do ix = 1,currcnt%nX_a
 				do iKcm = currcnt%iKcm_min_fine,currcnt%iKcm_max_fine
 					if((currcnt%Ex_A1(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex_A1(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex_A1(ix,iKcm)/kb/Temperature)
 					endif
 					if((currcnt%Ex0_A2(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex0_A2(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex0_A2(ix,iKcm)/kb/Temperature)
 					endif
 					if((currcnt%Ex1_A2(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex1_A2(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex1_A2(ix,iKcm)/kb/Temperature)
 					endif
 				end do
 			end do
@@ -43,16 +43,16 @@ contains
 			do ix = 1,currcnt%nX_e
 				do iKcm = currcnt%iKcm_min_fine,currcnt%iKcm_max_fine
 					if((currcnt%Ex0_Ep(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex0_Ep(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex0_Ep(ix,iKcm)/kb/Temperature)
 					endif
 					if((currcnt%Ex0_Em(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex0_Em(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex0_Em(ix,iKcm)/kb/Temperature)
 					endif
 					if((currcnt%Ex1_Ep(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex1_Ep(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex1_Ep(ix,iKcm)/kb/Temperature)
 					endif
 					if((currcnt%Ex1_Em(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex1_Em(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex1_Em(ix,iKcm)/kb/Temperature)
 					endif
 				end do
 			end do
@@ -61,27 +61,27 @@ contains
 			do ix = 1,currcnt%nX_t
 				do iKcm = currcnt%iKcm_min_fine,currcnt%iKcm_max_fine
 					if((currcnt%Ex_t(ix,iKcm)-min_energy) .le. deltaE) then
-						partitionFunction = partitionFunction + exp(-currcnt%Ex_t(ix,iKcm)/kb/Temperature)    
+						partitionFunction = partitionFunction + exp(-currcnt%Ex_t(ix,iKcm)/kb/Temperature)
 					endif
 				end do
 			end do
 		else
 			write(*,*) "Error in determining the type of partition function!"
 		endif
-        
+
 	end subroutine calculatePartitionFunction
 
 	!**************************************************************************************************************************
 	! calculate the density of states at a given point
 	!**************************************************************************************************************************
-	
+
 	subroutine calculateDOS(currcnt,iKcm,iX,dos)
 		use cnt_class, only: cnt
 
 		type(cnt), intent(in) :: currcnt
 		integer, intent(in) :: iKcm,iX
 		real*8, intent(out) :: dos
-		
+
 		if (iKcm .le. (currcnt%iKcm_min_fine+1)) then
 			dos = 2.d0*currcnt%dkx/abs(-3.d0*currcnt%Ex_t(iX,iKcm)+4.d0*currcnt%Ex_t(iX,iKcm+1)-currcnt%Ex_t(iX,iKcm+2))
 		else if(iKcm .ge. (currcnt%iKcm_max_fine-1)) then
@@ -97,7 +97,7 @@ contains
 	!**************************************************************************************************************************
 	! save total exciton density of states for a given cnt
 	!**************************************************************************************************************************
-	
+
 	subroutine saveDOS(currcnt)
 		use cnt_class, only: cnt
 
@@ -119,7 +119,7 @@ contains
 		enddo
 		close(100)
 
-		return    
+		return
 	end subroutine saveDOS
-			
+
 end module prepareForster_module

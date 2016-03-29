@@ -2,17 +2,17 @@ module a2ep_kspace_matrix_element_mod
 	implicit none
 	private
     public  :: calculate_a2ep_kSpaceMatrixElement
-    
+
 contains
-	
+
 	!**************************************************************************************************************************
 	! calculate the k-space part of matrix element for the crossing point number iT
 	!**************************************************************************************************************************
-	
+
 	subroutine calculate_a2ep_kSpaceMatrixElement(nTransitionPoints, transitionPoints, kSpaceMatrixElement)
 		use comparams, only: cnt1, cnt2
-		use physicalConstants, only: pi, eps0, q0, i1
-		use write_log_mod, only: writeLog
+		use constants_mod, only: pi, eps0, q0, i1
+		use write_log_mod, only: write_log, log_input
 
 		integer, intent(in) :: nTransitionPoints
 		integer, dimension(nTransitionPoints,4), intent(in) :: transitionPoints
@@ -25,7 +25,6 @@ contains
 		integer :: ikc2, ikv2
 		integer :: is,isp
 		integer :: iT
-		character(len=200) :: logInput
 		real*8, dimension(2) :: Kcm1, Kcm2
 		real*8 , dimension(2,2) :: ds1, ds2 ! this are relative displacement of carbon atoms in graphene unit cell
 
@@ -37,11 +36,11 @@ contains
 
 		ds2(1,:) = 0.d0
 		ds2(2,:) = cnt2%aCC_vec
-		
+
 		do iT = 1,nTransitionPoints
 			if (mod(iT,100) .eq. 0) then
-				write(logInput, '("Calculating k-space matrix element: iT = ", I6.6, "  nTransitionPoints = ", I6.6)') iT, nTransitionPoints
-				call writeLog(logInput)
+				write(log_input, '("Calculating k-space matrix element: iT = ", I6.6, "  nTransitionPoints = ", I6.6)') iT, nTransitionPoints
+				call write_log(log_input)
 			end if
 
 			ix1 = transitionPoints(iT,1)
@@ -67,7 +66,7 @@ contains
 							tmpc1 = conjg(cnt1%Cc(1,ikc1_p,is))*cnt1%Cv(1,ikv1_p,is)*cnt2%Cc(1,ikc2,isp)*conjg(cnt2%Cv(2,ikv2,isp))
 							tmpc2 = conjg(cnt1%Cc(2,ikc1_m,is))*cnt1%Cv(2,ikv1_m,is)*cnt2%Cc(1,ikc2,isp)*conjg(cnt2%Cv(2,ikv2,isp))*dcmplx(cnt1%ex_symmetry)
 							tmpc = tmpc + (tmpc1 + tmpc2)*exp(i1*dcmplx(-2.d0* dot_product(Kcm1,ds1(is,:)) + 2.d0*dot_product(Kcm2,ds2(isp,:))))
-						end do  
+						end do
 					end do
 					kSpaceMatrixElement(iT) = kSpaceMatrixElement(iT) + tmpc*conjg(cnt1%Psi_t(ikr1,ix1,iKcm1))*cnt2%Psi_t(ikr2,ix2,iKcm2)/dcmplx(sqrt(2.d0),0.d0)
 					tmpc = (0.d0,0.d0)
@@ -76,9 +75,9 @@ contains
 		end do
 
 		kSpaceMatrixElement = kSpaceMatrixElement * dcmplx(q0**2/(4.d0*pi*eps0*sqrt(2.d0*pi/cnt1%dk * 2.d0*pi/cnt2%dk)))
-			
-		return		
+
+		return
 	end subroutine calculate_a2ep_kSpaceMatrixElement
 
-				
+
 end module a2ep_kspace_matrix_element_mod

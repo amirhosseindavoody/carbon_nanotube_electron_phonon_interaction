@@ -6,16 +6,16 @@ module occupation_mod
 	implicit none
 	private
 	public  :: calculate_occupation_table
-	
+
 contains
 	!**************************************************************************************************************************
 	! calculate the partition function for a given carbon nanotube
 	!**************************************************************************************************************************
-	
+
 	subroutine calculate_occupation_table(currcnt)
 		use comparams, only : Temperature
 		use cnt_class, only: cnt
-		use physicalConstants, only : kb, eV
+		use constants_mod, only : kb, eV
 
 		type(cnt), intent(in) :: currcnt
 		integer :: table_size, iX, iKcm, counter
@@ -24,7 +24,7 @@ contains
 		real*8 , dimension(:,:), allocatable :: occupation_table
 		real*8 :: occupation_Atype, occupation_Etype
 		character(len=100) :: filename
-		
+
 		iKcm_min_fine = currcnt%dk_dkx_ratio * currcnt%iKcm_min
 		iKcm_max_fine = currcnt%dk_dkx_ratio * currcnt%iKcm_max
 
@@ -80,9 +80,9 @@ contains
 		close(100)
 
 		return
-		
+
 	end subroutine calculate_occupation_table
 
-	
-			
+
+
 end module occupation_mod

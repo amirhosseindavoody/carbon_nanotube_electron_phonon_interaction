@@ -1,0 +1,14 @@
+directory, output= /home/amirhossein/research/exciton/data/transfer_rates/
+
+geometry, c2c_min[nm]= 1.2
+geometry, c2c_max[nm]= 1.2
+geometry, n_c2c= 1
+
+geometry, theta_min[degree]= 0
+geometry, theta_max[degree]= 90
+geometry, n_theta= 2
+
+geometry, len_per_perpendicular_tube[nm]= 10
+
+simulation, partition_function= target
+simulation, temperature[Kelvin]= 300

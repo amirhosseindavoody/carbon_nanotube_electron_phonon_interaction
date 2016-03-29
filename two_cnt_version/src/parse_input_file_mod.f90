@@ -1,26 +1,26 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Declaration of input parameters
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
+
 module parse_input_file_mod
 	implicit none
 	private
 	public :: parse_input_file
 
-contains	
+contains
 	!**************************************************************************************************************************
 	! parse the input file
 	!**************************************************************************************************************************
 
 	subroutine parse_input_file()
 		use comparams, only: cnt1, cnt2
-		use physicalConstants, only: eV, pi
+		use constants_mod, only: eV, pi
 		use transition_table_mod, only: c2cMin, c2cMax, nc2c, thetaMin, thetaMax, nTheta, partition_function_type
-		use write_log_mod, only: writeLog
+		use write_log_mod, only: write_log, log_input
 
 		character(len=100) :: filename
 		character(len=200) :: buffer, command, label, value
-		character(len=1000) :: outdir	
+		character(len=1000) :: outdir
 		character(len=200) :: indir
 		integer :: istat=0
 		integer :: ios=0
@@ -165,9 +165,9 @@ contains
 
 		call create_outdir(trim(outdir))
 
-		call writeLog(new_line('A'))
-		call writeLog("cnt1 directory: "//cnt1%directory)
-		call writeLog("cnt2 directory: "//cnt2%directory)
+		call write_log(new_line('A'))
+		call write_log("cnt1 directory: "//cnt1%directory)
+		call write_log("cnt2 directory: "//cnt2%directory)
 
 		return
 	end subroutine parse_input_file
@@ -175,15 +175,14 @@ contains
 	!*******************************************************************************
 	! This subroutines changes the working directory to the output directory for saving files
 	!*******************************************************************************
-	
+
 	subroutine create_outdir(outdir)
-		use write_log_mod, only: writeLog
+		use write_log_mod, only: write_log, log_input
 
 		character(len=*), intent(in) :: outdir
 		integer :: istat=0
 		character(len=1000) :: command
 		integer, dimension(3) :: date, time
-		character(len=100) :: logInput
 
 		! specifiy the output directory
 		write(command,'("rm -rf ''",A,"''")') trim(outdir) !remove the directory if it already exists
@@ -203,11 +202,11 @@ contains
 		call itime(time)
 
 		! write simulation inputs to the log file
-		write(logInput,'("Simulation started at--> DATE=",I2.2,"/",I2.2,"/",I4.4,"  TIME=",I2.2,":",I2.2,":",I2.2)') date, time
-		call writeLog(logInput)
+		write(log_input,'("Simulation started at--> DATE=",I2.2,"/",I2.2,"/",I4.4,"  TIME=",I2.2,":",I2.2,":",I2.2)') date, time
+		call write_log(log_input)
 
-		return	
+		return
 	end subroutine create_outdir
 
-	
+
 end module parse_input_file_mod

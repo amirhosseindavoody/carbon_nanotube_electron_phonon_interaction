@@ -1,0 +1,1 @@
+./main.exe ../cnt1.sample.in ../cnt2.sample.in ../phonon_assisted.sample.in

@@ -2,16 +2,16 @@ module rotate_shift_mod
 	implicit none
 	private
     public  :: rotate_shift_cnt
-    
+
 contains
-	
+
 	!**************************************************************************************************************************
 	! calculate the k-space part of matrix element for the crossing point number iC
 	!**************************************************************************************************************************
-	
+
 	subroutine rotate_shift_cnt(currcnt, theta, c2cDistance)
 		use cnt_class, only: cnt
-		use physicalConstants, only: pi
+		use constants_mod, only: pi
 		use math_functions_mod, only: my_norm2
 
 		type(cnt), intent(inout) :: currcnt
@@ -58,11 +58,11 @@ contains
 			currcnt%r_posA3(i,3) = currcnt%ur_posA3(i,3)
 		enddo
 
-			
-		return		
+
+		return
 	end subroutine rotate_shift_cnt
 
-	
 
-				
+
+
 end module rotate_shift_mod
