@@ -184,10 +184,9 @@ contains
 
 		if (INFO .ne. 0) then
 			write(*,"(A50,I1.1)") "ERROR: calculation of eigen value failed , INFO = ", INFO
-			stop
+			call exit()
 		end if
 
-		return
 	end subroutine eig
 
 	!**********************************************************************************************************************

@@ -30,18 +30,10 @@ contains
 		logical :: flg_dielectric, folder_exists
 
 
-		open(unit=100,file=filename,status="old", action="read", iostat=istat)
+		open(unit=101,file=filename,status="old", action="read", iostat=istat)
 		if (istat .ne. 0) then
-			write(*,*) ""
-			write(*,*) "Unable to read CNT input file:", filename
-			call exit()
-		end if
-
-
-		open(unit=100,file=filename,status="old", action="read", iostat=istat)
-		if (istat .ne. 0) then
-			write(*,*) ""
-			write(*,*) "Unable to read CNT input file:", filename
+			write(*,'(A,I2.2)') "istat = ", istat
+			write(*,'(A,A)') "Unable to read CNT input file: ", filename
 			call exit()
 		end if
 
@@ -59,7 +51,7 @@ contains
 		flg_dielectric=.true.  !when .true. dielectric function is calculated, when .false. dielectric function is read from file.
 
 		do while (ios == 0)
-			read (100,'(A)',iostat=ios) buffer
+			read (101,'(A)',iostat=ios) buffer
 			if (ios == 0) then
 				if (buffer(1:1) .ne. '#') then
 					pos_comma = scan(buffer,',')
@@ -103,9 +95,16 @@ contains
 							read(value, *) currcnt%Ckappa
 						case ('kappa_coeff')
 							read(value, *) currcnt%kappa_coeff
+						case ('target_exciton_type')
+							read(value, *) currcnt%target_exciton_type
+						case ('length[nm]')
+							read(value, *) currcnt%length
+						case ('center_position[nm]')
+							read(value, *) currcnt%center_position
 						case default
-							write(*,*) "ERROR in 'cnt' input arguments!!!"
-							write(*,*) "simulation STOPPED!!!"
+							write(*,'(A,A)') "label = ", trim(label)
+							write(*,'(A)') "ERROR in 'cnt' input arguments!!!"
+							write(*,'(A)') "simulation STOPPED!!!"
 							call exit()
 						end select
 					case ('flg')
@@ -124,7 +123,7 @@ contains
 				call exit()
 			end if
 		end do
-		close(100)
+		close(101)
 
 		! calculate kappa based on input parameters
 		if ((currcnt%Ckappa .gt. 0.d0 ) .and. (currcnt%kappa_coeff .gt. 0.d0)) then
@@ -138,10 +137,10 @@ contains
 		folder_exists = .true.
 		inquire(file=trim(currcnt%directory)//'/.', exist=folder_exists)
 		if (.not. folder_exists) then
-			write(log_input,'(A,A)') "input folder for cnt exciton dispersion not found: ", trim(currcnt%directory)
-			call exit()
+			write(log_input,'(A)') new_line('A')//"input folder for cnt exciton dispersion not found:"//new_line('A')//trim(currcnt%directory)//new_line('A')
+			call write_log(log_input)
+			! call exit()
 		end if
-
 
 		! ! create the cnt object and calculate bands and load exciton wavefunction
 		! call cnt_geometry(currcnt)
@@ -159,7 +158,6 @@ contains
 		!
 		! currcnt%nX_t = size(currcnt%Ex_t,1)
 
-		return
 	end subroutine input_cnt_parameters
 
 !********************************************************************************
@@ -426,7 +424,7 @@ contains
 
 
 		! set the information of the target exciton type
-		select case (trim(currcnt%targetExcitonType))
+		select case (trim(currcnt%target_exciton_type))
 		case ('Ex_A1')
 			call write_log("Target exciton: Ex_A1")
 			allocate(currcnt%Ex_t(1:currcnt%nX_a,currcnt%iKcm_min_fine:currcnt%iKcm_max_fine))
@@ -571,7 +569,7 @@ contains
 
 
 		! set the information of the target exciton type
-		select case (trim(currcnt%targetExcitonType))
+		select case (trim(currcnt%target_exciton_type))
 		case ('Ex0_Ep')
 			call write_log("Target exciton: Ex0_Ep")
 			allocate(currcnt%Ex_t(1:currcnt%nX_e,currcnt%iKcm_min_fine:currcnt%iKcm_max_fine))

@@ -20,7 +20,7 @@ module sim_properties_mod
 contains
 	subroutine input_sim_properties(filename)
 		use constants_mod, only: pi
-		! use write_log_mod, only : write_log, log_input
+		use write_log_mod, only : write_log, log_input
 
 		character(len=*) :: filename
 		integer :: istat=0
@@ -29,6 +29,7 @@ contains
 		character(len=1000) :: buffer, command, label, value
 		integer :: i_tmp=0
 		logical :: folder_exists=.true.
+		integer, dimension(3) :: date, time
 
 		open(unit=100,file=filename,status="old", action="read", iostat=istat)
 		if (istat .ne. 0) then
@@ -106,10 +107,17 @@ contains
 
 		istat=chdir(trim(outdir_tmp))
 		if (istat .ne. 0) then
-			write(*,*) "Directory did not changed!!!"
-			write(*,*) "Simulation stopped!!!"
+			write(*,'(A)') "Directory did not changed!!!"
+			write(*,'(A)') "Simulation stopped!!!"
 			call exit()
 		end if
+
+		! get time and date of start of simulation
+		call idate(date)
+		call itime(time)
+		! write simulation inputs to the log file
+		write(log_input,'(A,I2.2,A,I2.2,A,I4.4,A,I2.2,A,I2.2,A,I2.2)') "Simulation started at:"//new_line('A')//"date = ",date(1),"/",date(2),"/",date(3),new_line('A')//"time = ", time(1),":",time(2),":",time(3)
+		call write_log(log_input)
 
 	end subroutine input_sim_properties
 

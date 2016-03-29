@@ -1,1 +1,1 @@
-./main.exe ../cnt1.sample.in ../cnt2.sample.in ../phonon_assisted.sample.in
+./main.exe /home/amirhossein/Bitbucket/carbon_nanotube_electron_phonon_interaction/cnt1.sample.in /home/amirhossein/Bitbucket/carbon_nanotube_electron_phonon_interaction/cnt2.sample.in /home/amirhossein/Bitbucket/carbon_nanotube_electron_phonon_interaction/phonon_assisted.sample.in

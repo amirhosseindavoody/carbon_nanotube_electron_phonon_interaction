@@ -1,7 +1,7 @@
 directory, output= /home/amirhossein/research/exciton/data/electron_phonon/
 
-cnt, n_ch=	10
-cnt, m_ch=	10
+cnt, n_ch=	20
+cnt, m_ch=	00
 cnt, nkg=	1001
 cnt, dk/dkx=	10
 cnt, nr=		200

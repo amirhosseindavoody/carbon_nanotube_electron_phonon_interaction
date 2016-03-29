@@ -9,7 +9,7 @@ program cnt_resonance_energy_transfer
 	use cnt_electron_mod, only: cnt_electron_band_structure
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
-	use comparams, only: starttime, endtime, cnt1, cnt2
+	use comparams, only: cnt1, cnt2
 	use input_cnt_mod, only: input_cnt_parameters
 	! use occupation_mod, only: calculate_occupation_table
 	! use parse_input_file_mod, only: parse_input_file
@@ -21,8 +21,9 @@ program cnt_resonance_energy_transfer
 	implicit none
 
 	character(len=1000) :: filename
+	real :: start_time, end_time
 
-	call CPU_time(starttime)
+	call CPU_time(start_time)
 
 	! check the input format for the correct number of input files
 	if (command_argument_count() .ne. 3) then
@@ -32,10 +33,10 @@ program cnt_resonance_energy_transfer
 	end if
 
 	call get_command_argument(3,filename)
-	call input_sim_properties(filename)
+	call input_sim_properties(trim(filename))
 
 	call get_command_argument(1,filename)
-	call input_cnt_parameters(cnt1,filename)
+	call input_cnt_parameters(cnt1,trim(filename))
 
 	call cnt_geometry(cnt1)
 	call cnt_electron_band_structure(cnt1)
@@ -64,8 +65,8 @@ program cnt_resonance_energy_transfer
 
 ! 	call calculateKappaMatrix(cnt1,cnt2)
 
-	call CPU_time(endtime)
-	write(log_input,'("Run time = ",f10.3," seconds.")'),endtime-starttime
+	call CPU_time(end_time)
+	write(log_input,'("Run time = ",f10.3," seconds.")'),end_time-start_time
 	call write_log(log_input)
 
 	! deallocate all allocatable components in cnt_class

@@ -107,7 +107,7 @@ contains
 		currcnt%iKcm_max_fine = currcnt%iKcm_max * currcnt%dk_dkx_ratio
 		currcnt%iKcm_min_fine = currcnt%iKcm_min * currcnt%dk_dkx_ratio
 
-		select case (trim(currcnt%targetExcitonType))
+		select case (trim(currcnt%target_exciton_type))
 		case('Ex_A1', 'Ex0_A2', 'Ex1_A2')
 			currcnt%mu_cm = 0
 		case('Ex0_Ep', 'Ex1_Ep')
