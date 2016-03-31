@@ -25,8 +25,6 @@ contains
 			k_vec(ik)=dble(ik)*currcnt%dk
 		end do
 
-    write(*,*) !this write command is necessary to prevent a crash in the eigen value solver inside graphene_phonon_dispersion function.
-
     do mu=1-currcnt%Nu/2,currcnt%Nu/2
       do ik=currcnt%ikc_min,currcnt%ikc_max
         k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
@@ -36,25 +34,25 @@ contains
     enddo
 
     ! save the CNT phonon energy dispersion*************************************************************************************
-		open(unit=100,file='phonon_dispersion.dat',status="unknown")
+	open(unit=100,file='phonon_dispersion.dat',status="unknown")
 
-		do ik=currcnt%ikc_min,currcnt%ikc_max
-			 write(100,'(E16.8)', advance='no') k_vec(ik)
-		end do
+	do ik=currcnt%ikc_min,currcnt%ikc_max
+		write(100,'(E16.8)', advance='no') k_vec(ik)
+	end do
 
-		write(100,*)
-		write(101,*)
+	write(100,*)
+	write(101,*)
 
-    do ib=1,6
-      do mu=1-currcnt%Nu/2,currcnt%Nu/2
-        do ik=currcnt%ikc_min,currcnt%ikc_max
-	        write(100,'(E16.8)', advance='no') currcnt%omega_phonon(mu,ik,ib)
-        end do
-        write(100,*)
-      enddo
-    enddo
+	do ib=1,6
+		do mu=1-currcnt%Nu/2,currcnt%Nu/2
+			do ik=currcnt%ikc_min,currcnt%ikc_max
+				write(100,'(E16.8)', advance='no') currcnt%omega_phonon(mu,ik,ib)
+			end do
+			write(100,*)
+		enddo
+	enddo
 
-		close(100)
+	close(100)
 
   end subroutine cnt_phonon_dispersion
 
@@ -79,7 +77,7 @@ contains
     real*8, dimension(3,3) :: U, U_inv
     real*8, dimension(3) :: anglesA1, anglesA3, anglesB1, anglesB3
     real*8, dimension(6) :: anglesA2, anglesA4, anglesB2, anglesB4
-    complex*16, dimension(3,3) :: D_AA, D_AB, D_BA, D_BB
+    complex*16, dimension(3,3) :: D_AA=(0.d0,0.d0), D_AB=(0.d0,0.d0), D_BA=(0.d0,0.d0), D_BB=(0.d0,0.d0)
     complex*16, dimension(6,6) :: D_tot
     complex*16, dimension(6) :: u_tmp
 
