@@ -26,8 +26,6 @@ contains
 			k_vec(ik)=dble(ik)*currcnt%dk
 		end do
 
-		! write(*,*) !this write command is necessary to prevent a crash in the eigen value solver inside graphene_phonon_dispersion function.
-
 		do mu=1-currcnt%Nu/2,currcnt%Nu/2
 			do ik=currcnt%ikc_min,currcnt%ikc_max
 				k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
@@ -54,7 +52,7 @@ contains
 				write(100,*)
 			enddo
 		enddo
-		
+
 		close(100)
 
 	end subroutine cnt_phonon_dispersion

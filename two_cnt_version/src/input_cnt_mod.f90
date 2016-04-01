@@ -143,8 +143,6 @@ contains
 		end if
 
 		! ! create the cnt object and calculate bands and load exciton wavefunction
-		! call cnt_geometry(currcnt)
-		! call cnt_band(currcnt)
 		! currcnt%nX_a = currcnt%ikr_high-currcnt%ikr_low+1
 		! currcnt%nX_e = currcnt%ikr_high-currcnt%ikr_low+1
 		!

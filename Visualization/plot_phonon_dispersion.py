@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 eV = 1.6e-19
 eV_to_inverse_cm = 8065.54429
 
-data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_014/phonon_dispersion.dat", skiprows=0)
+data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/phonon_dispersion.dat", skiprows=0)
+# data = np.loadtxt("/home/amirhossein/research/exciton/data/electron_phonon/CNT(10,10)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(2)-Ckappa(1.0)/phonon_dispersion.dat", skiprows=0)
 
 k_vec = np.array(data[0,:])
 omega = np.array(np.transpose(data[1:-1,:]))
@@ -17,6 +18,7 @@ omega = omega/eV
 omega = omega*eV_to_inverse_cm
 
 plt.plot(k_vec[:],omega[:,:],'b-')
+# plt.tight_layout()
 plt.show()
 
 # k_vec = data[0,:]

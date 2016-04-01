@@ -7,7 +7,7 @@ cnt, dk/dkx=	10
 cnt, nr=		200
 cnt, E_th[eV]=	0.5
 cnt, Kcm_max[1/nm]=	1.5
-cnt, i_sub=	2
+cnt, i_sub=	1
 cnt, Ckappa=	1.0
 cnt, kappa_coeff=	1.211
 

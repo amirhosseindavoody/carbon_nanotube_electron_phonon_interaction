@@ -1,6 +1,6 @@
-directory, output= /home/amirhossein/research/exciton/data/electron_phonon/
+directory, output= /home/amirhossein/research/exciton/data/exciton_dispersion/
 
-cnt, n_ch=	20
+cnt, n_ch=	13
 cnt, m_ch=	00
 cnt, nkg=	1001
 cnt, dk/dkx=	10

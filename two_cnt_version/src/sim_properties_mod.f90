@@ -94,6 +94,7 @@ contains
 		end do
 		close(100)
 
+		! create the temporary name of the output directory
 		folder_exists = .true.
 		i_tmp = 0
 		do while (folder_exists)
@@ -102,9 +103,11 @@ contains
 			inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
 		end do
 
+		!create the output directory
 		write(command,'("mkdir ''",A,"''")') trim(outdir_tmp)
 		call system(trim(command))
 
+		!change the working directory to the output directory
 		istat=chdir(trim(outdir_tmp))
 		if (istat .ne. 0) then
 			write(*,'(A)') "Directory did not changed!!!"
@@ -112,12 +115,23 @@ contains
 			call exit()
 		end if
 
-		! get time and date of start of simulation
+		! copy the input files to the output directory
+		call get_command_argument(1,buffer)
+		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
+		call system(trim(command))
+		call get_command_argument(2,buffer)
+		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
+		call system(trim(command))
+		call get_command_argument(3,buffer)
+		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
+		call system(trim(command))
+
+		! get time and date of start of simulation and write it to the log file
 		call idate(date)
 		call itime(time)
-		! write simulation inputs to the log file
 		write(log_input,'(A,I2.2,A,I2.2,A,I4.4,A,I2.2,A,I2.2,A,I2.2)') "Simulation started at:"//new_line('A')//"date = ",date(1),"/",date(2),"/",date(3),new_line('A')//"time = ", time(1),":",time(2),":",time(3)
 		call write_log(log_input)
+
 
 	end subroutine input_sim_properties
 

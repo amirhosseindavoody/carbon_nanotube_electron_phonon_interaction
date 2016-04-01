@@ -37,13 +37,9 @@ program cnt_resonance_energy_transfer
 
 	call get_command_argument(1,filename)
 	call input_cnt_parameters(cnt1,trim(filename))
-
 	call cnt_geometry(cnt1)
 	call cnt_electron_band_structure(cnt1)
 	call cnt_phonon_dispersion(cnt1)
-
-	! don't go beyond this point. program not tested!!!!
-	! call exit()
 
 	! call parse_input_file()
 
@@ -66,7 +62,7 @@ program cnt_resonance_energy_transfer
 ! 	call calculateKappaMatrix(cnt1,cnt2)
 
 	call CPU_time(end_time)
-	write(log_input,'("Run time = ",f10.3," seconds.")'),end_time-start_time
+	write(log_input,'(A,f10.3,A)') new_line('A')//"Run time = ",end_time-start_time," seconds."
 	call write_log(log_input)
 
 	! deallocate all allocatable components in cnt_class

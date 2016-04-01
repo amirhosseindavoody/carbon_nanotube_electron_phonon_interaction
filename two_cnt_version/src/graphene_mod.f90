@@ -55,6 +55,11 @@ contains
 		complex*16, dimension(6,6) :: D_tot
 		complex*16, dimension(6) :: u_tmp
 
+		D_AA = 0.d0*D_AA
+		D_AB = 0.d0*D_AB
+		D_BA = 0.d0*D_BA
+		D_BB = 0.d0*D_BB
+
 		! note that these matrices are different from reciprocal lattice vectors K1 and K2 defined in comparams module
 		K1=spring_conv_coeff*reshape((/  3.65d1, 0.d0, 0.d0, 0.d0,  2.45d1, 0.d0, 0.d0, 0.d0,  9.82d0 /) , (/3,3/))
 		K2=spring_conv_coeff*reshape((/  8.80d0, 0.d0, 0.d0, 0.d0, -3.23d0, 0.d0, 0.d0, 0.d0, -4.0d-1 /) , (/3,3/))
