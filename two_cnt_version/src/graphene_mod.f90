@@ -51,14 +51,14 @@ contains
 		real*8, dimension(3,3) :: U, U_inv
 		real*8, dimension(3) :: anglesA1, anglesA3, anglesB1, anglesB3
 		real*8, dimension(6) :: anglesA2, anglesA4, anglesB2, anglesB4
-		complex*16, dimension(3,3) :: D_AA=(0.d0,0.d0), D_AB=(0.d0,0.d0), D_BA=(0.d0,0.d0), D_BB=(0.d0,0.d0)
+		complex*16, dimension(3,3) :: D_AA, D_AB, D_BA, D_BB
 		complex*16, dimension(6,6) :: D_tot
 		complex*16, dimension(6) :: u_tmp
 
-		D_AA = 0.d0*D_AA
-		D_AB = 0.d0*D_AB
-		D_BA = 0.d0*D_BA
-		D_BB = 0.d0*D_BB
+		D_AA=(0.d0,0.d0)
+		D_AB=(0.d0,0.d0)
+		D_BA=(0.d0,0.d0)
+		D_BB=(0.d0,0.d0)
 
 		! note that these matrices are different from reciprocal lattice vectors K1 and K2 defined in comparams module
 		K1=spring_conv_coeff*reshape((/  3.65d1, 0.d0, 0.d0, 0.d0,  2.45d1, 0.d0, 0.d0, 0.d0,  9.82d0 /) , (/3,3/))
