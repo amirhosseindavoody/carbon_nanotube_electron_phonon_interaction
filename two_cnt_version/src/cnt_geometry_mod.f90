@@ -142,6 +142,8 @@ contains
 
 		! write down important informations into the output file.************************************************************
 		call write_log(new_line('A')//"geometrical properties **********************************")
+		write(log_input,'(A,I2.2,A,I2.2,A)') "chirality = (",currcnt%n_ch," , ",currcnt%m_ch,")"
+		call write_log(trim(log_input))
 		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a1 = (",currcnt%a1(1)," , ",currcnt%a1(2),")"
 		call write_log(trim(log_input))
 		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a2 = (",currcnt%a2(1)," , ",currcnt%a2(2),")"

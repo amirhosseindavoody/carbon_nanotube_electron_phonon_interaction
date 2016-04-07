@@ -188,6 +188,11 @@ contains
 			end do
 		end do
 
+		! fix the phase of u_ph
+		do i=1,6
+			u_ph(:,i) = u_ph(:,i)*exp(-i1*dcmplx(atan2(aimag(u_ph(1,i)),real(u_ph(1,i)))))
+		end do
+
 		! change the units from [1/cm] to [Joules]
 		omega=omega*(4.1357d-3/3.3356d1)*eV
 

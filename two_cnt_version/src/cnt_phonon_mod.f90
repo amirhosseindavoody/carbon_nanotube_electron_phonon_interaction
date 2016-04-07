@@ -55,6 +55,9 @@ contains
 
 		close(100)
 
+		write(log_input,'(A,I2.2,A,I2.2,A)') new_line('A')//"phonon dispersion calculated for carbon nanotube with chirality: (", currcnt%n_ch, ",", currcnt%m_ch, ")"
+		call write_log(trim(log_input))
+
 	end subroutine cnt_phonon_dispersion
 
 end module cnt_phonon_mod
