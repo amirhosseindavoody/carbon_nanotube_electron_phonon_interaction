@@ -10,5 +10,8 @@ cnt, Kcm_max[1/nm]=	1.5
 cnt, i_sub=	1
 cnt, Ckappa=	1.0
 cnt, kappa_coeff=	1.211
+cnt, target_exciton_type=	Ex0_A2
+cnt, length[nm]=	10
+cnt, center_position[nm]=	0
 
 flg, flg_dielectric= true

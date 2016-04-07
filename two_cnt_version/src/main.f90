@@ -10,7 +10,7 @@ program cnt_resonance_energy_transfer
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
 	use comparams, only: cnt1, cnt2
-	use input_cnt_mod, only: input_cnt_parameters
+	use input_cnt_mod, only: input_cnt_parameters, input_a_exciton
 	! use occupation_mod, only: calculate_occupation_table
 	! use parse_input_file_mod, only: parse_input_file
 	! use prepareForster_module, only: saveDOS
@@ -40,6 +40,20 @@ program cnt_resonance_energy_transfer
 	call cnt_geometry(cnt1)
 	call cnt_electron_band_structure(cnt1)
 	call cnt_phonon_dispersion(cnt1)
+	call input_a_exciton(cnt1)
+
+	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
+	call write_log(trim(log_input))
+
+	call get_command_argument(2,filename)
+	call input_cnt_parameters(cnt2,trim(filename))
+	call cnt_geometry(cnt2)
+	call cnt_electron_band_structure(cnt2)
+	call cnt_phonon_dispersion(cnt2)
+	call input_a_exciton(cnt2)
+
+	write(log_input,'(A)') new_line('A')//"cnt2 data loaded successfuly!!!"
+	call write_log(trim(log_input))
 
 	! call parse_input_file()
 

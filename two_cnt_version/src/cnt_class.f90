@@ -62,13 +62,13 @@ module cnt_class
 		complex*16, dimension(:,:,:), allocatable :: Psi0_Ep, Psi0_Em, Psi1_Ep, Psi1_Em !the first index is ikr, the scond index is the subband, the third index is iKcm
 
 		!Target exciton wavefunction and energies
-		real*8, dimension(:,:), allocatable :: Ex_t !the first index is subband, the second index is iKcm
-		complex*16, dimension(:,:,:), allocatable :: Psi_t !the first index is ikr, the scond index is the subband, the third index is iKcm
+		! real*8, dimension(:,:), allocatable :: Ex_t !the first index is subband, the second index is iKcm
+		! complex*16, dimension(:,:,:), allocatable :: Psi_t !the first index is ikr, the scond index is the subband, the third index is iKcm
 		character(len=20) :: target_exciton_type !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
 		real*8 :: ex_symmetry
 
 		!number of exciton bands below free-electron free-hole energy level
-		integer :: nX_a, nX_e, nX_t
+		! integer :: nX_a, nX_e, nX_t
 		real*8 :: E_th
 		real*8 :: Kcm_max
 
@@ -130,8 +130,8 @@ contains
 		if (allocated(currcnt%Psi0_Ep)) deallocate(currcnt%Psi0_Ep)
 		if (allocated(currcnt%Psi1_Em)) deallocate(currcnt%Psi1_Em)
 		if (allocated(currcnt%Psi1_Ep)) deallocate(currcnt%Psi1_Ep)
-		if (allocated(currcnt%Ex_t)) deallocate(currcnt%Ex_t)
-		if (allocated(currcnt%Psi_t)) deallocate(currcnt%Psi_t)
+		! if (allocated(currcnt%Ex_t)) deallocate(currcnt%Ex_t)
+		! if (allocated(currcnt%Psi_t)) deallocate(currcnt%Psi_t)
 		if (allocated(currcnt%omega_phonon)) deallocate(currcnt%omega_phonon)
 
 	end subroutine free_cnt_memory
