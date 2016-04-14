@@ -15,8 +15,9 @@ directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_002/"
 k_vec = np.loadtxt(directory+"cnt1.electron_k_vector.dat", skiprows=0)
 
 colors = itertools.cycle(["r", "b", "g", "k", "c", "m", "y"])
-# styles = itertools.cycle(["solid", "dashed", "dash_dot", "dotted"])
 styles = itertools.cycle(["solid", "dashed", "dash_dot"])
+
+plt.ion() # enables interactive mode for ploting. No plt.show() is needed!
 
 for file_number in range(1,6):
 	filename = directory+"cnt1.electron_phonon_matrix_element_branch_"+str(file_number)+".dat"
@@ -30,11 +31,12 @@ for file_number in range(1,6):
 		for i in range(0,matrix_element_branch.shape[1]):
 			plt.plot(k_vec,matrix_element_branch[:,i], color=next(colors), linewidth=2.0, linestyle="solid")
 
-		axes = plt.gca()
-		xmin = min(k_vec)
-		xmax = max(k_vec)
-		ymin = -1.0e-20
-		ymax = 8.0e-19
-		axes.set_xlim([xmin,xmax])
-		axes.set_ylim([ymin,ymax])
-		plt.show()
+			axes = plt.gca()
+			xmin = min(k_vec)
+			xmax = max(k_vec)
+			ymin = -1.0e-20
+			ymax = 8.0e-19
+			axes.set_xlim([xmin,xmax])
+			axes.set_ylim([ymin,ymax])
+			print "branch number = ", str(file_number), " mu = ", str(i)
+			raw_input("Press Enter to continue...")
