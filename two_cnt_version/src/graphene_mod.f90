@@ -1,7 +1,7 @@
 module graphene_mod
 	implicit none
 	private
-	public :: graphene_electron, graphene_phonon
+	public :: graphene_electron, graphene_phonon, graphene_electron_phonon
 
 contains
 
@@ -198,5 +198,72 @@ contains
 
 		return
 	end subroutine graphene_phonon
+
+	!**************************************************************************************************************************
+	! subroutine to calculate electron Bloch functions and energy in graphene
+	!**************************************************************************************************************************
+
+	subroutine graphene_electron_phonon(f_tilde_1,f_tilde_2,k,q,a1,a2)
+		use constants_mod, only: i1
+
+		real*8, dimension(2), intent(in) :: k,q
+		real*8, dimension(2), intent(in) :: a1,a2
+		complex*16, dimension(6), intent(out) :: f_tilde_1, f_tilde_2
+		complex*16, dimension(6) :: f_1, f_2
+		complex*16 :: f_k_plus_q, f_k_minus_q
+		real*8, dimension(2) :: e1,e2,e3
+		real*8, dimension(2) :: aCC_vec
+		complex*16, dimension(3) :: eA, eB
+		complex*16, dimension(6,6) :: u_ph
+		real*8, dimension(6) :: omega
+		integer :: i
+
+		f_tilde_1 = (0.d0, 0.d0)
+		f_tilde_2 = (0.d0, 0.d0)
+		f_1 = (0.d0, 0.d0)
+		f_2 = (0.d0, 0.d0)
+
+		e1 = (a1+a2)/3.d0
+		e2 = (a1-2.d0*a2)/3.d0
+		e3 = (a2-2.d0*a1)/3.d0
+
+		aCC_vec = e1
+
+		call graphene_phonon(omega,u_ph,q,aCC_vec)
+
+		do i=1,6
+			eA = u_ph(1:3,i)
+			eB = u_ph(4:6,i)
+			eA = eA/dot_product(eA,eA)
+			eB = eB/dot_product(eB,eB)
+			! R0 = 0
+			! Ru' = 0
+			! R0A = 0
+			! Ru'B = e1
+			f_1(i) = f_1(i) + sum(dcmplx(e1)*(eA(1:2)-eB(1:2)))*exp(+i1*dcmplx(dot_product(k+q,e1)))
+			f_2(i) = f_2(i) + sum(dcmplx(e1)*(eA(1:2)-eB(1:2)))*exp(-i1*dcmplx(dot_product(k-q,e1)))
+
+			! R0 = 0
+			! Ru' = -a2
+			! R0A = 0
+			! Ru'B = e2
+			f_1(i) = f_1(i) + sum(dcmplx(e2)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(+i1*dcmplx(dot_product(k+q,e2)))
+			f_2(i) = f_2(i) + sum(dcmplx(e2)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(-i1*dcmplx(dot_product(k-q,e2)))
+
+			! R0 = 0
+			! Ru' = -a1
+			! R0A = 0
+			! Ru'B = e3
+			f_1(i) = f_1(i) + sum(dcmplx(e3)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(+i1*dcmplx(dot_product(k+q,e3)))
+			f_2(i) = f_2(i) + sum(dcmplx(e3)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(-i1*dcmplx(dot_product(k-q,e3)))
+		enddo
+
+		f_k_plus_q=exp(i1*dcmplx(dot_product(k+q,e1)))+exp(i1*dcmplx(dot_product(k+q,e2)))+exp(i1*dcmplx(dot_product(k+q,e3)))
+		f_tilde_1 = f_1 * conjg(f_k_plus_q)/dcmplx(abs(f_k_plus_q))
+
+		f_k_minus_q=exp(i1*dcmplx(dot_product(k-q,e1)))+exp(i1*dcmplx(dot_product(k-q,e2)))+exp(i1*dcmplx(dot_product(k-q,e3)))
+		f_tilde_2 = f_2 * f_k_minus_q/dcmplx(abs(f_k_minus_q))
+
+	end subroutine graphene_electron_phonon
 
 end module graphene_mod

@@ -2,22 +2,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-eV = 1.6e-19
+eV = 1.6e-19 #[Jouls]
 eV_to_inverse_cm = 8065.54429
+hbar = 1.054e-34 #[Jouls.second]
+vF = 1.0e6
+
+data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/cnt1.electron_k_vector.dat", skiprows=0)
+k_vec = np.array(data)
+
+data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/cnt1.electron_conduction_band.dat", skiprows=0)
+Ec = np.array(np.transpose(data[:,:]))
+
+data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/cnt1.electron_valence_band.dat", skiprows=0)
+Ev = np.array(np.transpose(data[:,:]))
+
+# convert the units to electron-volt
+Ec = Ec/eV
+Ev = Ev/eV
 
 data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/phonon_dispersion.dat", skiprows=0)
-# data = np.loadtxt("/home/amirhossein/research/exciton/data/electron_phonon/CNT(10,10)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(2)-Ckappa(1.0)/phonon_dispersion.dat", skiprows=0)
 
-k_vec = np.array(data[0,:])
+q_vec = np.array(data[0,:])
 omega = np.array(np.transpose(data[1:-1,:]))
 
 # convert the units to electron-volt
 omega = omega/eV
 
-# convert the units to inverse cm.
-omega = omega*eV_to_inverse_cm
 
-plt.plot(k_vec[:],omega[:,:],'b-')
+
+# convert omega units to inverse cm.
+# omega = omega*eV_to_inverse_cm
+
+# convert k_vector units
+# hbar*vF/eV*k_vec
+
+plt.plot(k_vec[:],Ec[:,:],'b-')
+plt.plot(k_vec[:],Ev[:,:],'r-')
+plt.plot(q_vec[:],omega[:,:],'k-')
 # plt.tight_layout()
 plt.show()
 

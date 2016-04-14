@@ -78,6 +78,9 @@ module cnt_class
 		!directory that the CNT information is stored
 		character(len=1000) :: directory
 
+		!name of the CNT for writing the simulation resutls in the output directory
+		character(len=1000) :: name
+
 	end type cnt
 
 contains
