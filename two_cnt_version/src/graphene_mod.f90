@@ -212,6 +212,7 @@ contains
 		complex*16, dimension(6) :: f_1, f_2
 		complex*16 :: f_k_plus_q, f_k_minus_q
 		real*8, dimension(2) :: e1,e2,e3
+		complex*16, dimension(2) :: e1_normalized,e2_normalized,e3_normalized
 		real*8, dimension(2) :: aCC_vec
 		complex*16, dimension(3) :: eA, eB
 		complex*16, dimension(6,6) :: u_ph
@@ -227,6 +228,10 @@ contains
 		e2 = (a1-2.d0*a2)/3.d0
 		e3 = (a2-2.d0*a1)/3.d0
 
+		e1_normalized = dcmplx(e1/sqrt(dot_product(e1,e1)))
+		e2_normalized = dcmplx(e2/sqrt(dot_product(e2,e2)))
+		e3_normalized = dcmplx(e3/sqrt(dot_product(e3,e3)))
+
 		aCC_vec = e1
 
 		call graphene_phonon(omega,u_ph,q,aCC_vec)
@@ -234,28 +239,28 @@ contains
 		do i=1,6
 			eA = u_ph(1:3,i)
 			eB = u_ph(4:6,i)
-			eA = eA/dot_product(eA,eA)
-			eB = eB/dot_product(eB,eB)
+			eA = eA/sqrt(dot_product(eA,eA))
+			eB = eB/sqrt(dot_product(eB,eB))
 			! R0 = 0
 			! Ru' = 0
 			! R0A = 0
 			! Ru'B = e1
-			f_1(i) = f_1(i) + sum(dcmplx(e1)*(eA(1:2)-eB(1:2)))*exp(+i1*dcmplx(dot_product(k+q,e1)))
-			f_2(i) = f_2(i) + sum(dcmplx(e1)*(eA(1:2)-eB(1:2)))*exp(-i1*dcmplx(dot_product(k-q,e1)))
+			f_1(i) = f_1(i) + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(+i1*dcmplx(dot_product(k+q,e1)))
+			f_2(i) = f_2(i) + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(-i1*dcmplx(dot_product(k-q,e1)))
 
 			! R0 = 0
 			! Ru' = -a2
 			! R0A = 0
 			! Ru'B = e2
-			f_1(i) = f_1(i) + sum(dcmplx(e2)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(+i1*dcmplx(dot_product(k+q,e2)))
-			f_2(i) = f_2(i) + sum(dcmplx(e2)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(-i1*dcmplx(dot_product(k-q,e2)))
+			f_1(i) = f_1(i) + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(+i1*dcmplx(dot_product(k+q,e2)))
+			f_2(i) = f_2(i) + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(-i1*dcmplx(dot_product(k-q,e2)))
 
 			! R0 = 0
 			! Ru' = -a1
 			! R0A = 0
 			! Ru'B = e3
-			f_1(i) = f_1(i) + sum(dcmplx(e3)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(+i1*dcmplx(dot_product(k+q,e3)))
-			f_2(i) = f_2(i) + sum(dcmplx(e3)*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(-i1*dcmplx(dot_product(k-q,e3)))
+			f_1(i) = f_1(i) + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(+i1*dcmplx(dot_product(k+q,e3)))
+			f_2(i) = f_2(i) + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(-i1*dcmplx(dot_product(k-q,e3)))
 		enddo
 
 		f_k_plus_q=exp(i1*dcmplx(dot_product(k+q,e1)))+exp(i1*dcmplx(dot_product(k+q,e2)))+exp(i1*dcmplx(dot_product(k+q,e3)))

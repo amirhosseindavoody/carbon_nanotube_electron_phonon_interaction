@@ -107,8 +107,7 @@ contains
 		write(filename,'(A)') trim(currcnt%name)//".electron_phonon_matrix_element_branch_6.dat"
 		open(unit=105,file=trim(filename),status="unknown")
 
-		! do mu_q=1-currcnt%Nu/2,currcnt%Nu/2
-			mu_q=0
+		do mu_q=1-currcnt%Nu/2,currcnt%Nu/2
 			do iq=currcnt%ikc_min,currcnt%ikc_max
 				write(100,'(E16.8)', advance='no') (abs(f_tilde_1(mu_q,iq,1)+f_tilde_2(mu_q,iq,1)))**2
 				write(101,'(E16.8)', advance='no') (abs(f_tilde_1(mu_q,iq,2)+f_tilde_2(mu_q,iq,2)))**2
@@ -123,7 +122,7 @@ contains
 			write(103,*)
 			write(104,*)
 			write(105,*)
-		! enddo
+		enddo
 
 		close(100)
 		close(101)
