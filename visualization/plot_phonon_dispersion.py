@@ -1,63 +1,47 @@
 # this python program reads the calculated phonon dispersion of carbon nanotubes and plots the dispersion curves.
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+import itertools
 
+# prepare for ploting
+figure_list = list() # this will hold the list of all the figures
+plt.ion() # enables interactive mode for ploting. No plt.show() is needed!
+colors = itertools.cycle(["r", "b", "g", "k", "c", "m", "y"]) # iterative list for cycling through colors when ploting. use color=next(colors) to get the next color on the list.
+styles = itertools.cycle(["solid", "dashed", "dash_dot"]) # iterative list for cycling through line styles when ploting. use linestyle=next(styles) to get the next color on the list.
+
+# set some constants
 eV = 1.6e-19 #[Jouls]
 eV_to_inverse_cm = 8065.54429
 hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
-data = np.loadtxt("/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/phonon_dispersion.dat", skiprows=0)
-# data = np.loadtxt("/home/amirhossein/research/exciton/data/electron_phonon/CNT(10,10)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(2)-Ckappa(1.0)/phonon_dispersion.dat", skiprows=0)
 
-k_vec = np.array(data[0,:])
-omega = np.array(np.transpose(data[1:-1,:]))
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_005/"
+cnt_name = "cnt1"
 
-# convert the units to electron-volt
-omega = omega/eV
+################################################################################
+k_vec = np.loadtxt(directory+cnt_name+".phonon_k_vector.dat", skiprows=0)
 
-# convert omega units to inverse cm.
-# omega = omega*eV_to_inverse_cm
+filename = directory+cnt_name+".phonon_energy.dat"
+phonon_energy = np.loadtxt(filename, skiprows=0)
+phonon_energy = phonon_energy.T
 
-# convert k_vector units
-# hbar*vF/eV*k_vec
+fig = plt.figure()
+figure_list.append(fig)
+axes = fig.add_subplot(111)
 
-plt.plot(k_vec[:],omega[:,:],'b-')
-# plt.tight_layout()
-plt.show()
+for i in range(0,phonon_energy.shape[1]):
+	axes.plot(k_vec,phonon_energy[:,i], linewidth=2.0, linestyle="solid")
 
-# k_vec = data[0,:]
-# omega = data[]
-# plt.plot(data_dw[:,0], data_dw[:,1], 'r-')
-#
-# data_up = np.loadtxt("ld1.wfc.up", skiprows=1)
-# plt.plot(data_up[:,0], data_up[:,1], 'b--')
-#
-# xmin = 0
-# xmax = 10
-# ymin = -0.7
-# ymax = 0.3
-# axes = plt.gca()
-# axes.set_xlim([xmin,xmax])
-# axes.set_ylim([ymin,ymax])
-#
-# plt.show()
+xmin = min(k_vec)
+xmax = max(k_vec)
+axes.set_xlim([xmin,xmax])
 
-# array = np.zeros((2,3),np.float)
-# print "array = \n", array
-#
-# print "range = ", range(0,2)
-#
-# k=0
-# for i in range(0,2):
-# 	for j in range(0,3):
-# 		k = k+1
-# 		array[i,j] = k
-#
-# print "array = \n", array
-#
-# for row in range(0,shp[0]-2):
-# 	print row
-# 	plt.plot(k_vec[:],omega[row,:],'r-')
-#
-# plt.show()
+ymin = np.amin(phonon_energy)
+ymax = np.amax(phonon_energy)
+axes.set_ylim([ymin,ymax])
+
+fig.canvas.draw()
+
+raw_input("Press Enter to continue...")

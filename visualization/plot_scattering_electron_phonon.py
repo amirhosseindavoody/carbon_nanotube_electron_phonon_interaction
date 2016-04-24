@@ -17,13 +17,10 @@ hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_005/"
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/"
 
 ################################################################################
 k_vec = np.loadtxt(directory+"cnt1.electron_k_vector.dat", skiprows=0)
-
-colors = itertools.cycle(["r", "b", "g", "k", "c", "m", "y"])
-styles = itertools.cycle(["solid", "dashed", "dash_dot"])
 
 for file_number in range(1,7):
 	filename = directory+"cnt1.electron_phonon_matrix_element_branch_"+str(file_number)+".dat"

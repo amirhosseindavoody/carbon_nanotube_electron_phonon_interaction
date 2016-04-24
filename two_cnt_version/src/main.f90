@@ -4,7 +4,7 @@
 ! Last modified: 3/17/2014
 !*******************************************************************************
 
-program cnt_resonance_energy_transfer
+program cnt_phonon_assisted_energy_transfer
 	use cnt_class, only: cnt, free_cnt_memory
 	use cnt_electron_mod, only: cnt_electron_band_structure
 	use cnt_geometry_mod, only: cnt_geometry
@@ -23,26 +23,6 @@ program cnt_resonance_energy_transfer
 
 	character(len=1000) :: filename
 	real :: start_time, end_time
-
-	! complex*16, dimension(3) :: a_vec, b_vec, c_vec
-	!
-	!
-	!
-	! a_vec = (/(1.d0,-0.d0), (2.d0,-0.d0), (3.d0,-0.d0) /)
-	! ! a_vec = (/(1.d0,-1.d0), (2.d0,-2.d0), (3.d0,-3.d0) /)
-	! b_vec = (/(1.d1,-1.d1), (1.d2,-1.d2), (1.d3,-1.d3) /)
-	! c_vec = (/(0.d0,-0.d0), (0.d0,-0.d0), (0.d0,-0.d0) /)
-	!
-	! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'a_vec = ', a_vec
-	! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'b_vec = ', b_vec
-	! ! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'c_vec = ', c_vec
-	!
-	! c_vec = a_vec * b_vec
-	! ! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'a_vec = ', a_vec
-	! ! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'b_vec = ', b_vec
-	! write(*,'(A,E11.3,E11.3,E11.3,E11.3,E11.3,E11.3)') new_line('A')//'c_vec = ', c_vec
-	!
-	! call exit()
 
 	call CPU_time(start_time)
 
@@ -70,13 +50,14 @@ program cnt_resonance_energy_transfer
 
 	call exit()
 
+	write(cnt2%name,'(A)') "cnt2"
 	call get_command_argument(2,filename)
 	call input_cnt_parameters(cnt2,trim(filename))
 	call cnt_geometry(cnt2)
 	call cnt_electron_band_structure(cnt2)
 	call cnt_phonon_dispersion(cnt2)
-	call input_a_exciton(cnt2)
-	write(cnt2%name,'(A)') "cnt2"
+	! call input_a_exciton(cnt2)
+	call cnt_scattering_electron_phonon(cnt2)
 
 	write(log_input,'(A)') new_line('A')//"cnt2 data loaded successfuly!!!"
 	call write_log(trim(log_input))
@@ -111,4 +92,4 @@ program cnt_resonance_energy_transfer
 	call free_cnt_memory(cnt1)
 	call free_cnt_memory(cnt2)
 
-end program cnt_resonance_energy_transfer
+end program cnt_phonon_assisted_energy_transfer
