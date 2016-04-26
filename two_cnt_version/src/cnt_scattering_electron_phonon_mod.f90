@@ -69,15 +69,17 @@ contains
 			do ik_e=currcnt%ikc_min,currcnt%ikc_max
 				write(100,'(E16.8)', advance='no') E_k(mu_e,ik_e,1)
 				write(101,'(E16.8)', advance='no') E_k(mu_e,ik_e,2)
+
 			enddo
 			write(100,*)
 			write(101,*)
+
 		enddo
 
 		close(100)
 		close(101)
 
-		! calculate electron-phonon interaction matrix element
+		! calculate electron-phonon interaction matrix element*************************************************************************************
 		allocate(f_tilde_1(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
 		allocate(f_tilde_2(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
 		k_e = (/0.d0, 0.d0/)
@@ -129,14 +131,14 @@ contains
 		close(105)
 
 		!find phonon momentum that conserves both momentum and energy
-		do ib=1,6
-			do mu_e=1-currcnt%Nu/2,currcnt%Nu/2
-				do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
-					mu_ph = mu_e-mu_e_2
-
-				enddo
-			enddo
-		enddo
+		! do ib=1,6
+		! 	do mu_e=1-currcnt%Nu/2,currcnt%Nu/2
+		! 		do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
+		! 			mu_ph = mu_e-mu_e_2
+		!
+		! 		enddo
+		! 	enddo
+		! enddo
 
 	end subroutine cnt_scattering_electron_phonon
 

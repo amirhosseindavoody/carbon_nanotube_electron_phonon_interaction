@@ -17,15 +17,17 @@ hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_005/"
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/"
 cnt_name = "cnt1"
 
 ################################################################################
+
 k_vec = np.loadtxt(directory+cnt_name+".phonon_k_vector.dat", skiprows=0)
 
 filename = directory+cnt_name+".phonon_energy.dat"
 phonon_energy = np.loadtxt(filename, skiprows=0)
 phonon_energy = phonon_energy.T
+phonon_energy = phonon_energy/eV
 
 fig = plt.figure()
 figure_list.append(fig)
@@ -38,10 +40,12 @@ xmin = min(k_vec)
 xmax = max(k_vec)
 axes.set_xlim([xmin,xmax])
 
-ymin = np.amin(phonon_energy)
-ymax = np.amax(phonon_energy)
+ymin = 1.1*np.amin(phonon_energy)
+ymax = 1.1*np.amax(phonon_energy)
 axes.set_ylim([ymin,ymax])
 
 fig.canvas.draw()
 
-raw_input("Press Enter to continue...")
+# raw_input("Press Enter to continue...")
+
+raw_input("Press Enter to exit...")

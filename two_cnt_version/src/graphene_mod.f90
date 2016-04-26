@@ -51,6 +51,7 @@ contains
 		real*8, dimension(3,3) :: U, U_inv
 		real*8, dimension(3) :: anglesA1, anglesA3, anglesB1, anglesB3
 		real*8, dimension(6) :: anglesA2, anglesA4, anglesB2, anglesB4
+		real*8 :: angle_tmp
 		complex*16, dimension(3,3) :: D_AA, D_AB, D_BA, D_BB
 		complex*16, dimension(6,6) :: D_tot
 		complex*16, dimension(6) :: u_tmp
@@ -70,12 +71,13 @@ contains
 		anglesA1=pi/3.0d0*(/ 0.0d0, 2.0d0, 4.0d0 /)
 		anglesA2=pi/6.0d0*(/ 1.0d0, 3.0d0, 5.0d0, 7.0d0, 9.0d0, 1.1d1 /)
 		anglesA3=pi/3.0d0*(/ 1.0d0, 3.0d0, 5.0d0 /)
-		anglesA4=pi/1.2d1*(/ 1.0d0, 7.0d0, 9.0d0, 1.5d1, 1.7d1, 2.3d1 /)
+		angle_tmp = atan2(sqrt(3.d0),5.d0)
+		anglesA4=(/ angle_tmp, 2.d0*pi/3.d0+angle_tmp, 4.d0*pi/3.d0+angle_tmp, -angle_tmp, 2.d0*pi/3.d0-angle_tmp, 4.d0*pi/3.d0-angle_tmp /)
 
-		anglesB1=pi/3.0d0*(/ 1.0d0, 3.0d0, 5.0d0 /)
-		anglesB2=pi/6.0d0*(/ 1.0d0, 3.0d0, 5.0d0, 7.0d0, 9.0d0, 1.1d1 /)
-		anglesB3=pi/3.0d0*(/ 0.0d0, 2.0d0, 4.0d0 /)
-		anglesB4=pi/1.2d1*(/ 3.0d0, 5.0d0, 1.1d1, 1.3d1, 1.9d1, 2.1d1 /)
+		anglesB1=anglesA1+pi
+		anglesB2=anglesA2+pi
+		anglesB3=anglesA3+pi
+		anglesB4=anglesA4+pi
 
 		! calculate D_AA, D_AB, D_BA, D_BB for 1st and 3rd nearest neighbors of atoms A and B type.
 		do i=1,3
@@ -86,7 +88,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K1,U))
 			deltaR=matmul(Rot,aCC_vec)
-			D_AA=D_AA+K_tmp
+			D_AA=D_AA+dcmplx(K_tmp)
 			D_AB=D_AB-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 3rd nearest neighbor for A atoms
@@ -96,7 +98,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K3,U))
 			deltaR=matmul(Rot,2.d0*aCC_vec)
-			D_AA=D_AA+K_tmp
+			D_AA=D_AA+dcmplx(K_tmp)
 			D_AB=D_AB-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 1st nearest neighbor for B atoms
@@ -106,7 +108,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K1,U))
 			deltaR=matmul(Rot,aCC_vec)
-			D_BB=D_BB+K_tmp
+			D_BB=D_BB+dcmplx(K_tmp)
 			D_BA=D_BA-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 3rd nearest neighbor for B atoms
@@ -116,7 +118,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K3,U))
 			deltaR=matmul(Rot,2.d0*aCC_vec)
-			D_BB=D_BB+K_tmp
+			D_BB=D_BB+dcmplx(K_tmp)
 			D_BA=D_BA-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 		enddo
 
@@ -129,7 +131,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K2,U))
 			deltaR=matmul(Rot,sqrt(3.d0)*aCC_vec)
-			D_AA=D_AA+(dcmplx(1.d0)-exp(i1*dcmplx(dot_product(k,deltaR))))*dcmplx(K_tmp)
+			D_AA=D_AA+dcmplx(K_tmp) -exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 4rd nearest neighbor for A atoms
 			theta=anglesA4(i)
@@ -138,7 +140,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K4,U))
 			deltaR=matmul(Rot,sqrt(7.d0)*aCC_vec)
-			D_AA=D_AA+K_tmp
+			D_AA=D_AA+dcmplx(K_tmp)
 			D_AB=D_AB-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 2st nearest neighbor for B atoms
@@ -148,7 +150,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K2,U))
 			deltaR=matmul(Rot,sqrt(3.d0)*aCC_vec)
-			D_BB=D_BB+(dcmplx(1.d0)-exp(i1*dcmplx(dot_product(k,deltaR))))*dcmplx(K_tmp)
+			D_BB=D_BB+dcmplx(K_tmp) -exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 
 			! 4rd nearest neighbor for B atoms
 			theta=anglesB4(i)
@@ -157,7 +159,7 @@ contains
 			U_inv=reshape((/ cos(theta), sin(theta), 0.d0, -sin(theta), cos(theta), 0.d0, 0.d0, 0.d0, 1.d0 /) , (/3,3/))
 			K_tmp=matmul(U_inv,matmul(K4,U))
 			deltaR=matmul(Rot,sqrt(7.d0)*aCC_vec)
-			D_BB=D_BB+K_tmp
+			D_BB=D_BB+dcmplx(K_tmp)
 			D_BA=D_BA-exp(i1*dcmplx(dot_product(k,deltaR)))*dcmplx(K_tmp)
 		enddo
 
@@ -196,7 +198,6 @@ contains
 		! change the units from [1/cm] to [Joules]
 		omega=omega*(4.1357d-3/3.3356d1)*eV
 
-		return
 	end subroutine graphene_phonon
 
 	!**************************************************************************************************************************

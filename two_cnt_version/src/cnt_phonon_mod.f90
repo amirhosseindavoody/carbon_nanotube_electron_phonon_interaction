@@ -18,41 +18,42 @@ contains
 		real*8, dimension(:), allocatable :: k_vec
 		real*8, dimension(6) :: omega_tmp
 		complex*16, dimension(6,6) :: u_ph
+		real*8, dimension (:,:,:), allocatable :: omega_2nd_brillouin_zone
 		character(len=1000) :: filename
 
 
-		! calculate the phonon dispersion ONLY FOR THE FIRST brillouin zones
-		allocate(k_vec(currcnt%ikc_min:currcnt%ikc_max))
-		allocate(currcnt%omega_phonon(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
+		! ! calculate the phonon dispersion ONLY FOR THE FIRST brillouin zones
+		! allocate(k_vec(currcnt%ikc_min:currcnt%ikc_max))
+		! allocate(currcnt%omega_phonon(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
+		!
+		! do ik=currcnt%ikc_min,currcnt%ikc_max
+		! 	k_vec(ik)=dble(ik)*currcnt%dk
+		! end do
+		!
+		! do mu=1-currcnt%Nu/2,currcnt%Nu/2
+		! 	do ik=currcnt%ikc_min,currcnt%ikc_max
+		! 		k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
+		! 		call graphene_phonon(omega_tmp,u_ph,k,currcnt%aCC_vec)
+		! 		currcnt%omega_phonon(mu,ik,:) = omega_tmp(:)
+		! 	enddo
+		! enddo
 
-		do ik=currcnt%ikc_min,currcnt%ikc_max
+		! calculate the phonon dispersion for two brillouin zones so that it can conserve momentum for the entire range of electron scattering
+		allocate(k_vec(2*currcnt%ikc_min:2*currcnt%ikc_max))
+		allocate(currcnt%omega_phonon(1-currcnt%Nu:currcnt%Nu-1,2*currcnt%ikc_min:2*currcnt%ikc_max,6))
+
+		do ik=2*currcnt%ikc_min,2*currcnt%ikc_max
 			k_vec(ik)=dble(ik)*currcnt%dk
 		end do
 
-		do mu=1-currcnt%Nu/2,currcnt%Nu/2
-			do ik=currcnt%ikc_min,currcnt%ikc_max
+		do mu=1-currcnt%Nu,currcnt%Nu-1
+			do ik=2*currcnt%ikc_min,2*currcnt%ikc_max
 				k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
 				call graphene_phonon(omega_tmp,u_ph,k,currcnt%aCC_vec)
 				currcnt%omega_phonon(mu,ik,:) = omega_tmp(:)
 			enddo
 		enddo
 
-		! ! calculate the phonon dispersion for two brillouin zones so that it can conserve momentum for the entire range of electron scattering
-		! allocate(k_vec(2*currcnt%ikc_min:2*currcnt%ikc_max))
-		! allocate(currcnt%omega_phonon(1-currcnt%Nu:currcnt%Nu-1,2*currcnt%ikc_min:2*currcnt%ikc_max,6))
-		!
-		! do ik=2*currcnt%ikc_min,2*currcnt%ikc_max
-		! 	k_vec(ik)=dble(ik)*currcnt%dk
-		! end do
-		!
-		! do mu=1-currcnt%Nu,currcnt%Nu-1
-		! 	do ik=2*currcnt%ikc_min,2*currcnt%ikc_max
-		! 		k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dk*currcnt%K2
-		! 		call graphene_phonon(omega_tmp,u_ph,k,currcnt%aCC_vec)
-		! 		currcnt%omega_phonon(mu,ik,:) = omega_tmp(:)
-		! 	enddo
-		! enddo
-		
 		! save the CNT phonon energy dispersion*************************************************************************************
 		write(filename,'(A)') trim(currcnt%name)//".phonon_k_vector.dat"
 		open(unit=100,file=trim(filename),status="unknown")
