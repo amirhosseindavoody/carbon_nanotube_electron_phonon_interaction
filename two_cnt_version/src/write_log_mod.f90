@@ -24,7 +24,7 @@ contains
 		else
 			open(logFile, file="log.dat", status="new", action="write")
 		end if
-		write(logFile, *) message
+		write(logFile, *) trim(message)
 		close(logFile)
 
 		return

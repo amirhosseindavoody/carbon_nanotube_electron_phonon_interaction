@@ -21,7 +21,7 @@ directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/"
 cnt_name = "cnt1"
 
 ################################################################################
-
+# load k-vector and phonon energy dispersion data.
 k_vec = np.loadtxt(directory+cnt_name+".phonon_k_vector.dat", skiprows=0)
 
 filename = directory+cnt_name+".phonon_energy.dat"
@@ -29,9 +29,12 @@ phonon_energy = np.loadtxt(filename, skiprows=0)
 phonon_energy = phonon_energy.T
 phonon_energy = phonon_energy/eV
 
+################################################################################
+# plot all phonon dispersion energies
 fig = plt.figure()
 figure_list.append(fig)
 axes = fig.add_subplot(111)
+fig.canvas.draw()
 
 for i in range(0,phonon_energy.shape[1]):
 	axes.plot(k_vec,phonon_energy[:,i], linewidth=2.0, linestyle="solid")
@@ -44,8 +47,23 @@ ymin = 1.1*np.amin(phonon_energy)
 ymax = 1.1*np.amax(phonon_energy)
 axes.set_ylim([ymin,ymax])
 
-fig.canvas.draw()
-
 # raw_input("Press Enter to continue...")
+
+################################################################################
+# plot phonon dispersion for a specific phonon branch (ib) and mu_ph
+
+Nu = (phonon_energy.shape[1]/6+1)/2
+print "Nu = ", Nu
+
+print "ib should be in interval [ 1 , 6 ]"
+ib = int(raw_input("Input phonon branch index: "))
+print "mu_ph should be in interval [", 1-Nu, ",", Nu-1,"]"
+mu_ph = int(raw_input("Input mu_ph value: "))
+
+print "ib = ", ib
+print "mu_ph = ", mu_ph
+
+i = (ib-1)*(2*Nu-1)+(mu_ph+Nu-1)
+axes.plot(k_vec,phonon_energy[:,i], linewidth=10, linestyle="solid", color="red")
 
 raw_input("Press Enter to exit...")

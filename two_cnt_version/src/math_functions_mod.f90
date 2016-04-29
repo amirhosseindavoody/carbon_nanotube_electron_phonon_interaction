@@ -1,7 +1,7 @@
 module math_functions_mod
 	implicit none
 	private
-	public :: gcd, bessk0, bisect_root, my_norm2, eig, polint
+	public :: gcd, bessk0, bisect_root, my_norm2, eig, polint, find_all_roots
 
 contains
 	!**********************************************************************************************************************
@@ -71,7 +71,12 @@ contains
 	end function bessk0
 
 	!**********************************************************************************************************************
-	! This subroutine calculates crossing point of an array using bisection method, here we use the fact that the array is decreasing with respect to its index
+	! This subroutine calculates crossing point of an array using bisection method
+	! here we use the fact that the array is decreasing with respect to its index
+	! ya: input array
+	! n: size of the array ya.
+	! ind: index of the element that we are looking for.
+	! x0: the value that we want find to find index that ya(ind)=x0
 	!**********************************************************************************************************************
 
 	subroutine bisect_root (n, ya, x0, ind)
@@ -133,6 +138,58 @@ contains
 		call exit()
 
 	end subroutine bisect_root
+
+	!**********************************************************************************************************************
+	! This subroutine finds ALL the crossing point of an array from value x0
+	! ya: input array
+	! x0: the value that we want find to find index that ya(ind)=x0
+	!**********************************************************************************************************************
+
+	subroutine find_all_roots (ya, l_bound, u_bound, x0, n_root, root_idx)
+		integer, intent(in) :: l_bound
+		integer, intent(in) :: u_bound
+		real*8, intent(in) :: x0
+		real*8, dimension(l_bound:u_bound), intent(in) :: ya
+		integer, intent(out) :: n_root
+		integer, dimension(:), intent(out) :: root_idx
+
+		integer :: i
+		real*8, dimension(l_bound:u_bound) :: tmpArray
+
+		tmpArray = ya - x0
+		root_idx = l_bound-1
+		n_root = 0
+
+		do i = l_bound,u_bound-1
+
+			if ((tmpArray(i)*tmpArray(i+1)) .lt. -tiny(0.d0)) then
+
+				n_root = n_root+1
+
+				if (abs(tmpArray(i)) .le. abs(tmpArray(i+1))) then
+					root_idx(n_root) = i
+				else
+					root_idx(n_root) = i+1
+				endif
+
+			elseif (abs(tmpArray(i)) .lt. tiny(0.d0)) then
+
+				n_root = n_root+1
+				root_idx(n_root) = i
+
+			endif
+
+		enddo
+
+		if (abs(tmpArray(u_bound)) .lt. tiny(0.d0)) then
+
+			n_root = n_root+1
+			root_idx(n_root) = u_bound
+
+		endif
+
+	end subroutine find_all_roots
+
 
 	!**********************************************************************************************************************
 	! This function calculates the magnitude of a 2D real*8 vector

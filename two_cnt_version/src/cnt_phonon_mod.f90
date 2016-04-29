@@ -18,7 +18,6 @@ contains
 		real*8, dimension(:), allocatable :: k_vec
 		real*8, dimension(6) :: omega_tmp
 		complex*16, dimension(6,6) :: u_ph
-		real*8, dimension (:,:,:), allocatable :: omega_2nd_brillouin_zone
 		character(len=1000) :: filename
 
 
