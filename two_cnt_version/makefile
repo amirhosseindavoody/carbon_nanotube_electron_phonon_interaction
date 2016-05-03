@@ -15,7 +15,7 @@ cnt_class.o: constants_mod.o math_functions_mod.o
 cnt_electron_mod.o: cnt_class.o constants_mod.o graphene_mod.o math_functions_mod.o write_log_mod.o
 cnt_geometry_mod.o: cnt_class.o constants_mod.o math_functions_mod.o write_log_mod.o
 cnt_phonon_mod.o: cnt_class.o graphene_mod.o write_log_mod.o
-cnt_scattering_electron_phonon_mod.o: cnt_class.o constants_mod.o graphene_mod.o math_functions_mod.o write_log_mod.o
+cnt_scattering_electron_phonon_mod.o: cnt_class.o constants_mod.o graphene_mod.o math_functions_mod.o sim_properties_mod.o write_log_mod.o
 comparams.o: cnt_class.o
 # em2a_kspace_matrix_element_mod.o: comparams.o constants_mod.o transition_points_mod.o write_log_mod.o
 # em2ep_kspace_matrix_element_mod.o: comparams.o constants_mod.o transition_points_mod.o write_log_mod.o

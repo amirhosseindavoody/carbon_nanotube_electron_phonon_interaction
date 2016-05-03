@@ -240,8 +240,11 @@ contains
 		do i=1,6
 			eA = u_ph(1:3,i)
 			eB = u_ph(4:6,i)
-			eA = eA/sqrt(dot_product(eA,eA))
-			eB = eB/sqrt(dot_product(eB,eB))
+
+			! I am not sure at this time if we need to normalize eA and eB the following to lines do the normalization if needed.
+			! eA = eA/sqrt(dot_product(eA,eA))
+			! eB = eB/sqrt(dot_product(eB,eB))
+
 			! R0 = 0
 			! Ru' = 0
 			! R0A = 0

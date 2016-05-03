@@ -1,7 +1,7 @@
 module math_functions_mod
 	implicit none
 	private
-	public :: gcd, bessk0, bisect_root, my_norm2, eig, polint, find_all_roots
+	public :: gcd, bessk0, bisect_root, my_norm2, eig, polint, find_all_roots, first_derivative
 
 contains
 	!**********************************************************************************************************************
@@ -13,20 +13,19 @@ contains
 	integer, intent(out) :: ngcd
 	integer :: ia,ib,itemp
 
-	ia=na
-	ib=nb
-	do while (ib .ne. 0)
-		itemp=ia
-		ia=ib
-		ib=mod(itemp,ib)
-	end do
-	ngcd=ia
-	return
+		ia=na
+		ib=nb
+		do while (ib .ne. 0)
+			itemp=ia
+			ia=ib
+			ib=mod(itemp,ib)
+		end do
+		ngcd=ia
 	end subroutine gcd
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This function calculates the modified bessel function of the first kind with parameter nu=0: I0(x)
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	real*8 function bessi0(x)
 		real*8 :: x
@@ -48,9 +47,9 @@ contains
 		return
 	end function bessi0
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This function calculates the modified bessel function of the second kind with parameter nu=0: K0(x)
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	real*8 function bessk0(x)
 		real*8 :: x
@@ -70,14 +69,14 @@ contains
 		return
 	end function bessk0
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This subroutine calculates crossing point of an array using bisection method
 	! here we use the fact that the array is decreasing with respect to its index
 	! ya: input array
 	! n: size of the array ya.
 	! ind: index of the element that we are looking for.
 	! x0: the value that we want find to find index that ya(ind)=x0
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	subroutine bisect_root (n, ya, x0, ind)
 		integer, intent(in) :: n
@@ -139,11 +138,11 @@ contains
 
 	end subroutine bisect_root
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This subroutine finds ALL the crossing point of an array from value x0
 	! ya: input array
 	! x0: the value that we want find to find index that ya(ind)=x0
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	subroutine find_all_roots (ya, l_bound, u_bound, x0, n_root, root_idx)
 		integer, intent(in) :: l_bound
@@ -191,9 +190,9 @@ contains
 	end subroutine find_all_roots
 
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This function calculates the magnitude of a 2D real*8 vector
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	real*8 function my_norm2(my_vec)
 		real*8, dimension(2), intent(in) :: my_vec
@@ -203,9 +202,9 @@ contains
 		return
 	end function my_norm2
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This subroutine calculates the eigen values and eigen vectors of matrix given the size of it (nl) and gives back eigen vectors in A.
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	subroutine eig(nl,matrix,A,W)
 
@@ -246,9 +245,9 @@ contains
 
 	end subroutine eig
 
-	!**********************************************************************************************************************
+	!***************************************************************************
 	! This subroutine interpolated arrays xa and ya using polynomial interpolation technique.
-	!**********************************************************************************************************************
+	!***************************************************************************
 
 	subroutine polint(xa, ya, n, x, y, dy)
 		integer, intent(in) :: n
@@ -301,5 +300,33 @@ contains
 		enddo
 		return
 	end subroutine polint
+
+	!***************************************************************************
+	! This subroutine calculates the derivative of a function
+	! ya: input array
+	! l_bound: the lower limit of indices for array ya
+	! u_bound: the upper limit of indices for array ya
+	! point_index: index of the point in which we want to calculate the derivative
+	! dx: mesh point size in the discretization process
+	! derivative: the calculated first derivative dy/dx
+	!***************************************************************************
+
+	subroutine first_derivative (ya, l_bound, u_bound, point_index, dx, derivative)
+		integer, intent(in) :: l_bound
+		integer, intent(in) :: u_bound
+		integer, intent(in) ::point_index
+		real*8, intent(in) :: dx
+		real*8, dimension(l_bound:u_bound), intent(in) :: ya
+		real*8, intent(out) :: derivative
+
+		if (point_index .lt. l_bound+2 ) then
+			derivative = (-ya(point_index+2)+4.d0*ya(point_index+1)-3.d0*ya(point_index))/(2.d0*dx)
+		elseif (point_index .gt. u_bound-2) then
+			derivative = (3.d0*ya(point_index)-4.d0*ya(point_index-1)+ya(point_index-2))/(2.d0*dx)
+		else
+			derivative = (-ya(point_index+2)+8.d0*ya(point_index+1)-8.d0*ya(point_index-1)+ya(point_index-2))/(12.d0*dx)
+		endif
+
+	end subroutine first_derivative
 
 end module math_Functions_mod

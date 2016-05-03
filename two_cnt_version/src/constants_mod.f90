@@ -12,7 +12,7 @@ module constants_mod
 
   !Physical constants
   real*8, public, parameter :: eV=1.6d-19 ![Joules]
-  real*8, public, parameter :: hb=6.5d-16*eV ![eV.s]
+  real*8, public, parameter :: hb=6.582119514d-16*eV ![eV.s]
   real*8, public, parameter :: kb=1.3865d-23 ![J/K]
 
   real*8, public, parameter :: a_cc=1.42d-10 !carbon-carbon distance [meters]
