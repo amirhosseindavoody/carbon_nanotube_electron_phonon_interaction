@@ -1,4 +1,4 @@
-# this python program reads the calculated phonon dispersion of carbon nanotubes and plots the dispersion curves.
+# this program reads and plots the calculated phonon dispersion of carbon nanotubes.
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -53,7 +53,6 @@ axes.set_ylim([ymin,ymax])
 # plot phonon dispersion for a specific phonon branch (ib) and mu_ph
 
 Nu = (phonon_energy.shape[1]/6+1)/2
-print "Nu = ", Nu
 
 print "ib should be in interval [ 1 , 6 ]"
 ib = int(raw_input("Input phonon branch index: "))

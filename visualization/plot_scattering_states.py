@@ -1,4 +1,4 @@
-# this python program reads the calculated phonon dispersion of carbon nanotubes and plots the dispersion curves.
+# this program reads and plots the electronic and phononic states that conserve both momentum and energy in an electron-phonon scattering process.
 import numpy as np
 import matplotlib.pyplot as plt
 import sys

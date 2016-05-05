@@ -1,4 +1,4 @@
-# this python program reads the calculated phonon dispersion of carbon nanotubes and plots the dispersion curves.
+# this program reads and plots the calculated electron-phonon interaction matrix element.
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -18,12 +18,13 @@ vF = 1.0e6
 
 
 directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/"
+cnt_name = "cnt1"
 
 ################################################################################
 k_vec = np.loadtxt(directory+"cnt1.electron_k_vector.dat", skiprows=0)
 
 for file_number in range(1,7):
-	filename = directory+"cnt1.electron_phonon_matrix_element_branch_"+str(file_number)+".dat"
+	filename = directory+cnt_name+".electron_phonon_matrix_element_branch_"+str(file_number)+".dat"
 
 	matrix_element_branch = np.loadtxt(filename, skiprows=0)
 	matrix_element_branch = matrix_element_branch.T

@@ -18,6 +18,11 @@ module sim_properties_mod
 
 
 contains
+
+	!***************************************************************************
+	! -	this subroutine reads the input file that contains the properties of
+	!	the simulation for calculating scattering rate.
+	!***************************************************************************
 	subroutine input_sim_properties(filename)
 		use constants_mod, only: pi
 		use write_log_mod, only : write_log, log_input
@@ -134,5 +139,41 @@ contains
 
 
 	end subroutine input_sim_properties
+
+	!***************************************************************************
+	! -	this subroutine renames the output directory from a temporary name to a
+	!	final name that indicates the simulation has run successfully.
+	!***************************************************************************
+	subroutine finalize_output_directory_name()
+
+		logical :: folder_exists
+		character(len=1000) :: command
+		integer :: istat
+
+		write(outdir_final,"(A,A,I3.3)") trim(outdir_final),"final_result"
+
+		! remove the final output directory if it already exists
+		folder_exists = .true.
+		inquire(file=trim(outdir_final)//'/.', exist=folder_exists)
+
+		if (folder_exists) then
+			write(command, "(A,A)") "rm -r ", trim(outdir_final)
+			call system(trim(command))
+		end if
+
+		!rename the temporary output directory to the final output directory
+		write(command, '(A, A, A, A)') "mv ", trim(outdir_tmp), " ", trim(outdir_final)
+		call system(trim(command))
+
+		!change the working directory to the final output directory
+		istat=chdir(trim(outdir_final))
+		if (istat .ne. 0) then
+			write(*,'(A)') "Directory did not changed!!!"
+			write(*,'(A)') "Simulation stopped!!!"
+			call exit()
+		end if
+
+
+	end subroutine finalize_output_directory_name
 
 end module sim_properties_mod
