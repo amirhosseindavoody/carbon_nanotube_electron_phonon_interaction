@@ -16,6 +16,7 @@ contains
 	!***************************************************************************
 	subroutine cnt_electron_phonon_scattering_rate_emission(currcnt)
 		use cnt_class, only: cnt
+		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon
 		use math_functions_mod, only: find_all_roots, first_derivative
@@ -49,6 +50,10 @@ contains
 		!***********************************************************************
 		! calculate CNT electronic energy dispersion.
 		call calculate_cnt_electron_energy_dispersion(currcnt)
+
+		!***********************************************************************
+		! calculate CNT phonon energy dispersion for two brillouine zones.
+		call cnt_phonon_dispersion(currcnt, iq_max=2*currcnt%ikc_max, iq_min=2*currcnt%ikc_min, mu_max=currcnt%Nu-1, mu_min=1-currcnt%Nu )
 
 		!***********************************************************************
 		!calculate electron-phonon scattering rate as a function of energy
@@ -88,8 +93,7 @@ contains
 					ik_e = root_idx(j)
 					k_e = dble(mu_e) * currcnt%K1 + dble(ik_e) * currcnt%dk * currcnt%K2
 					do ib=1,6
-						! do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
-						mu_e_2 = mu_e
+						do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
 							mu_ph = mu_e-mu_e_2
 							tmp_real_array_1 = E_k(mu_e_2,:,1)-E_k(mu_e,ik_e,1)+currcnt%omega_phonon(mu_ph,ik_e+currcnt%ikc_max:ik_e+currcnt%ikc_min:-1,ib)
 							call find_all_roots (tmp_real_array_1, currcnt%ikc_min, currcnt%ikc_max, 0.d0, n_scattering_state, scattering_state_idx)
@@ -114,7 +118,7 @@ contains
 
 							enddo
 
-						! enddo
+						enddo
 					enddo
 
 				enddo
@@ -154,6 +158,7 @@ contains
 	!***************************************************************************
 	subroutine cnt_electron_phonon_scattering_rate_absorption(currcnt)
 		use cnt_class, only: cnt
+		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon
 		use math_functions_mod, only: find_all_roots, first_derivative
@@ -187,6 +192,10 @@ contains
 		!***********************************************************************
 		! calculate CNT electronic energy dispersion.
 		call calculate_cnt_electron_energy_dispersion(currcnt)
+
+		!***********************************************************************
+		! calculate CNT phonon energy dispersion for two brillouine zones.
+		call cnt_phonon_dispersion(currcnt, iq_max=2*currcnt%ikc_max, iq_min=2*currcnt%ikc_min, mu_max=currcnt%Nu-1, mu_min=1-currcnt%Nu )
 
 		!***********************************************************************
 		!calculate electron-phonon scattering rate as a function of energy
@@ -226,8 +235,7 @@ contains
 					ik_e = root_idx(j)
 					k_e = dble(mu_e) * currcnt%K1 + dble(ik_e) * currcnt%dk * currcnt%K2
 					do ib=1,6
-						! do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
-						mu_e_2 = mu_e
+						do mu_e_2=1-currcnt%Nu/2,currcnt%Nu/2
 							mu_ph = mu_e-mu_e_2
 							tmp_real_array_1 = E_k(mu_e_2,:,1)-E_k(mu_e,ik_e,1)-currcnt%omega_phonon(-mu_ph,currcnt%ikc_min-ik_e:currcnt%ikc_max-ik_e,ib)
 							call find_all_roots (tmp_real_array_1, currcnt%ikc_min, currcnt%ikc_max, 0.d0, n_scattering_state, scattering_state_idx)
@@ -251,7 +259,7 @@ contains
 
 							enddo
 
-						! enddo
+						enddo
 					enddo
 
 				enddo

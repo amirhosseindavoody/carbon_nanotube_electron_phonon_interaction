@@ -140,7 +140,7 @@ contains
 		if (.not. folder_exists) then
 			write(log_input,'(A)') new_line('A')//"input folder for cnt exciton dispersion not found:"//new_line('A')//trim(currcnt%directory)//new_line('A')
 			call write_log(log_input)
-			! call exit()
+			call exit()
 		end if
 
 	end subroutine input_cnt_parameters

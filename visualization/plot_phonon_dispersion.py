@@ -17,7 +17,7 @@ hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/tmp_001/"
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/final_result/"
 cnt_name = "cnt1"
 
 ################################################################################
