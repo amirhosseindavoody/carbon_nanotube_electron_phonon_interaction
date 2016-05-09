@@ -16,6 +16,7 @@ cnt_electron_mod.o: cnt_class.o constants_mod.o graphene_mod.o math_functions_mo
 cnt_geometry_mod.o: cnt_class.o constants_mod.o math_functions_mod.o write_log_mod.o
 cnt_phonon_mod.o: cnt_class.o graphene_mod.o write_log_mod.o
 cnt_scattering_electron_phonon_mod.o: cnt_class.o cnt_phonon_mod.o constants_mod.o graphene_mod.o math_functions_mod.o sim_properties_mod.o write_log_mod.o
+cnt_scattering_exciton_phonon_mod.o: cnt_class.o cnt_phonon_mod.o constants_mod.o graphene_mod.o math_functions_mod.o sim_properties_mod.o write_log_mod.o
 comparams.o: cnt_class.o
 # em2a_kspace_matrix_element_mod.o: comparams.o constants_mod.o transition_points_mod.o write_log_mod.o
 # em2ep_kspace_matrix_element_mod.o: comparams.o constants_mod.o transition_points_mod.o write_log_mod.o
@@ -27,7 +28,7 @@ comparams.o: cnt_class.o
 graphene_mod.o: constants_mod.o math_functions_mod.o
 input_cnt_mod.o: cnt_class.o constants_mod.o write_log_mod.o
 # main.o: cnt_class.o comparams.o input_cnt_mod.o occupation_mod.o parse_input_file_mod.o prepareForster_module.o sim_properties_mod.o transition_table_mod.o write_log_mod.o
-main.o: cnt_class.o cnt_electron_mod.o cnt_geometry_mod.o cnt_phonon_mod.o cnt_scattering_electron_phonon_mod.o comparams.o input_cnt_mod.o sim_properties_mod.o write_log_mod.o
+main.o: cnt_class.o cnt_electron_mod.o cnt_geometry_mod.o cnt_phonon_mod.o cnt_scattering_electron_phonon_mod.o cnt_scattering_exciton_phonon_mod.o comparams.o input_cnt_mod.o sim_properties_mod.o write_log_mod.o
 # occupation_mod.o: comparams.o cnt_class.o constants_mod.o
 # parse_input_file_mod.o: comparams.o constants_mod.o transition_table_mod.o write_log_mod.o
 # prepareForster_module.o: cnt_class.o comparams.o constants_mod.o

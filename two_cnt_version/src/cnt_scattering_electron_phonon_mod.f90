@@ -18,7 +18,7 @@ contains
 		use cnt_class, only: cnt
 		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
-		use graphene_mod, only: graphene_electron, graphene_electron_phonon
+		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
 		use sim_properties_mod, only: temperature
 		use write_log_mod, only: write_log, log_input
@@ -41,11 +41,10 @@ contains
 		real*8, dimension(:), allocatable :: energy_mesh
 		integer :: n_scattering_state
 		integer, dimension(:), allocatable :: scattering_state_idx
-		complex*16, dimension(6) :: f_tilde_1, f_tilde_2, f_tilde_1_dummy, f_tilde_2_dummy
 		real*8, dimension(:,:), allocatable :: electron_phonon_scattering_rate
 		real*8 :: Ec_derivative, omega_phonon_derivative
 		real*8 :: omega_tmp
-
+		complex*16 :: matrix_element
 
 		!***********************************************************************
 		! calculate CNT electronic energy dispersion.
@@ -103,8 +102,7 @@ contains
 								iq_ph = ik_e - ik_e_2
 
 								q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dk * currcnt%K2
-								call graphene_electron_phonon(f_tilde_1_dummy, f_tilde_2,       k_e,      q_ph, currcnt%a1, currcnt%a2)
-								call graphene_electron_phonon(f_tilde_1,       f_tilde_2_dummy, k_e-q_ph, q_ph, currcnt%a1, currcnt%a2)
+								call graphene_electron_phonon_matrix_element(matrix_element, k_e, q_ph, ib, currcnt%a1, currcnt%a2)
 
 								tmp_real_array_1 = E_k(mu_e_2,:,1)
 								call first_derivative(tmp_real_array_1, currcnt%ikc_min, currcnt%ikc_max, ik_e_2, currcnt%dk, Ec_derivative)
@@ -113,7 +111,7 @@ contains
 
 								omega_tmp = currcnt%omega_phonon(mu_ph, iq_ph, ib)
 
-								electron_phonon_scattering_rate(i,ib) = electron_phonon_scattering_rate(i,ib) + (1.d0+1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(f_tilde_1(ib) + f_tilde_2(ib)))**2)/(abs(-Ec_derivative+omega_phonon_derivative)*omega_tmp/hb)
+								electron_phonon_scattering_rate(i,ib) = electron_phonon_scattering_rate(i,ib) + (1.d0+1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element))**2)/(abs(-Ec_derivative+omega_phonon_derivative)*omega_tmp/hb)
 
 
 							enddo
@@ -160,7 +158,7 @@ contains
 		use cnt_class, only: cnt
 		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
-		use graphene_mod, only: graphene_electron, graphene_electron_phonon
+		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
 		use sim_properties_mod, only: temperature
 		use write_log_mod, only: write_log, log_input
@@ -183,10 +181,10 @@ contains
 		real*8, dimension(:), allocatable :: energy_mesh
 		integer :: n_scattering_state
 		integer, dimension(:), allocatable :: scattering_state_idx
-		complex*16, dimension(6) :: f_tilde_1, f_tilde_2, f_tilde_1_dummy, f_tilde_2_dummy
 		real*8, dimension(:,:), allocatable :: electron_phonon_scattering_rate
 		real*8 :: Ec_derivative, omega_phonon_derivative
 		real*8 :: omega_tmp
+		complex*16 :: matrix_element
 
 
 		!***********************************************************************
@@ -245,8 +243,7 @@ contains
 								iq_ph = ik_e - ik_e_2
 
 								q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dk * currcnt%K2
-								call graphene_electron_phonon(f_tilde_1_dummy,f_tilde_2,k_e     ,q_ph,currcnt%a1,currcnt%a2)
-								call graphene_electron_phonon(f_tilde_1,f_tilde_2_dummy,k_e-q_ph,q_ph,currcnt%a1,currcnt%a2)
+								call graphene_electron_phonon_matrix_element(matrix_element, k_e, q_ph, ib, currcnt%a1, currcnt%a2)
 
 								tmp_real_array_1 = E_k(mu_e_2,:,1)
 								call first_derivative(tmp_real_array_1, currcnt%ikc_min, currcnt%ikc_max, ik_e_2, currcnt%dk, Ec_derivative)
@@ -255,7 +252,7 @@ contains
 
 								omega_tmp = currcnt%omega_phonon(-mu_ph, -iq_ph, ib)
 
-								electron_phonon_scattering_rate(i,ib) = electron_phonon_scattering_rate(i,ib) + (1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(f_tilde_1(ib) + f_tilde_2(ib)))**2)/(abs(-Ec_derivative+omega_phonon_derivative)*omega_tmp/hb)
+								electron_phonon_scattering_rate(i,ib) = electron_phonon_scattering_rate(i,ib) + (1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element))**2)/(abs(-Ec_derivative+omega_phonon_derivative)*omega_tmp/hb)
 
 							enddo
 
@@ -374,22 +371,19 @@ contains
 	subroutine cnt_electron_phonon_matrix_element(currcnt)
 		use cnt_class, only: cnt
 		use constants_mod
-		use graphene_mod, only: graphene_electron, graphene_electron_phonon
+		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
 		! use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
 
 		integer :: mu_e,ik_e
-		integer :: mu_ph, iq_ph
+		integer :: mu_ph, iq_ph, ib
 		real*8, dimension(2) :: k_e, q_ph
 		character(len=1000) :: filename
-		complex*16, dimension(6) :: f_tilde_1_tmp, f_tilde_2_tmp
-		complex*16, dimension(:,:,:), allocatable :: f_tilde_1_array, f_tilde_2_array
+		complex*16, dimension(:,:,:), allocatable :: matrix_element
 
-
-		allocate(f_tilde_1_array(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
-		allocate(f_tilde_2_array(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
+		allocate(matrix_element(1-currcnt%Nu/2:currcnt%Nu/2,currcnt%ikc_min:currcnt%ikc_max,6))
 
 
 		mu_e = 0
@@ -398,13 +392,10 @@ contains
 
 		do mu_ph=1-currcnt%Nu/2,currcnt%Nu/2
 			do iq_ph=currcnt%ikc_min,currcnt%ikc_max
-				q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dk * currcnt%K2
-
-				call graphene_electron_phonon(f_tilde_1_tmp,f_tilde_2_tmp,k_e-q_ph,q_ph,currcnt%a1,currcnt%a2)
-				f_tilde_1_array(mu_ph,iq_ph,:) = f_tilde_1_tmp
-
-				call graphene_electron_phonon(f_tilde_1_tmp,f_tilde_2_tmp,k_e,q_ph,currcnt%a1,currcnt%a2)
-				f_tilde_2_array(mu_ph,iq_ph,:) = f_tilde_2_tmp
+				do ib = 1,6
+					q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dk * currcnt%K2
+					call graphene_electron_phonon_matrix_element(matrix_element(mu_ph, iq_ph, ib),k_e,q_ph, ib, currcnt%a1, currcnt%a2)
+				enddo
 			enddo
 		enddo
 
@@ -426,12 +417,12 @@ contains
 
 		do mu_ph=1-currcnt%Nu/2,currcnt%Nu/2
 			do iq_ph=currcnt%ikc_min,currcnt%ikc_max
-				write(100,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,1)+f_tilde_2_array(mu_ph,iq_ph,1)))**2
-				write(101,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,2)+f_tilde_2_array(mu_ph,iq_ph,2)))**2
-				write(102,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,3)+f_tilde_2_array(mu_ph,iq_ph,3)))**2
-				write(103,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,4)+f_tilde_2_array(mu_ph,iq_ph,4)))**2
-				write(104,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,5)+f_tilde_2_array(mu_ph,iq_ph,5)))**2
-				write(105,'(E16.8)', advance='no') (abs(f_tilde_1_array(mu_ph,iq_ph,6)+f_tilde_2_array(mu_ph,iq_ph,6)))**2
+				write(100,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,1)))**2
+				write(101,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,2)))**2
+				write(102,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,3)))**2
+				write(103,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,4)))**2
+				write(104,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,5)))**2
+				write(105,'(E16.8)', advance='no') (abs(matrix_element(mu_ph,iq_ph,6)))**2
 			enddo
 			write(100,*)
 			write(101,*)
@@ -457,7 +448,7 @@ contains
 	subroutine cnt_electron_phonon_scattering_states(currcnt)
 		use cnt_class, only: cnt
 		use constants_mod
-		use graphene_mod, only: graphene_electron, graphene_electron_phonon
+		use graphene_mod, only: graphene_electron
 		use math_functions_mod, only: find_all_roots, first_derivative
 		use write_log_mod, only: write_log, log_input
 

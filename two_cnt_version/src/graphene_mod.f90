@@ -1,13 +1,13 @@
 module graphene_mod
 	implicit none
 	private
-	public :: graphene_electron, graphene_phonon, graphene_electron_phonon
+	public :: graphene_electron, graphene_phonon, graphene_electron_phonon_matrix_element
 
 contains
 
-	!**************************************************************************************************************************
+	!***************************************************************************
 	! subroutine to calculate electron Bloch functions and energy in graphene
-	!**************************************************************************************************************************
+	!***************************************************************************
 
 	subroutine graphene_electron(E,Cc,Cv,k,a1,a2)
 		use constants_mod, only: i1, t0
@@ -30,9 +30,11 @@ contains
 		Cv(2)=dcmplx(-1.d0/sqrt(2.d0)/abs(f_k))*conjg(f_k)
 	end subroutine graphene_electron
 
-	!**********************************************************************************************************************
-	! This subroutines calculates phonon energy (omega) and displacement vectors (u_ph) in graphene due to a phonon with a certain wave vector (k).
-	!**********************************************************************************************************************
+	!***************************************************************************
+	!	- This subroutines calculates phonon energy (omega) and displacement
+	!	  vectors (u_ph) in graphene due to a phonon with a certain
+	!	  wave vector (k).
+	!***************************************************************************
 
 	subroutine graphene_phonon(omega,u_ph,k,aCC_vec)
 		use constants_mod, only: m_carbon_dispersion, spring_conv_coeff, pi, i1, eV
@@ -200,25 +202,27 @@ contains
 
 	end subroutine graphene_phonon
 
-	!**************************************************************************************************************************
-	! subroutine to calculate electron Bloch functions and energy in graphene
-	!**************************************************************************************************************************
+	!***************************************************************************
+	! - this subroutine calculates electron-phonon matrix element in graphene:
+	!	M = f_tilde_1(k-q,q,ib) + f_tilde_2(k,q,ib)
+	!***************************************************************************
 
-	subroutine graphene_electron_phonon(f_tilde_1,f_tilde_2,k,q,a1,a2)
+	subroutine graphene_electron_phonon_matrix_element(matrix_element,k,q,ib,a1,a2)
 		use constants_mod, only: i1
 
+		complex*16 :: matrix_element
 		real*8, dimension(2), intent(in) :: k,q
+		integer, intent(in) :: ib
 		real*8, dimension(2), intent(in) :: a1,a2
-		complex*16, dimension(6), intent(out) :: f_tilde_1, f_tilde_2
-		complex*16, dimension(6) :: f_1, f_2
-		complex*16 :: f_k_plus_q, f_k_minus_q
+		complex*16 :: f_tilde_1, f_tilde_2
+		complex*16 :: f_1, f_2
+		complex*16 :: f_k, f_k_minus_q
 		real*8, dimension(2) :: e1,e2,e3
 		complex*16, dimension(2) :: e1_normalized,e2_normalized,e3_normalized
 		real*8, dimension(2) :: aCC_vec
 		complex*16, dimension(3) :: eA, eB
 		complex*16, dimension(6,6) :: u_ph
 		real*8, dimension(6) :: omega
-		integer :: i
 
 		f_tilde_1 = (0.d0, 0.d0)
 		f_tilde_2 = (0.d0, 0.d0)
@@ -237,42 +241,44 @@ contains
 
 		call graphene_phonon(omega,u_ph,q,aCC_vec)
 
-		do i=1,6
-			eA = u_ph(1:3,i)
-			eB = u_ph(4:6,i)
+		eA = u_ph(1:3,ib)
+		eB = u_ph(4:6,ib)
 
-			! I am not sure at this time if we need to normalize eA and eB the following to lines do the normalization if needed.
-			! eA = eA/sqrt(dot_product(eA,eA))
-			! eB = eB/sqrt(dot_product(eB,eB))
+		! I am not sure at this time if we need to normalize eA and eB the following to lines do the normalization if needed.
+		! eA = eA/sqrt(dot_product(eA,eA))
+		! eB = eB/sqrt(dot_product(eB,eB))
 
-			! R0 = 0
-			! Ru' = 0
-			! R0A = 0
-			! Ru'B = e1
-			f_1(i) = f_1(i) + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(+i1*dcmplx(dot_product(k+q,e1)))
-			f_2(i) = f_2(i) + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(-i1*dcmplx(dot_product(k-q,e1)))
+		! R0 = 0
+		! Ru' = 0
+		! R0A = 0
+		! Ru'B = e1
+		f_1 = f_1 + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(+i1*dcmplx(dot_product(k,e1)))
+		f_2 = f_2 + sum(e1_normalized*(eA(1:2)-eB(1:2)))*exp(-i1*dcmplx(dot_product(k-q,e1)))
 
-			! R0 = 0
-			! Ru' = -a2
-			! R0A = 0
-			! Ru'B = e2
-			f_1(i) = f_1(i) + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(+i1*dcmplx(dot_product(k+q,e2)))
-			f_2(i) = f_2(i) + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(-i1*dcmplx(dot_product(k-q,e2)))
+		! R0 = 0
+		! Ru' = -a2
+		! R0A = 0
+		! Ru'B = e2
+		f_1 = f_1 + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(+i1*dcmplx(dot_product(k,e2)))
+		f_2 = f_2 + sum(e2_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a2)))))*exp(-i1*dcmplx(dot_product(k-q,e2)))
 
-			! R0 = 0
-			! Ru' = -a1
-			! R0A = 0
-			! Ru'B = e3
-			f_1(i) = f_1(i) + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(+i1*dcmplx(dot_product(k+q,e3)))
-			f_2(i) = f_2(i) + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(-i1*dcmplx(dot_product(k-q,e3)))
-		enddo
+		! R0 = 0
+		! Ru' = -a1
+		! R0A = 0
+		! Ru'B = e3
+		f_1 = f_1 + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(+i1*dcmplx(dot_product(k,e3)))
+		f_2 = f_2 + sum(e3_normalized*(eA(1:2)-eB(1:2)*exp(-i1*dcmplx(dot_product(q,-a1)))))*exp(-i1*dcmplx(dot_product(k-q,e3)))
 
-		f_k_plus_q=exp(i1*dcmplx(dot_product(k+q,e1)))+exp(i1*dcmplx(dot_product(k+q,e2)))+exp(i1*dcmplx(dot_product(k+q,e3)))
-		f_tilde_1 = f_1 * conjg(f_k_plus_q)/dcmplx(abs(f_k_plus_q))
+
+
+		f_k=exp(i1*dcmplx(dot_product(k,e1)))+exp(i1*dcmplx(dot_product(k,e2)))+exp(i1*dcmplx(dot_product(k,e3)))
+		f_tilde_1 = f_1 * conjg(f_k)/dcmplx(abs(f_k))
 
 		f_k_minus_q=exp(i1*dcmplx(dot_product(k-q,e1)))+exp(i1*dcmplx(dot_product(k-q,e2)))+exp(i1*dcmplx(dot_product(k-q,e3)))
 		f_tilde_2 = f_2 * f_k_minus_q/dcmplx(abs(f_k_minus_q))
 
-	end subroutine graphene_electron_phonon
+		matrix_element = f_tilde_1 + f_tilde_2
+
+	end subroutine graphene_electron_phonon_matrix_element
 
 end module graphene_mod

@@ -10,6 +10,7 @@ program cnt_phonon_assisted_energy_transfer
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
 	use cnt_scattering_electron_phonon_mod, only: cnt_electron_phonon_scattering_rate_emission, cnt_electron_phonon_scattering_rate_absorption, cnt_electron_phonon_matrix_element, cnt_electron_phonon_scattering_states
+	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission
 	use comparams, only: cnt1, cnt2
 	use input_cnt_mod, only: input_cnt_parameters, input_a_exciton
 	! use occupation_mod, only: calculate_occupation_table
@@ -45,7 +46,8 @@ program cnt_phonon_assisted_energy_transfer
 	call input_a_exciton(cnt1)
 	call cnt_electron_phonon_scattering_rate_emission(cnt1)
 	call cnt_electron_phonon_scattering_rate_absorption(cnt1)
-	call cnt_electron_phonon_matrix_element(cnt1)
+	! call cnt_electron_phonon_matrix_element(cnt1)
+	call cnt_exction_phonon_scattering_rate_emission(cnt1)
 
 	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
 	call write_log(trim(log_input))
