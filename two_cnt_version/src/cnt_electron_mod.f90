@@ -105,8 +105,8 @@ contains
 		currcnt%iq_max=max(2*currcnt%ikr_high,currcnt%ikc_max)		!the higher limit of the index in v_FT and esp_q
 		currcnt%iq_min=-currcnt%iq_max								!the lower limit of the index in v_FT and esp_q
 
-		currcnt%iKcm_max_fine = currcnt%iKcm_max * currcnt%dk_dkx_ratio
-		currcnt%iKcm_min_fine = currcnt%iKcm_min * currcnt%dk_dkx_ratio
+		currcnt%iKcm_max_fine = currcnt%iKcm_max * currcnt%dk_dkx_ratio !the upper limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
+		currcnt%iKcm_min_fine = currcnt%iKcm_min * currcnt%dk_dkx_ratio !the lower limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
 
 		select case (trim(currcnt%target_exciton_type))
 		case('Ex_A1', 'Ex0_A2', 'Ex1_A2')

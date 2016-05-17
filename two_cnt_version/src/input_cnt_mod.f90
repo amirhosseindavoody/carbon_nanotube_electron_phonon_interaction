@@ -5,7 +5,7 @@
 module input_cnt_mod
 	implicit none
 	private
-	public :: input_cnt_parameters, input_a_exciton
+	public :: input_cnt_parameters, input_a_exciton, input_exciton
 
 contains
 	!**************************************************************************************************************************
@@ -144,6 +144,119 @@ contains
 		end if
 
 	end subroutine input_cnt_parameters
+
+	!***************************************************************************
+	! load the exciton wavefunction and energy from the ExcitonEnergy calculation
+	!***************************************************************************
+
+	subroutine input_exciton(ex_type, alpha, currcnt, exciton_energy_file, exciton_wavefunction_file)
+		use cnt_class, only: cnt, exciton
+		use write_log_mod, only: write_log
+
+		integer, intent(in) :: ex_type
+		integer, intent(in) :: alpha
+		type(cnt), intent(inout) :: currcnt
+		character(len=*), intent(in) :: exciton_energy_file
+		character(len=*), intent(in) :: exciton_wavefunction_file
+		integer :: iX, iKcm, ikr
+		real*8 :: tmpr
+
+		currcnt%excitons(ex_type,alpha)%i_sub = currcnt%i_sub
+
+		currcnt%excitons(ex_type,alpha)%iKcm_max = currcnt%iKcm_max
+		currcnt%excitons(ex_type,alpha)%iKcm_min = currcnt%iKcm_min
+		currcnt%excitons(ex_type,alpha)%ikr_high = currcnt%ikr_high
+		currcnt%excitons(ex_type,alpha)%ikr_low = currcnt%ikr_low
+		currcnt%excitons(ex_type,alpha)%iKcm_min_fine = currcnt%iKcm_min_fine
+		currcnt%excitons(ex_type,alpha)%iKcm_max_fine = currcnt%iKcm_max_fine
+
+		currcnt%excitons(ex_type,alpha)%nx = currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1
+
+		currcnt%excitons(ex_type,alpha)%spin = alpha
+
+		if (ex_type .lt. 3) then
+			currcnt%excitons(ex_type,alpha)%n_mu_r = 2
+			currcnt%excitons(ex_type,alpha)%mu_cm = 0
+		elseif(ex_type .eq. 3) then
+			currcnt%excitons(ex_type,alpha)%n_mu_r = 1
+			currcnt%excitons(ex_type,alpha)%mu_cm = +1 * currcnt%min_sub(currcnt%i_sub)
+		elseif(ex_type .eq. 4) then
+			currcnt%excitons(ex_type,alpha)%n_mu_r = 1
+			currcnt%excitons(ex_type,alpha)%mu_cm = -1 * currcnt%min_sub(currcnt%i_sub)
+		endif
+
+		! set value of mu_r
+		allocate(currcnt%excitons(ex_type,alpha)%mu_r(currcnt%excitons(ex_type,alpha)%n_mu_r))
+		if (ex_type .eq. 1) then
+			currcnt%excitons(ex_type,alpha)%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
+			currcnt%excitons(ex_type,alpha)%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
+		elseif(ex_type .eq. 2) then
+			currcnt%excitons(ex_type,alpha)%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
+			currcnt%excitons(ex_type,alpha)%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
+		else
+			currcnt%excitons(ex_type,alpha)%mu_r(1) = 0
+		endif
+
+		allocate(currcnt%excitons(ex_type,alpha)%ex(1:currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1,currcnt%excitons(ex_type,alpha)%iKcm_min_fine:currcnt%excitons(ex_type,alpha)%iKcm_max_fine))
+		allocate(currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high, currcnt%excitons(ex_type,alpha)%nx, currcnt%excitons(ex_type,alpha)%iKcm_min_fine:currcnt%excitons(ex_type,alpha)%iKcm_max_fine, currcnt%excitons(ex_type,alpha)%n_mu_r))
+
+		open(unit=100,file=trim(exciton_energy_file),status="old")
+		open(unit=101,file=trim(exciton_wavefunction_file),status="old")
+
+		do iKcm=currcnt%excitons(ex_type,alpha)%iKcm_min_fine,currcnt%excitons(ex_type,alpha)%iKcm_max_fine
+			do iX=1,currcnt%excitons(ex_type,alpha)%nx
+				read(100,'(E16.8)', advance='no') currcnt%excitons(ex_type,alpha)%ex(iX,iKcm)
+				do ikr=currcnt%excitons(ex_type,alpha)%ikr_low,currcnt%excitons(ex_type,alpha)%ikr_high
+					read(101,'(E16.8,E16.8)', advance='no') currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,1)
+				enddo
+			enddo
+
+			read(100,'(E16.8)')
+			read(101,'(E16.8)')
+		enddo
+		close(100)
+		close(101)
+
+		!make sure the exciton wavefunctions are normalized
+		do iX=1,currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1
+			do iKcm=currcnt%excitons(ex_type,alpha)%iKcm_min_fine,currcnt%excitons(ex_type,alpha)%iKcm_max_fine
+				tmpr = 0.d0
+				do ikr=currcnt%excitons(ex_type,alpha)%ikr_low,currcnt%excitons(ex_type,alpha)%ikr_high
+					tmpr = tmpr + (abs(currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,1)))**2
+				enddo
+				currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,1) = currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
+			enddo
+		enddo
+
+		if (ex_type .eq. 1) then
+			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(+1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
+		elseif(ex_type .eq. 2) then
+			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(-1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
+		endif
+
+		! if (ex_type .eq. 1) then
+		! 	currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(+1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+		! elseif(ex_type .eq. 2) then
+		! 	currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(-1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+		! endif
+		!
+		! !make sure the exciton wavefunctions are normalized
+		! do iX=1,currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1
+		! 	do iKcm=currcnt%excitons(ex_type,alpha)%iKcm_min_fine,currcnt%excitons(ex_type,alpha)%iKcm_max_fine
+		! 		tmpr = 0.d0
+		! 		do ikr=currcnt%excitons(ex_type,alpha)%ikr_low,currcnt%excitons(ex_type,alpha)%ikr_high
+		! 			do imu_r=1,n_mu_r
+		! 				tmpr = tmpr + real((currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,imu_r)) * conjg(currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,imu_r)))
+		! 			enddo
+		! 		enddo
+		! 		currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,:) = currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,:) / dcmplx(sqrt(tmpr))
+		! 	enddo
+		! enddo
+
+	end subroutine input_exciton
+
 
 	!**************************************************************************************************************************
 	! load the A-type exciton wavefunction and energies from the ExcitonEnergy calculation

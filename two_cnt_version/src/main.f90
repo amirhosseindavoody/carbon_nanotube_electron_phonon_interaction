@@ -10,9 +10,9 @@ program cnt_phonon_assisted_energy_transfer
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
 	use cnt_scattering_electron_phonon_mod, only: cnt_electron_phonon_scattering_rate_emission, cnt_electron_phonon_scattering_rate_absorption, cnt_electron_phonon_matrix_element, cnt_electron_phonon_scattering_states
-	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission
+	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_emission_objective
 	use comparams, only: cnt1, cnt2
-	use input_cnt_mod, only: input_cnt_parameters, input_a_exciton
+	use input_cnt_mod, only: input_cnt_parameters, input_a_exciton, input_exciton
 	! use occupation_mod, only: calculate_occupation_table
 	! use parse_input_file_mod, only: parse_input_file
 	! use prepareForster_module, only: saveDOS
@@ -43,11 +43,15 @@ program cnt_phonon_assisted_energy_transfer
 	call cnt_geometry(cnt1)
 	call cnt_electron_band_structure(cnt1)
 	call cnt_phonon_dispersion(cnt1, save_dispersion=.true.)
-	call input_a_exciton(cnt1)
-	call cnt_electron_phonon_scattering_rate_emission(cnt1)
-	call cnt_electron_phonon_scattering_rate_absorption(cnt1)
+
+	call input_exciton(ex_type=2, alpha=0, currcnt=cnt1, exciton_energy_file=trim(cnt1%directory)//'Ex0_A2.dat', exciton_wavefunction_file=trim(cnt1%directory)//'Psi0_A2.dat')
+	call cnt_exction_phonon_scattering_rate_emission_objective(currcnt=cnt1, i_exciton=cnt1%excitons(2,0), f_exciton=cnt1%excitons(2,0))
+
+	! call input_a_exciton(cnt1)
+	! call cnt_electron_phonon_scattering_rate_emission(cnt1)
+	! call cnt_electron_phonon_scattering_rate_absorption(cnt1)
 	! call cnt_electron_phonon_matrix_element(cnt1)
-	call cnt_exction_phonon_scattering_rate_emission(cnt1)
+	! call cnt_exction_phonon_scattering_rate_emission(cnt1)
 
 	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
 	call write_log(trim(log_input))

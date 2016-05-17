@@ -2,8 +2,28 @@ module cnt_class
 	implicit none
 	private
 
-	public  :: cnt, free_cnt_memory
+	public  :: cnt, exciton, free_cnt_memory
 
+	!***************************************************************************
+	!	-definition of exciton class (derived type) that is used in the cnt
+	!	 derived type.
+	!***************************************************************************
+	type exciton
+		character(len=1000) :: name
+		integer :: i_sub
+		integer :: spin
+		integer :: mu_cm
+		integer :: iKcm_max, iKcm_min, ikr_high, ikr_low, iKcm_min_fine, iKcm_max_fine
+		integer :: n_mu_r ! this will hold the size of mu_r
+		integer :: nx ! this is the number of exciton state that is calculated at each iKcm
+		integer, dimension(:), allocatable :: mu_r
+		real*8, dimension(:,:), allocatable :: ex !exciton energy: the first index is subband, the second index is iKcm
+		complex*16, dimension(:,:,:,:), allocatable :: psi !exciton wavefunction in k-space: the first index is ikr, the scond index is the subband, the third index is iKcm, the fourth index is mu_r
+	end type exciton
+
+	!***************************************************************************
+	!	-definition of carbon nanotube class (derived type)
+	!***************************************************************************
 	type cnt
 		integer :: n_ch,m_ch !chiral vector parameters
 		integer :: i_sub !subband index used in exciton energy calculation
@@ -42,6 +62,19 @@ module cnt_class
 		integer :: iKcm_min_fine, iKcm_max_fine
 		integer :: mu_cm
 
+		! ik_max			:the higher limit of k-vector that is below E_th
+		! ik_min			:the lower limit of k-vector that is below E_th
+		! iKcm_max			:the higher limit of center of mass wave vector that we calculate
+		! iKcm_min			:the lower limit of center of mass wave vector that we calculate
+		! ikr_high			:the maximum index that the relative wavenumber in the entire simulation.
+		! ikr_low			:the minimum index that the relative wavenumber in the entire simulation.
+		! ik_high			:the maximum index that the wavenumber can get in the entire simulation.
+		! ik_low			:the minimum index that the wavenumber can get in the entire simulation.
+		! iq_max			:the higher limit of the index in v_FT and esp_q
+		! iq_min			:the lower limit of the index in v_FT and esp_q
+		! iKcm_max_fine		:the upper limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
+		! iKcm_min_fine		:the lower limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
+
 		!Dielectric function
 		! quantities that have _fine at the end are those that are calculated via interpolation of the quantities without _fine at the end.
 		real*8, dimension(:,:), allocatable :: eps_q, eps_q_fine
@@ -60,6 +93,17 @@ module cnt_class
 		!E-type exciton wavefunction and energies
 		real*8, dimension(:,:), allocatable :: Ex0_Ep, Ex0_Em, Ex1_Ep, Ex1_Em !the first index is subband, the second index is iKcm
 		complex*16, dimension(:,:,:), allocatable :: Psi0_Ep, Psi0_Em, Psi1_Ep, Psi1_Em !the first index is ikr, the scond index is the subband, the third index is iKcm
+
+		! -	excitons(ex_type,alpha) is the array of all excitons. the first
+		!	index (ex_type)	represents symmetry or center of mass. The second
+		!	index (alpha) is the singlet or triplet. specifically we take:
+		!	ex_type=1 : A1 exciton.
+		!	ex_type=2 : A2 exciton.
+		!	ex_type=3 : Ep exciton.
+		!	ex_type=4 : Em exciton.
+		!	alpha=0 : singlet.
+		!	alpha=1 : triplet.
+		type(exciton), dimension(4,0:1) :: excitons
 
 		!Target exciton wavefunction and energies
 		! real*8, dimension(:,:), allocatable :: Ex_t !the first index is subband, the second index is iKcm
@@ -85,9 +129,9 @@ module cnt_class
 
 contains
 
-	!**************************************************************************************************************************
+	!***************************************************************************
 	! subroutine to free all allocatable quantities in cnt_class
-	!**************************************************************************************************************************
+	!***************************************************************************
 
 	subroutine free_cnt_memory(currcnt)
 
@@ -133,8 +177,6 @@ contains
 		if (allocated(currcnt%Psi0_Ep)) deallocate(currcnt%Psi0_Ep)
 		if (allocated(currcnt%Psi1_Em)) deallocate(currcnt%Psi1_Em)
 		if (allocated(currcnt%Psi1_Ep)) deallocate(currcnt%Psi1_Ep)
-		! if (allocated(currcnt%Ex_t)) deallocate(currcnt%Ex_t)
-		! if (allocated(currcnt%Psi_t)) deallocate(currcnt%Psi_t)
 		if (allocated(currcnt%omega_phonon)) deallocate(currcnt%omega_phonon)
 
 	end subroutine free_cnt_memory
