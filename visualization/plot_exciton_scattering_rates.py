@@ -19,30 +19,36 @@ vF = 1.0e6
 
 directory = "/home/amirhossein/research/exciton/data/transfer_rates/final_result/"
 cnt_name = "cnt1"
+exciton_name = ("A1_singlet", "A2_singlet", "Ep_singlet", "Em_singlet")
 
 ################################################################################
 # load the calculated scattering rates for emission and absorption process
-data = np.loadtxt(directory+cnt_name+".exciton_phonon_scattering_rate_emission.dat", skiprows=0)
-energy_mesh_emission = data[0,:]/eV
-scattering_rate_emission = data[1,:].T
-
-energy_mesh_emission = energy_mesh_emission - np.amin(energy_mesh_emission)
-
-################################################################################
-# plot the electron-phonon scattering rates
 
 fig = plt.figure()
 figure_list.append(fig)
 fig.canvas.draw()
-
 axes = fig.add_subplot(1,1,1)
 
-axes.plot(energy_mesh_emission, scattering_rate_emission[:], color="black", linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
+xmin = +100
+xmax = -100
 
-axes.set_yscale('log')
+ymin = 1e8
+ymax = 1e15
 
-xmin = min(energy_mesh_emission)
-xmax = max(energy_mesh_emission)
-axes.set_xlim([xmin,xmax])
+for i in range(0,4):
+	for j in range(0,4):
+		data = np.loadtxt(directory+cnt_name+"."+exciton_name[i]+"_to_"+exciton_name[j]+".exciton_phonon_scattering_rate_emission.dat", skiprows=0)
+		energy_mesh_emission = data[0,:]/eV
+		scattering_rate_emission = data[1,:].T
+
+		xmin = min(xmin,np.amin(energy_mesh_emission))
+		xmax = max(xmax,np.amax(energy_mesh_emission))
+		axes.plot(energy_mesh_emission, scattering_rate_emission[:], linewidth=3.0, linestyle="solid", marker="o", markersize=10.0)
+
+		axes.set_yscale('log')
+		axes.set_xlim([xmin,xmax])
+		axes.set_ylim([ymin,ymax])
+
+		raw_input(exciton_name[i]+" to "+exciton_name[j])
 
 raw_input("Press Enter to exit...")
