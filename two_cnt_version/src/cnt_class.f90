@@ -86,14 +86,6 @@ module cnt_class
 		real*8, dimension(:,:,:), allocatable :: Sk, Sk_fine!Self-energy
 		complex*16, dimension(:,:,:), allocatable :: Cc, Cv, Cc_fine, Cv_fine !Cc(mu,k,b) is the conduction band tight-binding wavefunction coefficients where "mu" is the band index (1 is +mu and 2 is -mu), "k" is the wave vector along the CNT axis, "b" is the atom index in graphene unit cell (1 is A type atom) and (2 is B type atom)
 
-		!A-type exciton wavefunction and energies
-		real*8, dimension(:,:), allocatable :: Ex_A1, Ex0_A2, Ex1_A2 !the first index is subband, the second index is iKcm
-		complex*16, dimension(:,:,:), allocatable :: Psi_A1, Psi0_A2, Psi1_A2 !the first index is ikr, the scond index is the subband, the third index is iKcm
-
-		!E-type exciton wavefunction and energies
-		real*8, dimension(:,:), allocatable :: Ex0_Ep, Ex0_Em, Ex1_Ep, Ex1_Em !the first index is subband, the second index is iKcm
-		complex*16, dimension(:,:,:), allocatable :: Psi0_Ep, Psi0_Em, Psi1_Ep, Psi1_Em !the first index is ikr, the scond index is the subband, the third index is iKcm
-
 		! -	excitons(ex_type,alpha) is the array of all excitons. the first
 		!	index (ex_type)	represents symmetry or center of mass. The second
 		!	index (alpha) is the singlet or triplet. specifically we take:
@@ -136,6 +128,7 @@ contains
 	subroutine free_cnt_memory(currcnt)
 
 		type(cnt), intent(inout) :: currcnt
+		integer :: exciton_type, alpha
 
 		if (allocated(currcnt%posA)) deallocate(currcnt%posA)
 		if (allocated(currcnt%posB)) deallocate(currcnt%posB)
@@ -163,21 +156,15 @@ contains
 		if (allocated(currcnt%Cc_fine)) deallocate(currcnt%Cc_fine)
 		if (allocated(currcnt%Cv)) deallocate(currcnt%Cv)
 		if (allocated(currcnt%Cv_fine)) deallocate(currcnt%Cv_fine)
-		if (allocated(currcnt%Ex_A1)) deallocate(currcnt%Ex_A1)
-		if (allocated(currcnt%Ex0_A2)) deallocate(currcnt%Ex0_A2)
-		if (allocated(currcnt%Ex1_A2)) deallocate(currcnt%Ex1_A2)
-		if (allocated(currcnt%Psi_A1)) deallocate(currcnt%Psi_A1)
-		if (allocated(currcnt%Psi0_A2)) deallocate(currcnt%Psi0_A2)
-		if (allocated(currcnt%Psi1_A2)) deallocate(currcnt%Psi1_A2)
-		if (allocated(currcnt%Ex0_Em)) deallocate(currcnt%Ex0_Em)
-		if (allocated(currcnt%Ex0_Ep)) deallocate(currcnt%Ex0_Ep)
-		if (allocated(currcnt%Ex1_Em)) deallocate(currcnt%Ex1_Em)
-		if (allocated(currcnt%Ex1_Ep)) deallocate(currcnt%Ex1_Ep)
-		if (allocated(currcnt%Psi0_Em)) deallocate(currcnt%Psi0_Em)
-		if (allocated(currcnt%Psi0_Ep)) deallocate(currcnt%Psi0_Ep)
-		if (allocated(currcnt%Psi1_Em)) deallocate(currcnt%Psi1_Em)
-		if (allocated(currcnt%Psi1_Ep)) deallocate(currcnt%Psi1_Ep)
 		if (allocated(currcnt%omega_phonon)) deallocate(currcnt%omega_phonon)
+
+		do alpha = 0,1
+			do exciton_type = 1,4
+				if(allocated(currcnt%excitons(exciton_type, alpha)%mu_r)) deallocate(currcnt%excitons(exciton_type, alpha)%mu_r)
+				if(allocated(currcnt%excitons(exciton_type, alpha)%ex)) deallocate(currcnt%excitons(exciton_type, alpha)%ex)
+				if(allocated(currcnt%excitons(exciton_type, alpha)%psi)) deallocate(currcnt%excitons(exciton_type, alpha)%psi)
+			enddo
+		enddo
 
 	end subroutine free_cnt_memory
 

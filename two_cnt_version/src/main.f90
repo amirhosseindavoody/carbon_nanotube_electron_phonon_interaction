@@ -10,7 +10,7 @@ program cnt_phonon_assisted_energy_transfer
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
 	use cnt_scattering_electron_phonon_mod, only: cnt_electron_phonon_scattering_rate_emission, cnt_electron_phonon_scattering_rate_absorption, cnt_electron_phonon_matrix_element, cnt_electron_phonon_scattering_states
-	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission
+	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
 	use comparams, only: cnt1, cnt2
 	use input_cnt_mod, only: input_cnt_parameters, input_exciton
 	! use occupation_mod, only: calculate_occupation_table
@@ -51,21 +51,16 @@ program cnt_phonon_assisted_energy_transfer
 	call input_exciton(ex_type=3, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
 	call input_exciton(ex_type=4, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
 
-	! call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(1,0), f_exciton=cnt1%excitons(1,0))
-	! call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(1,0), f_exciton=cnt1%excitons(2,0))
-	! call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(2,0), f_exciton=cnt1%excitons(1,0))
-	! call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(2,0), f_exciton=cnt1%excitons(2,0))
-
 	do tmp_i = 1, 4
 		do tmp_j = 1, 4
 			call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(tmp_i,0), f_exciton=cnt1%excitons(tmp_j,0))
+			call cnt_exction_phonon_scattering_rate_absorption(currcnt=cnt1, i_exciton=cnt1%excitons(tmp_i,0), f_exciton=cnt1%excitons(tmp_j,0))
 		enddo
 	enddo
 
-	! call input_a_exciton(cnt1)
-	! call cnt_electron_phonon_scattering_rate_emission(cnt1)
-	! call cnt_electron_phonon_scattering_rate_absorption(cnt1)
-	! call cnt_electron_phonon_matrix_element(cnt1)
+	call cnt_electron_phonon_scattering_rate_emission(cnt1)
+	call cnt_electron_phonon_scattering_rate_absorption(cnt1)
+	call cnt_electron_phonon_matrix_element(cnt1)
 
 	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
 	call write_log(trim(log_input))
