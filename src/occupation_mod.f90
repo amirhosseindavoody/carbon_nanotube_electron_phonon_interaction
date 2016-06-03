@@ -79,8 +79,6 @@ contains
 		enddo
 		close(100)
 
-		return
-
 	end subroutine calculate_occupation_table
 
 

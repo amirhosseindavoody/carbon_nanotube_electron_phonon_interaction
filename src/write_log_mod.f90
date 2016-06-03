@@ -1,14 +1,19 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Declaration of input parameters
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 module write_log_mod
 	implicit none
 	private
-	public :: writeLog
+	public :: write_log
+	character(len=1000), public :: log_input
 
 contains
 	!*******************************************************************************
 	! This subroutines opens the log file add new log and closes the file
 	!*******************************************************************************
 
-	subroutine writeLog(message)
+	subroutine write_log(message)
 		character(len=*) :: message
 		logical :: flgexist
 		integer :: logFile = 10
@@ -19,10 +24,13 @@ contains
 		else
 			open(logFile, file="log.dat", status="new", action="write")
 		end if
-		write(logFile, *) message
+
+		write(*,'(A)') trim(message)
+		write(logFile, '(A)') trim(message)
+		
 		close(logFile)
 
 		return
-	end subroutine writeLog
-	
+	end subroutine write_log
+
 end module write_log_mod

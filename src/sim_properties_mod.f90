@@ -36,6 +36,19 @@ contains
 		logical :: folder_exists=.true.
 		integer, dimension(3) :: date, time
 
+
+		! set some default values for simulation properties. These values are most likely going to be over written later.
+		temperature = 300.d0
+		ppLen = 10.d-9
+		c2c_min = 1.2d-9
+		c2c_max = 1.2d-9
+		n_c2c = 1
+		theta_min = 0.d0
+		theta_max = pi/2.d0
+		n_theta = 2
+
+
+		! read and set the simulation properties variables
 		open(unit=100,file=filename,status="old", action="read", iostat=istat)
 		if (istat .ne. 0) then
 			write(*,*) ""
@@ -43,7 +56,6 @@ contains
 			call exit()
 		end if
 
-		! read and set the simulation properties variables
 		do while (ios == 0)
 			read (100,'(A)',iostat=ios) buffer
 			if (ios == 0) then
@@ -104,12 +116,23 @@ contains
 		i_tmp = 0
 		do while (folder_exists)
 			i_tmp = i_tmp+1
-			write(outdir_tmp,"(A,A,I3.3)") trim(outdir_final),"tmp_",i_tmp
+			write(outdir_tmp,"(A, A, I0)") trim(outdir_final),"tmp_",i_tmp
 			inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
 		end do
 
 		!create the output directory
-		write(command,'("mkdir ''",A,"''")') trim(outdir_tmp)
+		write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
+		call system(trim(command))
+
+		! copy the input files to the output directory
+		call get_command_argument(1,buffer)
+		write(command,'(A, A, A, A)') "cp ", trim(buffer), " ", trim(outdir_tmp)
+		call system(trim(command))
+		call get_command_argument(2,buffer)
+		write(command,'(A, A, A, A)') "cp ", trim(buffer), " ", trim(outdir_tmp)
+		call system(trim(command))
+		call get_command_argument(3,buffer)
+		write(command,'(A, A, A, A)') "cp ", trim(buffer), " ", trim(outdir_tmp)
 		call system(trim(command))
 
 		!change the working directory to the output directory
@@ -120,21 +143,10 @@ contains
 			call exit()
 		end if
 
-		! copy the input files to the output directory
-		call get_command_argument(1,buffer)
-		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
-		call system(trim(command))
-		call get_command_argument(2,buffer)
-		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
-		call system(trim(command))
-		call get_command_argument(3,buffer)
-		write(command,'("cp ",A," ",A)')trim(buffer), trim(outdir_tmp)
-		call system(trim(command))
-
 		! get time and date of start of simulation and write it to the log file
 		call idate(date)
 		call itime(time)
-		write(log_input,'(A,I2.2,A,I2.2,A,I4.4,A,I2.2,A,I2.2,A,I2.2)') "Simulation started at:"//new_line('A')//"date = ",date(1),"/",date(2),"/",date(3),new_line('A')//"time = ", time(1),":",time(2),":",time(3)
+		write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, I0, A, I0)') "Simulation started at:"//new_line('A')//"date = ",date(1),"/",date(2),"/",date(3),new_line('A')//"time = ", time(1),":",time(2),":",time(3)
 		call write_log(log_input)
 
 
@@ -150,14 +162,14 @@ contains
 		character(len=1000) :: command
 		integer :: istat
 
-		write(outdir_final,"(A,A,I3.3)") trim(outdir_final),"final_result"
+		write(outdir_final,"(A, A)") trim(outdir_final), "final_result"
 
 		! remove the final output directory if it already exists
 		folder_exists = .true.
 		inquire(file=trim(outdir_final)//'/.', exist=folder_exists)
 
 		if (folder_exists) then
-			write(command, "(A,A)") "rm -r ", trim(outdir_final)
+			write(command, "(A, A)") "rm -r ", trim(outdir_final)
 			call system(trim(command))
 		end if
 

@@ -25,7 +25,7 @@ contains
 		integer :: ikc1, ikv1
 		integer :: is,isp
 		integer :: iT
-		character(len=200) :: log_input
+		character(len=1000) :: log_input
 		real*8, dimension(2) :: Kcm1, Kcm2
 		real*8 , dimension(2,2) :: ds1, ds2 ! this are relative displacement of carbon atoms in graphene unit cell
 

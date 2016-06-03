@@ -158,7 +158,7 @@ contains
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
 
-		write(filename,'(A, A, A, A, A, A)') trim(currcnt%name), ".", trim(i_exciton%name), "_to_", trim(f_exciton%name), ".exciton_phonon_scattering_rate_emission.dat"
+		write(filename,'(A, A, A, A, A, A)') trim(currcnt%name), ".exciton_phonon_scattering_rate_emission.", trim(i_exciton%name), "_to_", trim(f_exciton%name), ".dat"
 		open(unit=100,file=trim(filename),status="unknown")
 
 		do i = 1, energy_mesh_size
@@ -327,7 +327,7 @@ contains
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
 
-		write(filename,'(A, A, A, A, A, A)') trim(currcnt%name), ".", trim(i_exciton%name), "_to_", trim(f_exciton%name), ".exciton_phonon_scattering_rate_absorption.dat"
+		write(filename,'(A, A, A, A, A, A)') trim(currcnt%name), ".exciton_phonon_scattering_rate_absorption.", trim(i_exciton%name), "_to_", trim(f_exciton%name), ".dat"
 		open(unit=100,file=trim(filename),status="unknown")
 
 		do i = 1, energy_mesh_size

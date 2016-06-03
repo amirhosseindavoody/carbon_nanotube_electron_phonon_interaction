@@ -100,7 +100,7 @@ module cnt_class
 		!Target exciton wavefunction and energies
 		! real*8, dimension(:,:), allocatable :: Ex_t !the first index is subband, the second index is iKcm
 		! complex*16, dimension(:,:,:), allocatable :: Psi_t !the first index is ikr, the scond index is the subband, the third index is iKcm
-		character(len=20) :: target_exciton_type !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
+		character(len=1000) :: target_exciton_type !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
 		real*8 :: ex_symmetry
 
 		!number of exciton bands below free-electron free-hole energy level
@@ -118,6 +118,12 @@ module cnt_class
 		character(len=1000) :: name
 
 	end type cnt
+
+
+	!***************************************************************************
+	!	- carbon nanotube objects that are used in the simulation
+	!***************************************************************************
+	type (cnt), public :: cnt1, cnt2
 
 contains
 
