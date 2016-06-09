@@ -87,7 +87,7 @@ contains
 
 		do i=1,energy_mesh_size
 
-			write(log_input,'(A, I4.4, A, I4.4)') "Calculating exciton-phonon scattering rates: i_energy_mesh = ", i, " , energy_mesh_size = ", energy_mesh_size
+			write(log_input,'(A, I0, A, I0)') "calculating exciton-phonon scattering rates: ", i, " / ", energy_mesh_size
 			call write_log(log_input)
 
 			do ix=1,i_exciton%nx
@@ -256,7 +256,7 @@ contains
 
 		do i=1,energy_mesh_size
 
-			write(log_input,'(A, I4.4, A, I4.4)') "Calculating exciton-phonon scattering rates: i_energy_mesh = ", i, " , energy_mesh_size = ", energy_mesh_size
+			write(log_input,'(A, I0, A, I0)') "calculating exciton-phonon scattering rates: ", i, " / ", energy_mesh_size
 			call write_log(log_input)
 
 			do ix=1,i_exciton%nx

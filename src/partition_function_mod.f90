@@ -14,7 +14,7 @@ contains
 		use sim_properties_mod, only : temperature
 
 		type(cnt), intent(in) :: currcnt
-		type(exciton), optional, intent(in) :: target_exciton
+		type(exciton), pointer, optional, intent(in) :: target_exciton
 		real*8, intent(out) :: partition_function
 		integer :: ix, iKcm
 		real*8 :: min_energy, deltaE

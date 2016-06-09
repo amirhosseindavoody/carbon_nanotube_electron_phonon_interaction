@@ -10,5 +10,4 @@ geometry, n_theta= 2
 
 geometry, len_per_perpendicular_tube[nm]= 10
 
-simulation, partition_function= target
 simulation, temperature[Kelvin]= 300

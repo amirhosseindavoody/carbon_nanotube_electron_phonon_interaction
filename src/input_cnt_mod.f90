@@ -100,6 +100,7 @@ contains
 							read(value, *) currcnt%target_exciton_type
 						case ('length[nm]')
 							read(value, *) currcnt%length
+							currcnt%length = currcnt%length*1.d-9
 						case ('center_position[nm]')
 							read(value, *) currcnt%center_position
 						case default
@@ -238,10 +239,10 @@ contains
 
 		!make the coefficients of electronic states for the cutting lines close to K' point in A-type excitons
 		if (ex_type .eq. 1) then
-			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(+1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(-1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
 			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
 		elseif(ex_type .eq. 2) then
-			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(-1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
+			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(+1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
 			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
 		endif
 

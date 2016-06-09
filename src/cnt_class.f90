@@ -60,7 +60,6 @@ module cnt_class
 		integer :: ikc_max, ikc_min !these are index limits for the wave vector inside the carbon nanotube brillouine zone in the direction of the carbon nanotube axis.
 		integer :: ik_max, ik_min, iKcm_max, iKcm_min, ik_high, ik_low, ikr_high, ikr_low, iq_max, iq_min
 		integer :: iKcm_min_fine, iKcm_max_fine
-		integer :: mu_cm
 
 		! ik_max			:the higher limit of k-vector that is below E_th
 		! ik_min			:the lower limit of k-vector that is below E_th
@@ -95,16 +94,12 @@ module cnt_class
 		!	ex_type=4 : Em exciton.
 		!	alpha=0 : singlet.
 		!	alpha=1 : triplet.
-		type(exciton), dimension(4,0:1) :: excitons
+		type(exciton), dimension(1:4,0:1) :: excitons
 
-		!Target exciton wavefunction and energies
-		! real*8, dimension(:,:), allocatable :: Ex_t !the first index is subband, the second index is iKcm
-		! complex*16, dimension(:,:,:), allocatable :: Psi_t !the first index is ikr, the scond index is the subband, the third index is iKcm
+		type(exciton), pointer :: selected_exciton
+
 		character(len=1000) :: target_exciton_type !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
-		real*8 :: ex_symmetry
 
-		!number of exciton bands below free-electron free-hole energy level
-		! integer :: nX_a, nX_e, nX_t
 		real*8 :: E_th
 		real*8 :: Kcm_max
 
@@ -123,7 +118,7 @@ module cnt_class
 	!***************************************************************************
 	!	- carbon nanotube objects that are used in the simulation
 	!***************************************************************************
-	type (cnt), public :: cnt1, cnt2
+	type (cnt), target, public :: cnt1, cnt2
 
 contains
 

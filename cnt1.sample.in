@@ -1,7 +1,7 @@
 directory, output= /home/amirhossein/research/exciton/data/exciton_dispersion/
 
 cnt, n_ch=	10
-cnt, m_ch=	00
+cnt, m_ch=	0
 cnt, nkg=	1001
 cnt, dk/dkx=	10
 cnt, nr=		200
@@ -9,7 +9,7 @@ cnt, E_th[eV]=	0.5
 cnt, Kcm_max[1/nm]=	1.5
 cnt, i_sub=	1
 cnt, Ckappa=	1.0
-cnt, kappa_coeff=	1.211
+cnt, kappa_coeff=	1.0
 cnt, target_exciton_type=	Ex0_A2
 cnt, length[nm]=	10
 cnt, center_position[nm]=	0

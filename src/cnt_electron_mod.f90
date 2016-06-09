@@ -108,55 +108,36 @@ contains
 		currcnt%iKcm_max_fine = currcnt%iKcm_max * currcnt%dk_dkx_ratio !the upper limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
 		currcnt%iKcm_min_fine = currcnt%iKcm_min * currcnt%dk_dkx_ratio !the lower limit of center of mass wave vector that we calculate when using a finer mesh size for exciton center of mass momentum
 
-		select case (trim(currcnt%target_exciton_type))
-		case('Ex_A1', 'Ex0_A2', 'Ex1_A2')
-			currcnt%mu_cm = 0
-		case('Ex0_Ep', 'Ex1_Ep')
-			currcnt%mu_cm = +1 * currcnt%min_sub(currcnt%i_sub)
-		case('Ex0_Em', 'Ex1_Em')
-			currcnt%mu_cm = -1 * currcnt%min_sub(currcnt%i_sub)
-		case default
-			write(*,*) "ERROR: undetermined target exciton type!!!!"
-			call exit()
-		end select
-
 		! calculate the tight-binding energies and coefficients.
-		allocate(currcnt%Ek(2,currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio,2))
-		allocate(currcnt%Cc(2,currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio,2))
-		allocate(currcnt%Cv(2,currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio,2))
+		allocate(currcnt%Ek(1-currcnt%Nu/2:currcnt%Nu/2, currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio, 2))
+		allocate(currcnt%Cc(1-currcnt%Nu/2:currcnt%Nu/2, currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio, 2))
+		allocate(currcnt%Cv(1-currcnt%Nu/2:currcnt%Nu/2, currcnt%ik_low*currcnt%dk_dkx_ratio:currcnt%ik_high*currcnt%dk_dkx_ratio, 2))
 
-		do ik=currcnt%ik_low*currcnt%dk_dkx_ratio,currcnt%ik_high*currcnt%dk_dkx_ratio
-			mu=currcnt%min_sub(currcnt%i_sub) !first band
-			k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dkx*currcnt%K2
-			call graphene_electron(e_tmp,Cc_tmp,Cv_tmp,k,currcnt%a1,currcnt%a2)
-			currcnt%Ek(1,ik,:) = e_tmp
-			currcnt%Cc(1,ik,:) = Cc_tmp
-			currcnt%Cv(1,ik,:) = Cv_tmp
-
-
-			mu=-currcnt%min_sub(currcnt%i_sub) !second band
-			k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dkx*currcnt%K2
-			call graphene_electron(e_tmp,Cc_tmp,Cv_tmp,k,currcnt%a1,currcnt%a2)
-			currcnt%Ek(2,ik,:) = e_tmp
-			currcnt%Cc(2,ik,:) = Cc_tmp
-			currcnt%Cv(2,ik,:) = Cv_tmp
+		do mu=1-currcnt%Nu/2,currcnt%Nu/2
+			do ik=currcnt%ik_low*currcnt%dk_dkx_ratio,currcnt%ik_high*currcnt%dk_dkx_ratio
+				k=dble(mu)*currcnt%K1+dble(ik)*currcnt%dkx*currcnt%K2
+				call graphene_electron(e_tmp,Cc_tmp,Cv_tmp,k,currcnt%a1,currcnt%a2)
+				currcnt%Ek(mu,ik,:) = e_tmp
+				currcnt%Cc(mu,ik,:) = Cc_tmp
+				currcnt%Cv(mu,ik,:) = Cv_tmp
+			enddo
 		enddo
 
 		! save the index boundaries and index of minimum subband to the log file. ************************************************************************
 		call write_log(new_line('A')//"Index boundaries *************************************")
-		write(log_input,'(A,I4.4)') "ikc_max = ",currcnt%ikc_max
+		write(log_input,'(A, I0)') "ikc_max = ",currcnt%ikc_max
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "ik_max = ",currcnt%ik_max
+		write(log_input,'(A, I0)') "ik_max = ",currcnt%ik_max
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "iKcm_max = ",currcnt%iKcm_max
+		write(log_input,'(A, I0)') "iKcm_max = ",currcnt%iKcm_max
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "ikr_high = ",currcnt%ikr_high
+		write(log_input,'(A, I0)') "ikr_high = ",currcnt%ikr_high
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "ik_high = ",currcnt%ik_high
+		write(log_input,'(A, I0)') "ik_high = ",currcnt%ik_high
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "iq_max = ",currcnt%iq_max
+		write(log_input,'(A, I0)') "iq_max = ",currcnt%iq_max
 		call write_log(trim(log_input))
-		write(log_input,'(A,I4.4)') "min_sub(i_sub) = ",currcnt%min_sub(currcnt%i_sub)
+		write(log_input,'(A, I0)') "min_sub(i_sub) = ",currcnt%min_sub(currcnt%i_sub)
 		call write_log(trim(log_input))
 
 	end subroutine cnt_electron_band_structure

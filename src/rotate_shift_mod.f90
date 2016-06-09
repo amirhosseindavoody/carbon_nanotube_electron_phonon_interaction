@@ -9,14 +9,15 @@ contains
 	! calculate the k-space part of matrix element for the crossing point number iC
 	!**************************************************************************************************************************
 
-	subroutine rotate_shift_cnt(currcnt, theta, c2cDistance)
+	subroutine rotate_shift_cnt(currcnt, theta, c2c_distance)
 		use cnt_class, only: cnt
 		use constants_mod, only: pi
 		use math_functions_mod, only: my_norm2
+		! use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
 		real*8, intent(in) :: theta
-		real*8, intent(in) :: c2cDistance
+		real*8, intent(in) :: c2c_distance
 
 		integer :: n_cnt_unitcell
 		integer :: iT, i
@@ -45,7 +46,7 @@ contains
 		enddo
 
 		! shift the tube along z-axis
-		currcnt%ur_posA3(:,3) = currcnt%ur_posA3(:,3) + c2cDistance
+		currcnt%ur_posA3(:,3) = currcnt%ur_posA3(:,3) + c2c_distance
 
 		! shift the tube along the x_axis so the center is at currcnt%center_position
 		tmpr = currcnt%center_position - (minval(currcnt%ur_posA3(:,1))+maxval(currcnt%ur_posA3(:,1)))/2.d0
@@ -58,11 +59,6 @@ contains
 			currcnt%r_posA3(i,3) = currcnt%ur_posA3(i,3)
 		enddo
 
-
-		return
 	end subroutine rotate_shift_cnt
-
-
-
 
 end module rotate_shift_mod
