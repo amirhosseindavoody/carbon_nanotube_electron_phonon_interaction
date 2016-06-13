@@ -1,7 +1,7 @@
 module cnt_scattering_exciton_phonon_mod
 	implicit none
 	private
-	public :: cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
+	public :: cnt_exciton_phonon_matrix_element, cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
 
 	real*8, private :: energy_mesh_min, energy_mesh_max
 	real*8, private :: energy_mesh_length = 0.7d0 ! this is the energy distance between energy_mesh_max and energy_mesh_min
@@ -32,15 +32,9 @@ contains
 		integer :: ix_2, iKcm_2, mu_cm_2
 		integer :: mu_ph, iq_ph
 		integer :: ib
-		integer :: ikr, iq_ph_r
-		integer :: mu_r
-		integer :: mu_r2
-		integer :: imu_r
-		integer :: imu_r2
 		integer :: n_initial_state, n_final_state
 		integer, dimension(:), allocatable :: initial_state_idx, final_state_idx
 		real*8, dimension(2) :: q_ph
-		real*8, dimension(2) :: kc, kv
 
 		character(len=1000) :: filename
 
@@ -48,7 +42,6 @@ contains
 		real*8, dimension(:), allocatable :: exciton_phonon_scattering_rate
 		real*8 :: Ex_derivative, omega_phonon_derivative
 		real*8 :: omega_tmp
-		complex*16 :: matrix_element_electron, matrix_element_hole
 		complex*16 :: matrix_element_exciton
 
 		mu_cm = i_exciton%mu_cm
@@ -114,35 +107,8 @@ contains
 
 								omega_tmp = currcnt%omega_phonon(mu_ph, iq_ph, ib)
 
-								matrix_element_exciton = (0.d0,0.d0)
-
-								iq_ph_r = int(iq_ph/currcnt%dk_dkx_ratio)
-
-								do imu_r = 1,i_exciton%n_mu_r
-									do imu_r2 = 1,f_exciton%n_mu_r
-										mu_r = i_exciton%mu_r(imu_r)
-										mu_r2 = f_exciton%mu_r(imu_r2)
-
-										if (mu_ph .eq. (2*(mu_r-mu_r2))) then
-
-											do ikr = (currcnt%ikr_low+abs(iq_ph_r)),(currcnt%ikr_high-abs(iq_ph_r))
-												! conduction band electron scattering terms
-												kc = dble(mu_r+mu_cm) * currcnt%K1 + (dble(ikr*currcnt%dk_dkx_ratio+iKcm)) * currcnt%dkx * currcnt%K2
-												call graphene_electron_phonon_matrix_element(matrix_element_electron, kc, q_ph, ib, currcnt%a1, currcnt%a2)
-												matrix_element_exciton = matrix_element_exciton + i_exciton%psi(ikr,ix,iKcm,imu_r)*conjg(f_exciton%psi(ikr-iq_ph_r,ix_2,iKcm_2,imu_r2))*matrix_element_electron
-
-												! valence band electron scattering terms
-												kv = dble(mu_r-mu_cm) * currcnt%K1 + (dble(ikr*currcnt%dk_dkx_ratio-iKcm)) * currcnt%dkx * currcnt%K2
-												call graphene_electron_phonon_matrix_element(matrix_element_hole, kv, q_ph, ib, currcnt%a1, currcnt%a2)
-												matrix_element_exciton = matrix_element_exciton + i_exciton%psi(ikr,ix,iKcm,imu_r)*conjg(f_exciton%psi(ikr+iq_ph_r,ix_2,iKcm_2,imu_r2))*matrix_element_hole
-
-											enddo
-										endif
-									enddo
-
-								enddo
-
-								exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) + (1.d0+1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element_exciton))**2)/(abs(Ex_derivative/2.d0-omega_phonon_derivative)*omega_tmp/hb)
+								call cnt_exciton_phonon_matrix_element(matrix_element_exciton, currcnt, i_exciton, f_exciton, ix, iKcm, ix_2, iKcm_2, ib )
+								exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) + (1.d0+1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element_exciton))**2)/(abs(Ex_derivative/2.d0-omega_phonon_derivative))
 
 							enddo
 
@@ -153,7 +119,7 @@ contains
 			enddo
 		enddo
 
-		exciton_phonon_scattering_rate = ((g0**2)*A_u/(16.d0*pi*m_carbon*currcnt%radius))*exciton_phonon_scattering_rate
+		exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
 
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
@@ -201,15 +167,9 @@ contains
 		integer :: ix_2, iKcm_2, mu_cm_2
 		integer :: mu_ph, iq_ph
 		integer :: ib
-		integer :: ikr, iq_ph_r
-		integer :: mu_r
-		integer :: mu_r2
-		integer :: imu_r
-		integer :: imu_r2
 		integer :: n_initial_state, n_final_state
 		integer, dimension(:), allocatable :: initial_state_idx, final_state_idx
 		real*8, dimension(2) :: q_ph
-		real*8, dimension(2) :: kc, kv
 
 		character(len=1000) :: filename
 
@@ -217,7 +177,6 @@ contains
 		real*8, dimension(:), allocatable :: exciton_phonon_scattering_rate
 		real*8 :: Ex_derivative, omega_phonon_derivative
 		real*8 :: omega_tmp
-		complex*16 :: matrix_element_electron, matrix_element_hole
 		complex*16 :: matrix_element_exciton
 
 		mu_cm = i_exciton%mu_cm
@@ -283,35 +242,8 @@ contains
 
 								omega_tmp = currcnt%omega_phonon(-mu_ph, -iq_ph, ib)
 
-								matrix_element_exciton = (0.d0,0.d0)
-
-								iq_ph_r = int(iq_ph/currcnt%dk_dkx_ratio)
-
-								do imu_r = 1,i_exciton%n_mu_r
-									do imu_r2 = 1,f_exciton%n_mu_r
-										mu_r = i_exciton%mu_r(imu_r)
-										mu_r2 = f_exciton%mu_r(imu_r2)
-
-										if (mu_ph .eq. (2*(mu_r-mu_r2))) then
-
-											do ikr = (currcnt%ikr_low+abs(iq_ph_r)),(currcnt%ikr_high-abs(iq_ph_r))
-												! conduction band electron scattering terms
-												kc = dble(mu_r+mu_cm) * currcnt%K1 + (dble(ikr*currcnt%dk_dkx_ratio+iKcm)) * currcnt%dkx * currcnt%K2
-												call graphene_electron_phonon_matrix_element(matrix_element_electron, kc, q_ph, ib, currcnt%a1, currcnt%a2)
-												matrix_element_exciton = matrix_element_exciton + i_exciton%psi(ikr,ix,iKcm,imu_r)*conjg(f_exciton%psi(ikr-iq_ph_r,ix_2,iKcm_2,imu_r2))*matrix_element_electron
-
-												! valence band electron scattering terms
-												kv = dble(mu_r-mu_cm) * currcnt%K1 + (dble(ikr*currcnt%dk_dkx_ratio-iKcm)) * currcnt%dkx * currcnt%K2
-												call graphene_electron_phonon_matrix_element(matrix_element_hole, kv, q_ph, ib, currcnt%a1, currcnt%a2)
-												matrix_element_exciton = matrix_element_exciton + i_exciton%psi(ikr,ix,iKcm,imu_r)*conjg(f_exciton%psi(ikr+iq_ph_r,ix_2,iKcm_2,imu_r2))*matrix_element_hole
-
-											enddo
-										endif
-									enddo
-
-								enddo
-
-								exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) + (1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element_exciton))**2)/(abs(Ex_derivative/2.d0-omega_phonon_derivative)*omega_tmp/hb)
+								call cnt_exciton_phonon_matrix_element(matrix_element_exciton, currcnt, i_exciton, f_exciton, ix, iKcm, ix_2, iKcm_2, ib )
+								exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) + (1.d0/(exp(omega_tmp/temperature/kb)-1.d0)) * ((abs(matrix_element_exciton))**2)/(abs(Ex_derivative/2.d0-omega_phonon_derivative))
 
 							enddo
 
@@ -322,7 +254,7 @@ contains
 			enddo
 		enddo
 
-		exciton_phonon_scattering_rate = ((g0**2)*A_u/(16.d0*pi*m_carbon*currcnt%radius))*exciton_phonon_scattering_rate
+		exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
 
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
@@ -344,6 +276,76 @@ contains
 		write(log_input,'(A)') "Exciton-phonon scattering rates due to phonon absorption calculated and saved!"
 		call write_log(log_input)
 	end subroutine cnt_exction_phonon_scattering_rate_absorption
+
+
+	!***************************************************************************
+	! calculate the exciton-phonon matrix element
+	!***************************************************************************
+	subroutine cnt_exciton_phonon_matrix_element(matrix_element, currcnt, i_exciton, f_exciton, ix1, iKcm1, ix2, iKcm2, ib )
+		use cnt_class, only: cnt, exciton
+		use constants_mod
+		use graphene_mod, only: graphene_electron_phonon_matrix_element
+
+		complex*16, intent(out) :: matrix_element
+		type(cnt), intent(in) :: currcnt
+		type(exciton), intent(in) :: i_exciton, f_exciton
+
+		integer, intent(in) :: ix1, iKcm1, ix2, iKcm2, ib
+
+		integer :: ikr1
+		integer :: mu_ph
+		integer :: iq_ph, iq_ph_r
+		integer :: half_iq_ph, half_iq_ph_r
+		integer :: mu_r1, mu_cm1
+		integer :: mu_r2, mu_cm2
+		integer :: imu_r1
+		integer :: imu_r2
+		real*8, dimension(2) :: q_ph
+		real*8, dimension(2) :: kc, kv
+
+		complex*16 :: matrix_element_electron, matrix_element_hole
+
+		matrix_element = (0.d0,0.d0)
+
+		mu_cm1 = i_exciton%mu_cm
+		mu_cm2 = i_exciton%mu_cm
+		mu_ph = 2*(mu_cm1-mu_cm2)
+
+		iq_ph = 2*(iKcm1-iKcm2)
+		iq_ph_r = int(iq_ph/currcnt%dk_dkx_ratio)
+
+		half_iq_ph = int(iq_ph/2)
+		half_iq_ph_r = int(iq_ph_r/2)
+
+		q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dkx * currcnt%K2
+
+		do imu_r1 = 1,i_exciton%n_mu_r
+			do imu_r2 = 1,f_exciton%n_mu_r
+				mu_r1 = i_exciton%mu_r(imu_r1)
+				mu_r2 = f_exciton%mu_r(imu_r2)
+
+				if (mu_ph .eq. (2*(mu_r1-mu_r2))) then
+
+					do ikr1 = (currcnt%ikr_low+abs(half_iq_ph_r)),(currcnt%ikr_high-abs(half_iq_ph_r))
+						! conduction band electron scattering terms
+						kc = dble(mu_r1+mu_cm1) * currcnt%K1 + (dble(ikr1*currcnt%dk_dkx_ratio+iKcm1)) * currcnt%dkx * currcnt%K2
+						call graphene_electron_phonon_matrix_element(matrix_element_electron, kc, q_ph, ib, currcnt%a1, currcnt%a2)
+						matrix_element = matrix_element + i_exciton%psi(ikr1,ix1,iKcm1,imu_r1)*conjg(f_exciton%psi(ikr1-half_iq_ph_r,ix2,iKcm2,imu_r2))*matrix_element_electron
+
+						! valence band electron scattering terms
+						kv = dble(mu_r1-mu_cm1) * currcnt%K1 + (dble(ikr1*currcnt%dk_dkx_ratio-iKcm1)) * currcnt%dkx * currcnt%K2
+						call graphene_electron_phonon_matrix_element(matrix_element_hole, kv+q_ph, q_ph, ib, currcnt%a1, currcnt%a2)
+						matrix_element = matrix_element + i_exciton%psi(ikr1,ix1,iKcm1,imu_r1)*conjg(f_exciton%psi(ikr1+half_iq_ph_r,ix2,iKcm2,imu_r2))*matrix_element_hole
+
+					enddo
+				endif
+			enddo
+
+		enddo
+
+		matrix_element = matrix_element * dcmplx(sqrt((g0**2)*A_u*hb/(16.d0*pi*m_carbon*currcnt%radius*currcnt%omega_phonon(mu_ph, half_iq_ph, ib)/hb)))
+
+	end subroutine cnt_exciton_phonon_matrix_element
 
 
 

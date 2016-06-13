@@ -13,9 +13,11 @@ module cnt_class
 		integer :: i_sub
 		integer :: spin
 		integer :: mu_cm
-		integer :: iKcm_max, iKcm_min, ikr_high, ikr_low, iKcm_min_fine, iKcm_max_fine
+		integer :: iKcm_max, iKcm_min, ikr_high, ikr_low
 		integer :: n_mu_r ! this will hold the size of mu_r
 		integer :: nx ! this is the number of exciton state that is calculated at each iKcm
+		integer :: dkr_dKcm_ratio
+		real*8 :: dKcm, dkr
 		integer, dimension(:), allocatable :: mu_r
 		real*8, dimension(:,:), allocatable :: ex !exciton energy: the first index is subband, the second index is iKcm
 		complex*16, dimension(:,:,:,:), allocatable :: psi !exciton wavefunction in k-space: the first index is ikr, the scond index is the subband, the third index is iKcm, the fourth index is mu_r

@@ -17,7 +17,7 @@ eV_to_inverse_cm = 8065.54429
 hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_10nm_center_0nm_Ckappa_1.0_to_11_0_A2_singlet_iSub_1_length_10nm_center_0nm_Ckappa_1.0_C2C_1.2nm_1.2nm_theta_0_90_partition_1/"
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_10nm_center_0nm_Ckappa_1.0_to_11_0_A2_singlet_iSub_1_length_10nm_center_0nm_Ckappa_1.0_C2C_1.2nm_1.2nm_theta_0_90/"
 cnt_name = "cnt1"
 exciton_name = ("A1_singlet", "A2_singlet", "Ep_singlet", "Em_singlet")
 

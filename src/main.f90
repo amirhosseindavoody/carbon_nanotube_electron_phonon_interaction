@@ -14,6 +14,7 @@ program cnt_phonon_assisted_energy_transfer
 	use first_order_coulomb_transition_mod, only: calculate_first_order_transition_rates
 	use input_cnt_mod, only: input_cnt_parameters, input_exciton
 	use partition_function_mod, only: calculate_partition_function
+	use second_order_coulomb_phonon_transition_mod, only: calculate_second_order_transition_rates
 	use sim_properties_mod, only: input_sim_properties, finalize_output_directory_name
 	use write_log_mod, only: write_log, log_input
 
@@ -21,14 +22,13 @@ program cnt_phonon_assisted_energy_transfer
 
 	character(len=1000) :: filename
 	real :: start_time, end_time
-	integer :: tmp_i, tmp_j
 
 	call CPU_time(start_time)
 
 	! check the input format for the correct number of input files
 	if (command_argument_count() .ne. 3) then
-		write(*,*) "Input format ERROR!"
-		write(*,*) "Correct input format is: main.exe cnt1_prop.in cnt2_prop.in simulation_prop.in"
+		write(*,'(A)') "Input format ERROR!"
+		write(*,'(A)') "Correct input format is: main.exe cnt1_prop.in cnt2_prop.in simulation_prop.in"
 		call exit()
 	end if
 
@@ -48,13 +48,8 @@ program cnt_phonon_assisted_energy_transfer
 	! call input_exciton(ex_type=3, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
 	! call input_exciton(ex_type=4, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
 
-	! calculate exciton-phonon scattering rates
-	do tmp_i = 2, 2
-		do tmp_j = 2, 2
-			call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt1, i_exciton=cnt1%excitons(tmp_i,0), f_exciton=cnt1%excitons(tmp_j,0))
-			call cnt_exction_phonon_scattering_rate_absorption(currcnt=cnt1, i_exciton=cnt1%excitons(tmp_i,0), f_exciton=cnt1%excitons(tmp_j,0))
-		enddo
-	enddo
+	! call cnt_exction_phonon_scattering_rate_emission(cnt1, cnt1%excitons(2,0), cnt1%excitons(2,0))
+	! call cnt_exction_phonon_scattering_rate_absorption(cnt1, cnt1%excitons(2,0), cnt1%excitons(2,0))
 
 	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
 	call write_log(trim(log_input))
@@ -67,18 +62,7 @@ program cnt_phonon_assisted_energy_transfer
 	call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
 
 	! read energy and wavefunction information of various types of excitons
-	! call input_exciton(ex_type=1, alpha=0, currcnt=cnt2, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
 	call input_exciton(ex_type=2, alpha=0, currcnt=cnt2, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
-	! call input_exciton(ex_type=3, alpha=0, currcnt=cnt2, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
-	! call input_exciton(ex_type=4, alpha=0, currcnt=cnt2, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
-
-	! calculate exciton-phonon scattering rates
-	do tmp_i = 2, 2
-		do tmp_j = 2, 2
-			call cnt_exction_phonon_scattering_rate_emission(currcnt=cnt2, i_exciton=cnt2%excitons(tmp_i,0), f_exciton=cnt2%excitons(tmp_j,0))
-			call cnt_exction_phonon_scattering_rate_absorption(currcnt=cnt2, i_exciton=cnt2%excitons(tmp_i,0), f_exciton=cnt2%excitons(tmp_j,0))
-		enddo
-	enddo
 
 	write(log_input,'(A)') new_line('A')//"cnt2 data loaded successfuly!!!"
 	call write_log(trim(log_input))
@@ -86,7 +70,8 @@ program cnt_phonon_assisted_energy_transfer
 	cnt1%selected_exciton => cnt1%excitons(2,0)
 	cnt2%selected_exciton => cnt2%excitons(2,0)
 
-	call calculate_first_order_transition_rates(cnt1, cnt2)
+	! call calculate_first_order_transition_rates(cnt1, cnt2)
+	call calculate_second_order_transition_rates(cnt1, cnt2)
 
 	! save information about simulation runtime
 	call CPU_time(end_time)

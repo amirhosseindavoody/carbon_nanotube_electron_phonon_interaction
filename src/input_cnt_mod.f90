@@ -156,67 +156,72 @@ contains
 
 		integer, intent(in) :: ex_type
 		integer, intent(in) :: alpha
-		type(cnt), intent(inout) :: currcnt
+		type(cnt), target, intent(inout) :: currcnt
 		character(len=*), intent(in) :: exciton_energy_filename
 		character(len=*), intent(in) :: exciton_wavefunction_filename
 		integer :: iX, iKcm, ikr
 		real*8 :: tmpr
 		character(len=1000) :: tmp_txt
+		type(exciton), pointer :: my_exciton
 
-		currcnt%excitons(ex_type,alpha)%i_sub = currcnt%i_sub
+		my_exciton => currcnt%excitons(ex_type,alpha)
 
-		currcnt%excitons(ex_type,alpha)%iKcm_max = currcnt%iKcm_max
-		currcnt%excitons(ex_type,alpha)%iKcm_min = currcnt%iKcm_min
-		currcnt%excitons(ex_type,alpha)%ikr_high = currcnt%ikr_high
-		currcnt%excitons(ex_type,alpha)%ikr_low = currcnt%ikr_low
-		currcnt%excitons(ex_type,alpha)%iKcm_min_fine = currcnt%iKcm_min_fine
-		currcnt%excitons(ex_type,alpha)%iKcm_max_fine = currcnt%iKcm_max_fine
+		my_exciton%i_sub = currcnt%i_sub
 
-		currcnt%excitons(ex_type,alpha)%nx = currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1
+		my_exciton%iKcm_max = currcnt%iKcm_max_fine
+		my_exciton%iKcm_min = currcnt%iKcm_min_fine
+		my_exciton%ikr_high = currcnt%ikr_high
+		my_exciton%ikr_low = currcnt%ikr_low
 
-		currcnt%excitons(ex_type,alpha)%spin = alpha
+		my_exciton%nx = my_exciton%ikr_high-my_exciton%ikr_low+1
+
+		my_exciton%dKcm = currcnt%dkx
+		my_exciton%dkr = currcnt%dk
+		my_exciton%dkr_dKcm_ratio = currcnt%dk_dkx_ratio
+
+		my_exciton%spin = alpha
 
 		! set information mu_cm and size of mu_r array
 		if (ex_type .eq. 1) then
-			currcnt%excitons(ex_type,alpha)%n_mu_r = 2
-			currcnt%excitons(ex_type,alpha)%mu_cm = 0
+			my_exciton%n_mu_r = 2
+			my_exciton%mu_cm = 0
 		elseif (ex_type .eq. 2) then
-			currcnt%excitons(ex_type,alpha)%n_mu_r = 2
-			currcnt%excitons(ex_type,alpha)%mu_cm = 0
+			my_exciton%n_mu_r = 2
+			my_exciton%mu_cm = 0
 		elseif(ex_type .eq. 3) then
-			currcnt%excitons(ex_type,alpha)%n_mu_r = 1
-			currcnt%excitons(ex_type,alpha)%mu_cm = +1 * currcnt%min_sub(currcnt%i_sub)
+			my_exciton%n_mu_r = 1
+			my_exciton%mu_cm = +1 * currcnt%min_sub(currcnt%i_sub)
 		elseif(ex_type .eq. 4) then
-			currcnt%excitons(ex_type,alpha)%n_mu_r = 1
-			currcnt%excitons(ex_type,alpha)%mu_cm = -1 * currcnt%min_sub(currcnt%i_sub)
+			my_exciton%n_mu_r = 1
+			my_exciton%mu_cm = -1 * currcnt%min_sub(currcnt%i_sub)
 		endif
 
 		! set value of mu_r
-		allocate(currcnt%excitons(ex_type,alpha)%mu_r(currcnt%excitons(ex_type,alpha)%n_mu_r))
+		allocate(my_exciton%mu_r(my_exciton%n_mu_r))
 		if (ex_type .eq. 1) then
-			currcnt%excitons(ex_type,alpha)%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
-			currcnt%excitons(ex_type,alpha)%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
+			my_exciton%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
+			my_exciton%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
 		elseif(ex_type .eq. 2) then
-			currcnt%excitons(ex_type,alpha)%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
-			currcnt%excitons(ex_type,alpha)%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
+			my_exciton%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
+			my_exciton%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
 		else
-			currcnt%excitons(ex_type,alpha)%mu_r(1) = 0
+			my_exciton%mu_r(1) = 0
 		endif
 
 		! read exciton energy and wavefunction information
-		allocate(currcnt%excitons(ex_type,alpha)%ex(1:currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1,currcnt%excitons(ex_type,alpha)%iKcm_min_fine:currcnt%excitons(ex_type,alpha)%iKcm_max_fine))
-		allocate(currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high, currcnt%excitons(ex_type,alpha)%nx, currcnt%excitons(ex_type,alpha)%iKcm_min_fine:currcnt%excitons(ex_type,alpha)%iKcm_max_fine, currcnt%excitons(ex_type,alpha)%n_mu_r))
+		allocate(my_exciton%ex(1:my_exciton%ikr_high-my_exciton%ikr_low+1,my_exciton%iKcm_min:my_exciton%iKcm_max))
+		allocate(my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high, my_exciton%nx, my_exciton%iKcm_min:my_exciton%iKcm_max, my_exciton%n_mu_r))
 
 		write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_energy_filename)
 		open(unit=100,file=trim(tmp_txt),status="old")
 		write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_wavefunction_filename)
 		open(unit=101,file=trim(tmp_txt),status="old")
 
-		do iKcm=currcnt%excitons(ex_type,alpha)%iKcm_min_fine,currcnt%excitons(ex_type,alpha)%iKcm_max_fine
-			do iX=1,currcnt%excitons(ex_type,alpha)%nx
-				read(100,'(E16.8)', advance='no') currcnt%excitons(ex_type,alpha)%ex(iX,iKcm)
-				do ikr=currcnt%excitons(ex_type,alpha)%ikr_low,currcnt%excitons(ex_type,alpha)%ikr_high
-					read(101,'(E16.8,E16.8)', advance='no') currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,1)
+		do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
+			do iX=1,my_exciton%nx
+				read(100,'(E16.8)', advance='no') my_exciton%ex(iX,iKcm)
+				do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+					read(101,'(E16.8,E16.8)', advance='no') my_exciton%psi(ikr,iX,iKcm,1)
 				enddo
 			enddo
 
@@ -227,44 +232,44 @@ contains
 		close(101)
 
 		!make sure the exciton wavefunctions are normalized
-		do iX=1,currcnt%excitons(ex_type,alpha)%ikr_high-currcnt%excitons(ex_type,alpha)%ikr_low+1
-			do iKcm=currcnt%excitons(ex_type,alpha)%iKcm_min_fine,currcnt%excitons(ex_type,alpha)%iKcm_max_fine
+		do iX=1,my_exciton%ikr_high-my_exciton%ikr_low+1
+			do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
 				tmpr = 0.d0
-				do ikr=currcnt%excitons(ex_type,alpha)%ikr_low,currcnt%excitons(ex_type,alpha)%ikr_high
-					tmpr = tmpr + (abs(currcnt%excitons(ex_type,alpha)%psi(ikr,iX,iKcm,1)))**2
+				do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+					tmpr = tmpr + (abs(my_exciton%psi(ikr,iX,iKcm,1)))**2
 				enddo
-				currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,1) = currcnt%excitons(ex_type,alpha)%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
+				my_exciton%psi(:,iX,iKcm,1) = my_exciton%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
 			enddo
 		enddo
 
 		!make the coefficients of electronic states for the cutting lines close to K' point in A-type excitons
 		if (ex_type .eq. 1) then
-			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(-1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
-			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
+			my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(-1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+			my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
 		elseif(ex_type .eq. 2) then
-			currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_low:currcnt%excitons(ex_type,alpha)%ikr_high,:,:,2) = dcmplx(+1.d0)*currcnt%excitons(ex_type,alpha)%psi(currcnt%excitons(ex_type,alpha)%ikr_high:currcnt%excitons(ex_type,alpha)%ikr_low:-1,:,:,1)
-			currcnt%excitons(ex_type,alpha)%psi = currcnt%excitons(ex_type,alpha)%psi/dcmplx(sqrt(2.d0))
+			my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(+1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+			my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
 		endif
 
 		!set exciton_name
 		select case (ex_type)
 		case(1)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A)') "A1"
+			write(my_exciton%name, '(A)') "A1"
 		case(2)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A)') "A2"
+			write(my_exciton%name, '(A)') "A2"
 		case(3)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A)') "Ep"
+			write(my_exciton%name, '(A)') "Ep"
 		case(4)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A)') "Em"
+			write(my_exciton%name, '(A)') "Em"
 		case default
 			call exit()
 		end select
 
 		select case (alpha)
 		case(0)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A, A)') trim(currcnt%excitons(ex_type,alpha)%name), "_singlet"
+			write(my_exciton%name, '(A, A)') trim(my_exciton%name), "_singlet"
 		case(1)
-			write(currcnt%excitons(ex_type,alpha)%name, '(A, A)') trim(currcnt%excitons(ex_type,alpha)%name), "_triplet"
+			write(my_exciton%name, '(A, A)') trim(my_exciton%name), "_triplet"
 		case default
 			call exit()
 		end select

@@ -91,10 +91,10 @@ contains
 			enddo
 
 			close(100)
-		endif
 
-		write(log_input,'(A,I2.2,A,I2.2,A)') new_line('A')//"phonon dispersion calculated for carbon nanotube with chirality: (", currcnt%n_ch, ",", currcnt%m_ch, ")"
-		call write_log(trim(log_input))
+			write(log_input,'(A,I0,A,I0,A)') new_line('A')//"phonon dispersion calculated for carbon nanotube with chirality: (", currcnt%n_ch, ",", currcnt%m_ch, ")"
+			call write_log(trim(log_input))
+		endif
 
 	end subroutine cnt_phonon_dispersion
 

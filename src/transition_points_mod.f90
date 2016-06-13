@@ -30,7 +30,7 @@ contains
 		n_crossing = 0
 		do ix1 = 1,exciton_1%nx
 			do ix2 = 1,exciton_2%nx
-				do iKcm = 1 , min(exciton_1%iKcm_max_fine, exciton_2%iKcm_max_fine)
+				do iKcm = 1 , min(exciton_1%iKcm_max, exciton_2%iKcm_max)
 					rtmp1 = (exciton_1%ex(ix1,iKcm)-exciton_2%ex(ix2,iKcm))
 					rtmp2 = (exciton_1%ex(ix1,iKcm-1)-exciton_2%ex(ix2,iKcm-1))
 					if (((rtmp1 * rtmp2) .le. 0.d0) .and. ((exciton_1%ex(ix1,iKcm) - min_energy) .lt. deltaE) ) then
@@ -49,7 +49,7 @@ contains
 		n_crossing = 0
 		do ix1 = 1,exciton_1%nx
 			do ix2 = 1,exciton_2%nx
-				do iKcm = 1 , min(exciton_1%iKcm_max_fine, exciton_2%iKcm_max_fine)
+				do iKcm = 1 , min(exciton_1%iKcm_max, exciton_2%iKcm_max)
 					rtmp1 = (exciton_1%ex(ix1,iKcm)-exciton_2%ex(ix2,iKcm))
 					rtmp2 = (exciton_1%ex(ix1,iKcm-1)-exciton_2%ex(ix2,iKcm-1))
 					if (((rtmp1 * rtmp2) .le. 0.d0) .and. ((exciton_1%ex(ix1,iKcm) - min_energy) .lt. deltaE) ) then
@@ -98,15 +98,15 @@ contains
 		deltaE = (-1.d0) * log(1.d-3) * kb*Temperature
 		min_energy = minval(exciton_1%ex)
 
-		n = exciton_2%iKcm_max_fine
+		n = exciton_2%iKcm_max
 		allocate(ya_tmp(n))
 
 		n_same_energy = 0
 		do ix1 = 1,exciton_1%nx
-			do iKcm1 = exciton_1%iKcm_min_fine , -1
+			do iKcm1 = exciton_1%iKcm_min , -1
 				if ((exciton_1%ex(ix1,iKcm1) - min_energy) .lt. deltaE) then
 					do ix2 = 1, exciton_2%nx
-						ya_tmp = exciton_2%ex(ix2,exciton_2%iKcm_min_fine:-1)
+						ya_tmp = exciton_2%ex(ix2,exciton_2%iKcm_min:-1)
 						call bisect_root(n, ya_tmp, exciton_1%ex(ix1,iKcm1), iKcm_raw)
 						if (iKcm_raw .gt. 0) then
 							n_same_energy = n_same_energy + 4
@@ -124,13 +124,13 @@ contains
 
 		n_same_energy = 0
 		do ix1 = 1,exciton_1%nx
-			do iKcm1 = exciton_1%iKcm_min_fine , -1
+			do iKcm1 = exciton_1%iKcm_min , -1
 				if ((exciton_1%ex(ix1,iKcm1) - min_energy) .lt. deltaE) then
 					do ix2 = 1, exciton_2%nx
-						ya_tmp = exciton_2%ex(ix2,exciton_2%iKcm_min_fine:-1)
+						ya_tmp = exciton_2%ex(ix2,exciton_2%iKcm_min:-1)
 						call bisect_root(n, ya_tmp, exciton_1%ex(ix1,iKcm1), iKcm_raw)
 						if (iKcm_raw .gt. 0) then
-							iKcm2 = exciton_2%iKcm_min_fine + iKcm_raw - 1
+							iKcm2 = exciton_2%iKcm_min + iKcm_raw - 1
 
 							n_same_energy = n_same_energy + 1
 							same_energy(n_same_energy, 1) = ix1
