@@ -42,14 +42,7 @@ program cnt_phonon_assisted_energy_transfer
 	call cnt_electron_band_structure(cnt1)
 	call cnt_phonon_dispersion(cnt1, save_dispersion=.true.)
 
-	! read energy and wavefunction information of various types of excitons
-	! call input_exciton(ex_type=1, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
 	call input_exciton(ex_type=2, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
-	! call input_exciton(ex_type=3, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
-	! call input_exciton(ex_type=4, alpha=0, currcnt=cnt1, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
-
-	! call cnt_exction_phonon_scattering_rate_emission(cnt1, cnt1%excitons(2,0), cnt1%excitons(2,0))
-	! call cnt_exction_phonon_scattering_rate_absorption(cnt1, cnt1%excitons(2,0), cnt1%excitons(2,0))
 
 	write(log_input,'(A)') new_line('A')//"cnt1 data loaded successfuly!!!"
 	call write_log(trim(log_input))
@@ -61,7 +54,6 @@ program cnt_phonon_assisted_energy_transfer
 	call cnt_electron_band_structure(cnt2)
 	call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
 
-	! read energy and wavefunction information of various types of excitons
 	call input_exciton(ex_type=2, alpha=0, currcnt=cnt2, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
 
 	write(log_input,'(A)') new_line('A')//"cnt2 data loaded successfuly!!!"
