@@ -62,8 +62,8 @@ program cnt_phonon_assisted_energy_transfer
 	cnt1%selected_exciton => cnt1%excitons(2,0)
 	cnt2%selected_exciton => cnt2%excitons(2,0)
 
-	! call calculate_first_order_transition_rates(cnt1, cnt2)
-	call calculate_second_order_transition_rates(cnt1, cnt2)
+	call calculate_first_order_transition_rates(cnt1, cnt2)
+	! call calculate_second_order_transition_rates(cnt1, cnt2)
 
 	! save information about simulation runtime
 	call CPU_time(end_time)

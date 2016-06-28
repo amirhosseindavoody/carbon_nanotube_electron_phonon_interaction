@@ -21,7 +21,7 @@ contains
 		use cnt_class, only: cnt, exciton
 		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use cnt_scattering_exciton_phonon_mod, only: cnt_exciton_phonon_matrix_element
-		use geometric_matrix_element_mod, only: calculate_infinite_J
+		use geometric_matrix_element_mod, only: calculate_infinite_geometric_matrix_element
 		use kspace_matrix_element_mod, only: calculate_Q_tilde
 		use math_functions_mod, only: find_all_roots, first_derivative
 		use sim_properties_mod, only: temperature, c2c_min
@@ -123,7 +123,7 @@ contains
 												do ix_m = 1,20 !m_exciton%nx
 													call cnt_exciton_phonon_matrix_element(phonon_matrix_element, cnt_1, i_exciton, m_exciton, ix1, iKcm1, ix_m, iKcm_m, ib )
 													call calculate_Q_tilde(Q_tilde, cnt_1, cnt_2, m_exciton, f_exciton, ix_m, iKcm_m, ix2, iKcm2)
-													call calculate_infinite_J(geometric_matrix_element, cnt_1, cnt_2, m_exciton%mu_cm, iKcm_m, f_exciton%mu_cm, iKcm2, pi/2.d0, c2c_distance)
+													call calculate_infinite_geometric_matrix_element(geometric_matrix_element, cnt_1, cnt_2, m_exciton%mu_cm, iKcm_m, f_exciton%mu_cm, iKcm2, pi/2.d0, c2c_distance)
 													coulomb_matrix_element = Q_tilde * geometric_matrix_element * (A_u**2) /(4.d0*(pi**2)*cnt_1%radius*cnt_2%radius)
 													total_matrix_element = total_matrix_element + phonon_matrix_element * coulomb_matrix_element / dcmplx(i_exciton%ex(ix1,iKcm1)-m_exciton%ex(ix_m,iKcm_m)-cnt_1%omega_phonon(mu_ph,mid_state_idx(k),ib))
 												enddo

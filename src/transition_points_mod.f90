@@ -12,7 +12,7 @@ contains
 
 	subroutine find_crossings(exciton_1, exciton_2)
 		use cnt_class, only: exciton
-		use constants_mod, only: kb
+		use constants_mod, only: kb, eV
 		use sim_properties_mod, only: temperature
 		use write_log_mod, only: write_log, log_input
 

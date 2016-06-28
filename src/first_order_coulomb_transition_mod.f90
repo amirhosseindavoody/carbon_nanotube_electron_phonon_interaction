@@ -101,8 +101,6 @@ contains
 
 				! calculate exciton transfer rate for finite length CNTs
 				if ((cnt_1%length .lt. huge(1.d0)) .and. (cnt_2%length .lt. huge(1.d0))) then
-					write(log_input,'(A, I0, A, I0, A, I0, A, I0)') 'calculating finite transition rate: i_theta=', i_theta, ', n_theta=', n_theta, 'ic2c=', ic2c, ', n_c2c=', n_c2c
-					call write_log(log_input)
 
 					n_same_energy = size(same_energy,1)
 
@@ -134,10 +132,11 @@ contains
 
 					end do
 
+					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "finite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c)
+					call write_log(log_input)
+
 				! calculate exciton transfer rate for infinitely long CNTs
 				else
-					write(log_input,'(A, I0, A, I0, A, I0, A, I0)') 'calculating infinite transition rate: i_theta=', i_theta, ', n_theta=', n_theta, 'ic2c=', ic2c, ', n_c2c=', n_c2c
-					call write_log(log_input)
 
 					if (theta .eq. 0.d0) then
 						n_crossing = size(crossing_points,1)
@@ -155,11 +154,11 @@ contains
 
 							! calculate the density of states for exciton band.
 							if (allocated(tmp_array)) deallocate(tmp_array)
-							allocate(tmp_array(lbound(cnt_2%selected_exciton%ex, dim=2):ubound(cnt_2%selected_exciton%ex, dim=2)))
-							tmp_array = cnt_2%selected_exciton%ex(ix2,:)
-							call first_derivative(tmp_array, lbound(tmp_array,dim=1), ubound(tmp_array,dim=1), iKcm2, cnt_2%dkx, dos)
+							allocate(tmp_array(lbound(cnt_1%selected_exciton%ex, dim=2):ubound(cnt_1%selected_exciton%ex, dim=2)))
+							tmp_array = cnt_1%selected_exciton%ex(ix1,:)
+							call first_derivative(tmp_array, lbound(tmp_array,dim=1), ubound(tmp_array,dim=1), iKcm1, cnt_1%dkx, dos)
 							if (dos .eq. 0.d0) then
-								call first_derivative(tmp_array, lbound(tmp_array,dim=1), ubound(tmp_array,dim=1), iKcm2+1, cnt_2%dkx, dos)
+								call first_derivative(tmp_array, lbound(tmp_array,dim=1), ubound(tmp_array,dim=1), iKcm1+1, cnt_1%dkx, dos)
 							endif
 							dos = abs(1/dos)
 
@@ -177,7 +176,7 @@ contains
 							iKcm1 = same_energy(iS,3)
 							iKcm2 = same_energy(iS,4)
 
-							call calculate_infinite_geometric_matrix_element(iKcm1, iKcm2, cnt_1, cnt_2, theta, c2c_distance, geometric_matrix_element)
+							call calculate_infinite_geometric_matrix_element(geometric_matrix_element, cnt_1, cnt_2, cnt_1%selected_exciton%mu_cm, iKcm1, cnt_2%selected_exciton%mu_cm, iKcm2, theta, c2c_distance)
 
 							matrix_element = geometric_matrix_element * kspace_matrix_element_same_energy(iS)
 
@@ -195,6 +194,9 @@ contains
 
 						end do
 					endif
+
+					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "infinite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c)
+					call write_log(log_input)
 
 				end if
 
