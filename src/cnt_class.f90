@@ -100,7 +100,7 @@ module cnt_class
 
 		type(exciton), pointer :: selected_exciton
 
-		character(len=1000) :: target_exciton_type !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
+		character(len=1000) :: selected_exciton_name !this is the type of target exciton which should be one this options: Ex_A1, Ex0_A2, Ex1_A2
 
 		real*8 :: E_th
 		real*8 :: Kcm_max

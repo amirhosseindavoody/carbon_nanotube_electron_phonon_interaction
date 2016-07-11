@@ -56,12 +56,9 @@ contains
 			dc2c = 0.d0
 		end if
 
-		write(log_input, '("c2c_min[nm] = ", F0.1)') c2c_min*1.d9
-		call write_log(trim(log_input))
-		write(log_input, '("c2c_max[nm] = ", F0.1)') c2c_max*1.d9
-		call write_log(trim(log_input))
-		write(log_input, '("n_c2c = ", I0)') n_c2c
-		call write_log(trim(log_input))
+		write(log_input, '("c2c_min[nm] = ", F0.1)') c2c_min*1.d9;		call write_log(trim(log_input))
+		write(log_input, '("c2c_max[nm] = ", F0.1)') c2c_max*1.d9;		call write_log(trim(log_input))
+		write(log_input, '("n_c2c = ", I0)') n_c2c;		call write_log(trim(log_input))
 
 		! set orientation properties
 		if (n_theta .ne. 1) then
@@ -70,12 +67,9 @@ contains
 			dTheta = 0.d0
 		end if
 
-		write(log_input, '("theta_min = ", I0)') nint(theta_min*180/pi)
-		call write_log(trim(log_input))
-		write(log_input, '("theta_max = ", I0)') nint(theta_max*180/pi)
-		call write_log(trim(log_input))
-		write(log_input, '("n_theta = ", I0)') n_theta
-		call write_log(trim(log_input))
+		write(log_input, '("theta_min = ", I0)') nint(theta_min*180/pi);		call write_log(trim(log_input))
+		write(log_input, '("theta_max = ", I0)') nint(theta_max*180/pi);		call write_log(trim(log_input))
+		write(log_input, '("n_theta = ", I0)') n_theta;		call write_log(trim(log_input))
 
 		!allocate the transition rate table
 		allocate(transition_rate(n_theta,n_c2c))
@@ -132,8 +126,7 @@ contains
 
 					end do
 
-					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "finite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c)
-					call write_log(log_input)
+					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "finite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c);					call write_log(log_input)
 
 				! calculate exciton transfer rate for infinitely long CNTs
 				else
@@ -195,8 +188,7 @@ contains
 						end do
 					endif
 
-					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "infinite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c)
-					call write_log(log_input)
+					write(log_input,'(A, I0, A, I0, A, I0, A, I0, A, E8.2)') "infinite tube transition rate (theta:", i_theta, "/", n_theta, ", distance:", ic2c, "/", n_c2c, ")=", transition_rate(i_theta,ic2c);					call write_log(log_input)
 
 				end if
 

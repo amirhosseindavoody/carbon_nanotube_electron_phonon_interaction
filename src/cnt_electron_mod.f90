@@ -124,21 +124,14 @@ contains
 		enddo
 
 		! save the index boundaries and index of minimum subband to the log file. ************************************************************************
-		call write_log(new_line('A')//"Index boundaries *************************************")
-		write(log_input,'(A, I0)') "ikc_max = ",currcnt%ikc_max
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "ik_max = ",currcnt%ik_max
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "iKcm_max = ",currcnt%iKcm_max
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "ikr_high = ",currcnt%ikr_high
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "ik_high = ",currcnt%ik_high
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "iq_max = ",currcnt%iq_max
-		call write_log(trim(log_input))
-		write(log_input,'(A, I0)') "min_sub(i_sub) = ",currcnt%min_sub(currcnt%i_sub)
-		call write_log(trim(log_input))
+		write(log_input,'(A, A)') new_line('A'), "Index boundaries *************************************";	call write_log(log_input)
+		write(log_input,'(A, I0)') "ikc_max = ",currcnt%ikc_max;	call write_log(log_input)
+		write(log_input,'(A, I0)') "ik_max = ",currcnt%ik_max;		call write_log(log_input)
+		write(log_input,'(A, I0)') "iKcm_max = ",currcnt%iKcm_max;	call write_log(log_input)
+		write(log_input,'(A, I0)') "ikr_high = ",currcnt%ikr_high;	call write_log(log_input)
+		write(log_input,'(A, I0)') "ik_high = ",currcnt%ik_high;	call write_log(log_input)
+		write(log_input,'(A, I0)') "iq_max = ",currcnt%iq_max;		call write_log(log_input)
+		write(log_input,'(A, I0)') "min_sub(i_sub) = ",currcnt%min_sub(currcnt%i_sub);		call write_log(log_input)
 
 	end subroutine cnt_electron_band_structure
 

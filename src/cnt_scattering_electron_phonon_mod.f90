@@ -5,7 +5,6 @@ module cnt_scattering_electron_phonon_mod
 
 	real*8, private :: energy_mesh_min, energy_mesh_max
 	real*8, private :: energy_mesh_length = 2.0d0 ! this is the energy distance between energy_mesh_max and energy_mesh_min
-	integer, private :: energy_mesh_size = 200
 
 	real*8, dimension(:,:,:), allocatable :: E_k
 
@@ -20,7 +19,7 @@ contains
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature
+		use sim_properties_mod, only: temperature, energy_mesh_size
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
@@ -146,8 +145,7 @@ contains
 
 		close(100)
 
-		write(log_input,'(A)') "Electron-phonon scattering rates due to phonon emission calculated and saved!"
-		call write_log(log_input)
+		write(log_input,'(A)') "Electron-phonon scattering rates due to phonon emission calculated and saved!";		call write_log(log_input)
 	end subroutine cnt_electron_phonon_scattering_rate_emission
 
 
@@ -160,7 +158,7 @@ contains
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature
+		use sim_properties_mod, only: temperature, energy_mesh_size
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt

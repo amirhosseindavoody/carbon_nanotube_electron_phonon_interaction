@@ -26,7 +26,7 @@ fig.canvas.draw()
 
 axes = fig.add_subplot(1,1,1)
 
-directory = "/home/amirhossein/research/exciton/data/exciton_dispersion/CNT(11,00)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(1)-Ckappa(2.0)/"
+directory = "/home/amirhossein/research/exciton/data/exciton_dispersion/CNT(12,00)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(1)-Ckappa(2.0)/"
 k_vec_temporary = np.loadtxt(directory+"kVec_fine.dat", skiprows=0)
 dk = k_vec_temporary[1]-k_vec_temporary[0]
 del k_vec_temporary

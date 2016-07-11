@@ -5,7 +5,7 @@
 module input_cnt_mod
 	implicit none
 	private
-	public :: input_cnt_parameters, input_exciton
+	public :: input_cnt_parameters, input_exciton, input_selected_exciton
 
 contains
 	!**************************************************************************************************************************
@@ -96,32 +96,27 @@ contains
 							read(value, *) currcnt%Ckappa
 						case ('kappa_coeff')
 							read(value, *) currcnt%kappa_coeff
-						case ('target_exciton_type')
-							read(value, *) currcnt%target_exciton_type
+						case ('selected_exciton')
+							read(value, *) currcnt%selected_exciton_name
 						case ('length[nm]')
 							read(value, *) currcnt%length
 							currcnt%length = currcnt%length*1.d-9
 						case ('center_position[nm]')
 							read(value, *) currcnt%center_position
 						case default
-							write(*,'(A,A)') "label = ", trim(label)
-							write(*,'(A)') "ERROR in 'cnt' input arguments!!!"
-							write(*,'(A)') "simulation STOPPED!!!"
-							call exit()
+							write(*,'(A, A, A, A)') "ERROR in interpreting this line:", new_line('A'), trim(buffer), new_line('A')
 						end select
 					case ('flg')
 						select case (trim(label))
 						case ('flg_dielectric')
 							read(value, *) flg_dielectric
 						case default
-							write(*,*) "ERROR in 'flg' input arguments!!!"
-							write(*,*) "simulation STOPPED!!!"
-							call exit()
+							write(*,'(A, A, A, A)') "ERROR in interpreting this line:", new_line('A'), trim(buffer), new_line('A')
 						end select
 					end select
 				end if
 			else if (ios .gt. 0) then
-				write (*,*) "Error in reading input file!"
+				write (*,'(A)') "Error in reading input file!"
 				call exit()
 			end if
 		end do
@@ -139,8 +134,7 @@ contains
 		folder_exists = .true.
 		inquire(file=trim(currcnt%directory)//'/.', exist=folder_exists)
 		if (.not. folder_exists) then
-			write(log_input,'(A)') new_line('A')//"input folder for cnt exciton dispersion not found:"//new_line('A')//trim(currcnt%directory)//new_line('A')
-			call write_log(log_input)
+			write(log_input,'(A)') new_line('A')//"input folder for cnt exciton dispersion not found:"//new_line('A')//trim(currcnt%directory)//new_line('A');			call write_log(log_input)
 			call exit()
 		end if
 
@@ -197,7 +191,7 @@ contains
 		endif
 
 		! set value of mu_r
-		allocate(my_exciton%mu_r(my_exciton%n_mu_r))
+		if (.not. allocated(my_exciton%mu_r)) allocate(my_exciton%mu_r(my_exciton%n_mu_r))
 		if (ex_type .eq. 1) then
 			my_exciton%mu_r(1) = +1*currcnt%min_sub(currcnt%i_sub)
 			my_exciton%mu_r(2) = -1*currcnt%min_sub(currcnt%i_sub)
@@ -209,46 +203,48 @@ contains
 		endif
 
 		! read exciton energy and wavefunction information
-		allocate(my_exciton%ex(1:my_exciton%ikr_high-my_exciton%ikr_low+1,my_exciton%iKcm_min:my_exciton%iKcm_max))
-		allocate(my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high, my_exciton%nx, my_exciton%iKcm_min:my_exciton%iKcm_max, my_exciton%n_mu_r))
+		if ((.not. allocated(my_exciton%ex)) .and. (.not. allocated(my_exciton%psi))) then
+			allocate(my_exciton%ex(1:my_exciton%ikr_high-my_exciton%ikr_low+1,my_exciton%iKcm_min:my_exciton%iKcm_max))
+			allocate(my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high, my_exciton%nx, my_exciton%iKcm_min:my_exciton%iKcm_max, my_exciton%n_mu_r))
 
-		write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_energy_filename)
-		open(unit=100,file=trim(tmp_txt),status="old")
-		write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_wavefunction_filename)
-		open(unit=101,file=trim(tmp_txt),status="old")
+			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_energy_filename)
+			open(unit=100,file=trim(tmp_txt),status="old")
+			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_wavefunction_filename)
+			open(unit=101,file=trim(tmp_txt),status="old")
 
-		do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
-			do iX=1,my_exciton%nx
-				read(100,'(E16.8)', advance='no') my_exciton%ex(iX,iKcm)
-				do ikr=my_exciton%ikr_low,my_exciton%ikr_high
-					read(101,'(E16.8,E16.8)', advance='no') my_exciton%psi(ikr,iX,iKcm,1)
-				enddo
-			enddo
-
-			read(100,'(E16.8)')
-			read(101,'(E16.8)')
-		enddo
-		close(100)
-		close(101)
-
-		!make sure the exciton wavefunctions are normalized
-		do iX=1,my_exciton%ikr_high-my_exciton%ikr_low+1
 			do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
-				tmpr = 0.d0
-				do ikr=my_exciton%ikr_low,my_exciton%ikr_high
-					tmpr = tmpr + (abs(my_exciton%psi(ikr,iX,iKcm,1)))**2
+				do iX=1,my_exciton%nx
+					read(100,'(E16.8)', advance='no') my_exciton%ex(iX,iKcm)
+					do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+						read(101,'(E16.8,E16.8)', advance='no') my_exciton%psi(ikr,iX,iKcm,1)
+					enddo
 				enddo
-				my_exciton%psi(:,iX,iKcm,1) = my_exciton%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
-			enddo
-		enddo
 
-		!make the coefficients of electronic states for the cutting lines close to K' point in A-type excitons
-		if (ex_type .eq. 1) then
-			my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(-1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
-			my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
-		elseif(ex_type .eq. 2) then
-			my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(+1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
-			my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
+				read(100,'(E16.8)')
+				read(101,'(E16.8)')
+			enddo
+			close(100)
+			close(101)
+
+			!make sure the exciton wavefunctions are normalized
+			do iX=1,my_exciton%ikr_high-my_exciton%ikr_low+1
+				do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
+					tmpr = 0.d0
+					do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+						tmpr = tmpr + (abs(my_exciton%psi(ikr,iX,iKcm,1)))**2
+					enddo
+					my_exciton%psi(:,iX,iKcm,1) = my_exciton%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
+				enddo
+			enddo
+
+			!make the coefficients of electronic states for the cutting lines close to K' point in A-type excitons
+			if (ex_type .eq. 1) then
+				my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(-1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+				my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
+			elseif(ex_type .eq. 2) then
+				my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(+1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+				my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
+			endif
 		endif
 
 		!set exciton_name
@@ -275,5 +271,49 @@ contains
 		end select
 
 	end subroutine input_exciton
+
+
+	!***************************************************************************
+	! input the exciton information for the selected exciton type.
+	!***************************************************************************
+
+	subroutine input_selected_exciton(my_cnt)
+		use cnt_class, only: cnt, exciton
+		use write_log_mod, only: write_log, log_input
+
+		type(cnt), target, intent(inout) :: my_cnt
+
+		select case (trim(my_cnt%selected_exciton_name))
+		case("A1_singlet")
+			call input_exciton(ex_type=1, alpha=0, currcnt=my_cnt, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(1,0)
+		case("A2_singlet")
+			call input_exciton(ex_type=2, alpha=0, currcnt=my_cnt, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(2,0)
+		case("Ep_singlet")
+			call input_exciton(ex_type=3, alpha=0, currcnt=my_cnt, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(3,0)
+		case("Em_singlet")
+			call input_exciton(ex_type=4, alpha=0, currcnt=my_cnt, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(4,0)
+		case("A1_triplet")
+			call input_exciton(ex_type=1, alpha=1, currcnt=my_cnt, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(1,1)
+		case("A2_triplet")
+			call input_exciton(ex_type=2, alpha=1, currcnt=my_cnt, exciton_energy_filename='Ex1_A2.dat', exciton_wavefunction_filename='Psi1_A2.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(2,1)
+		case("Ep_triplet")
+			call input_exciton(ex_type=3, alpha=1, currcnt=my_cnt, exciton_energy_filename='Ex1_Ep.dat', exciton_wavefunction_filename='Psi1_Ep.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(3,1)
+		case("Em_triplet")
+			call input_exciton(ex_type=4, alpha=1, currcnt=my_cnt, exciton_energy_filename='Ex1_Em.dat', exciton_wavefunction_filename='Psi1_Em.dat')
+			my_cnt%selected_exciton => my_cnt%excitons(4,1)
+		case default
+			write(log_input, '(A, A)') "Incorrect selected_exciton_name:", trim(my_cnt%selected_exciton_name)
+			call write_log(log_input)
+			call exit()
+		end select
+
+	end subroutine input_selected_exciton
 
 end module input_cnt_mod

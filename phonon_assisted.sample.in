@@ -11,3 +11,5 @@ geometry, n_theta= 2
 geometry, len_per_perpendicular_tube[nm]= 10
 
 simulation, temperature[Kelvin]= 300
+
+simulation, energy_mesh_size= 20

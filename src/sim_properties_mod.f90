@@ -14,6 +14,7 @@ module sim_properties_mod
 	real*8 :: theta_min, theta_max
 	integer :: n_theta
 
+	integer :: energy_mesh_size
 
 contains
 
@@ -96,11 +97,13 @@ contains
 						select case (trim(label))
 						case ('temperature[Kelvin]')
 							read(value,*) temperature
+						case ('energy_mesh_size')
+							read(value,*) energy_mesh_size
 						end select
 					end select
 				end if
 			else if (ios .gt. 0) then
-				write (*,*) "Error in reading input file!"
+				write (*,'(A)') "Error in reading input file!"
 				call exit()
 			end if
 		end do
@@ -113,11 +116,21 @@ contains
 			i_tmp = i_tmp+1
 			write(outdir_tmp,"(A, A, I0)") trim(outdir_final),"tmp_",i_tmp
 			inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
+
+			if (.not. folder_exists) then
+				!create the output directory
+				write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
+				call system(trim(command), status=istat)
+				if (istat .ne. 0) then
+					folder_exists = .true.
+				endif
+			endif
+
 		end do
 
-		!create the output directory
-		write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
-		call system(trim(command))
+		! !create the output directory
+		! write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
+		! call system(trim(command))
 
 		! copy the input files to the output directory
 		call get_command_argument(1,buffer)

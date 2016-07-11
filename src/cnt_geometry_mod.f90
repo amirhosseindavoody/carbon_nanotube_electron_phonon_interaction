@@ -141,31 +141,19 @@ contains
 		currcnt%pos3d(2,:,:) = currcnt%posB3(:,:)
 
 		! write down important informations into the output file.************************************************************
-		call write_log(new_line('A')//"geometrical properties **********************************")
-		write(log_input,'(A, I0, A, I0,A)') "chirality = (",currcnt%n_ch," , ",currcnt%m_ch,")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a1 = (",currcnt%a1(1)," , ",currcnt%a1(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a2 = (",currcnt%a2(1)," , ",currcnt%a2(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "b1 = (",currcnt%b1(1)," , ",currcnt%b1(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "b2 = (",currcnt%b2(1)," , ",currcnt%b2(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "aCC_vec = (",currcnt%aCC_vec(1)," , ",currcnt%aCC_vec(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "ch_vec = (",currcnt%ch_vec(1)," , ",currcnt%ch_vec(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "t_vec = (",currcnt%t_vec(1)," , ",currcnt%t_vec(2),")"
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3)') "len_ch = ",currcnt%len_ch
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,I0)') "Nu = ",currcnt%Nu
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3)') "dk = ",currcnt%dk
-		call write_log(trim(log_input))
-		write(log_input,'(SP,A,ES10.3)') "dkx = ",currcnt%dkx
-		call write_log(trim(log_input))
+		write(log_input,'(A, A)') new_line('A'), "geometrical properties **********************************";	call write_log(log_input)
+		write(log_input,'(A, I0, A, I0,A)') "chirality = (",currcnt%n_ch," , ",currcnt%m_ch,")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a1 = (",currcnt%a1(1)," , ",currcnt%a1(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a2 = (",currcnt%a2(1)," , ",currcnt%a2(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "b1 = (",currcnt%b1(1)," , ",currcnt%b1(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "b2 = (",currcnt%b2(1)," , ",currcnt%b2(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "aCC_vec = (",currcnt%aCC_vec(1)," , ",currcnt%aCC_vec(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "ch_vec = (",currcnt%ch_vec(1)," , ",currcnt%ch_vec(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "t_vec = (",currcnt%t_vec(1)," , ",currcnt%t_vec(2),")";		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3)') "len_ch = ",currcnt%len_ch;		call write_log(trim(log_input))
+		write(log_input,'(SP,A,I0)') "Nu = ",currcnt%Nu;		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3)') "dk = ",currcnt%dk;		call write_log(trim(log_input))
+		write(log_input,'(SP,A,ES10.3)') "dkx = ",currcnt%dkx;		call write_log(trim(log_input))
 
 	end subroutine cnt_geometry
 

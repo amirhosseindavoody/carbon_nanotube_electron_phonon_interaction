@@ -4,8 +4,7 @@ module cnt_scattering_exciton_phonon_mod
 	public :: cnt_exciton_phonon_matrix_element, cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
 
 	real*8, private :: energy_mesh_min, energy_mesh_max
-	real*8, private :: energy_mesh_length = 0.7d0 ! this is the energy distance between energy_mesh_max and energy_mesh_min
-	integer, private :: energy_mesh_size = 100
+	real*8, private :: energy_mesh_length = 0.45d0 ! this is the energy distance between energy_mesh_max and energy_mesh_min
 
 contains
 
@@ -18,7 +17,7 @@ contains
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature
+		use sim_properties_mod, only: temperature, energy_mesh_size
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
@@ -80,9 +79,6 @@ contains
 
 		do i=1,energy_mesh_size
 
-			write(log_input,'(A, I0, A, I0)') "calculating exciton-phonon scattering rates: ", i, " / ", energy_mesh_size
-			call write_log(log_input)
-
 			do ix=1,i_exciton%nx
 				tmp_real_array_1 = i_exciton%ex(ix,:)
 				call find_all_roots (tmp_real_array_1, lbound(tmp_real_array_1,dim=1), ubound(tmp_real_array_1, dim=1), energy_mesh(i), n_initial_state, initial_state_idx)
@@ -117,9 +113,14 @@ contains
 
 				enddo
 			enddo
+
+			exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) / hb
+
+			write(log_input,'(A, A, A, A, I0, A, I0, A, E8.2)') trim(i_exciton%name), " to ", trim(f_exciton%name), " exciton-phonon scattering rates(", i, " / ", energy_mesh_size, "): ", exciton_phonon_scattering_rate(i)
+			call write_log(log_input)
 		enddo
 
-		exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
+		! exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
 
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
@@ -138,8 +139,6 @@ contains
 
 		close(100)
 
-		write(log_input,'(A)') "Exciton-phonon scattering rates due to phonon emission calculated and saved!"
-		call write_log(log_input)
 	end subroutine cnt_exction_phonon_scattering_rate_emission
 
 
@@ -153,7 +152,7 @@ contains
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature
+		use sim_properties_mod, only: temperature, energy_mesh_size
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
@@ -308,7 +307,7 @@ contains
 		matrix_element = (0.d0,0.d0)
 
 		mu_cm1 = i_exciton%mu_cm
-		mu_cm2 = i_exciton%mu_cm
+		mu_cm2 = f_exciton%mu_cm
 		mu_ph = 2*(mu_cm1-mu_cm2)
 
 		iq_ph = 2*(iKcm1-iKcm2)
