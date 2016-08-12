@@ -17,7 +17,8 @@ hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/final_result/"
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_10_to_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_10_C2C_1.2nm_1.2nm_theta_0_90/"
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_20_to_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_20_C2C_1.2nm_1.2nm_theta_0_90/"
 cnt_name = "cnt1"
 
 ################################################################################
@@ -43,26 +44,54 @@ xmin = min(k_vec)
 xmax = max(k_vec)
 axes.set_xlim([xmin,xmax])
 
-ymin = 1.1*np.amin(phonon_energy)
-ymax = 1.1*np.amax(phonon_energy)
-axes.set_ylim([ymin,ymax])
+# ymin = 1.1*np.amin(phonon_energy)
+# ymax = 1.1*np.amax(phonon_energy)
+# axes.set_ylim([ymin,ymax])
 
-# raw_input("Press Enter to continue...")
+
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_10_to_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_10_C2C_1.2nm_1.2nm_theta_0_90/"
+# # directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_20_to_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_dk_ratio_20_C2C_1.2nm_1.2nm_theta_0_90/"
+# cnt_name = "cnt1"
+
+# ################################################################################
+# # load k-vector and phonon energy dispersion data.
+# k_vec = np.loadtxt(directory+cnt_name+".phonon_k_vector.dat", skiprows=0)
+
+# filename = directory+cnt_name+".phonon_energy.dat"
+# phonon_energy = np.loadtxt(filename, skiprows=0)
+# phonon_energy = phonon_energy.T
+# phonon_energy = phonon_energy/eV
+
+# ################################################################################
+# # plot all phonon dispersion energies
+# # fig = plt.figure()
+# # figure_list.append(fig)
+# # axes = fig.add_subplot(111)
+# # fig.canvas.draw()
+
+# for i in range(0,phonon_energy.shape[1]):
+# 	axes.plot(k_vec,phonon_energy[:,i], linewidth=2.0, linestyle="dashed")
+
+# # xmin = min(k_vec)
+# # xmax = max(k_vec)
+# # axes.set_xlim([xmin,xmax])
+
+
 
 ################################################################################
 # plot phonon dispersion for a specific phonon branch (ib) and mu_ph
 
 Nu = (phonon_energy.shape[1]/6+1)/2
 
-print "ib should be in interval [ 1 , 6 ]"
-ib = int(raw_input("Input phonon branch index: "))
-print "mu_ph should be in interval [", 1-Nu, ",", Nu-1,"]"
-mu_ph = int(raw_input("Input mu_ph value: "))
+print("ib should be in interval [ 1 , 6 ]")
+ib = int(input("Input phonon branch index: "))
+print("mu_ph should be in interval [", 1-Nu, ",", Nu-1,"]")
+mu_ph = int(input("Input mu_ph value: "))
 
-print "ib = ", ib
-print "mu_ph = ", mu_ph
+print("ib = ", ib)
+print("mu_ph = ", mu_ph)
 
 i = (ib-1)*(2*Nu-1)+(mu_ph+Nu-1)
 axes.plot(k_vec,phonon_energy[:,i], linewidth=10, linestyle="solid", color="red")
 
-raw_input("Press Enter to exit...")
+input("Press Enter to exit...")

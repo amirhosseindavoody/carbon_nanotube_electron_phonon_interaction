@@ -174,7 +174,7 @@ contains
 		integer :: istat
 
 		! write(outdir_final,"(A, A)") trim(outdir_final), "final_result"
-		write(outdir_final,'(A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, F0.1, A, F0.1, A, I0, A, I0 )') trim(outdir_final)//"transfer_", cnt_1%n_ch, "_", cnt_1%m_ch, "_", trim(cnt_1%selected_exciton%name), "_iSub_", cnt_1%i_sub, "_length_", nint(cnt_1%length*1.d9), "nm_center_", nint(cnt_1%center_position*1.d9), "nm_Ckappa_", cnt_1%Ckappa, "_to_", cnt_2%n_ch, "_", cnt_2%m_ch, "_", trim(cnt_2%selected_exciton%name), "_iSub_", cnt_2%i_sub, "_length_", nint(cnt_2%length*1.d9), "nm_center_", nint(cnt_2%center_position*1.d9), "nm_Ckappa_", cnt_2%Ckappa, "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		write(outdir_final,'(A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, F0.1, A, F0.1, A, I0, A, I0 )') trim(outdir_final)//"transfer_", cnt_1%n_ch, "_", cnt_1%m_ch, "_", trim(cnt_1%selected_exciton%name), "_iSub_", cnt_1%i_sub, "_length_", nint(cnt_1%length*1.d9), "nm_center_", nint(cnt_1%center_position*1.d9), "nm_Ckappa_", cnt_1%Ckappa,"_dk_ratio_", cnt_1%dk_dkx_ratio, "_to_", cnt_2%n_ch, "_", cnt_2%m_ch, "_", trim(cnt_2%selected_exciton%name), "_iSub_", cnt_2%i_sub, "_length_", nint(cnt_2%length*1.d9), "nm_center_", nint(cnt_2%center_position*1.d9), "nm_Ckappa_", cnt_2%Ckappa, "_dk_ratio_", cnt_2%dk_dkx_ratio, "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
 
 		! remove the final output directory if it already exists
 		folder_exists = .true.

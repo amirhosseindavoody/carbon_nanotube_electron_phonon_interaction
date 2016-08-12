@@ -8,8 +8,6 @@ import itertools
 # prepare for ploting
 figure_list = list() # this will hold the list of all the figures
 plt.ion() # enables interactive mode for ploting. No plt.show() is needed!
-colors = itertools.cycle(["r", "b", "g", "k", "c", "m", "y"]) # iterative list for cycling through colors when ploting. use color=next(colors) to get the next color on the list.
-styles = itertools.cycle(["solid", "dashed", "dash_dot"]) # iterative list for cycling through line styles when ploting. use linestyle=next(styles) to get the next color on the list.
 
 # set some constants
 eV = 1.6e-19 #[Jouls]
@@ -24,9 +22,9 @@ fig = plt.figure()
 figure_list.append(fig)
 fig.canvas.draw()
 
-axes = fig.add_subplot(1,1,1)
+axes = fig.add_subplot(1,2,1)
 
-directory = "/home/amirhossein/research/exciton/data/exciton_dispersion/CNT(11,00)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(1)-Ckappa(2.0)/"
+directory = "/home/amirhossein/research/exciton/data/exciton_dispersion/CNT(17,00)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(1)-Ckappa(2.0)/"
 k_vec_temporary = np.loadtxt(directory+"kVec_fine.dat", skiprows=0)
 dk = k_vec_temporary[1]-k_vec_temporary[0]
 del k_vec_temporary
@@ -34,7 +32,6 @@ del k_vec_temporary
 filename = directory+"Ex0_A2.dat"
 Ex0_A2 = np.loadtxt(filename, skiprows=0)
 Ex0_A2 = Ex0_A2/eV
-# Ex0_A2 = Ex0_A2-np.amin(Ex0_A2)
 
 # build the k_vec with the appropriate size of nKcm
 nKcm = Ex0_A2.shape[0]
@@ -43,15 +40,8 @@ k_vec_exciton = np.linspace(-(nKcm-1)/2*dk,+(nKcm-1)/2*dk,num=nKcm,endpoint=True
 for i in range(0,Ex0_A2.shape[1]):
 	axes.plot(k_vec_exciton, Ex0_A2[:,i], linewidth=3.0, linestyle="solid", color="red", marker="")
 
-
-xmin = min(k_vec_exciton)
-xmax = max(k_vec_exciton)
-axes.set_xlim([xmin,xmax])
-
-# ymin = np.amin(Ex0_A2)
-# ymax = np.amax(Ex0_A2)
-# axes.set_ylim([ymin,ymax])
-# axes.set_ylim([ymin,ymin+0.18])
+del Ex0_A2
+del k_vec_exciton
 
 
 directory = "/home/amirhossein/research/exciton/data/exciton_dispersion/CNT(10,00)-nkg(1001)-nr(0200)-E_th(0.5)-Kcm_max(1.5)-i_sub(1)-Ckappa(2.0)/"
@@ -62,7 +52,6 @@ del k_vec_temporary
 filename = directory+"Ex0_A2.dat"
 Ex0_A2 = np.loadtxt(filename, skiprows=0)
 Ex0_A2 = Ex0_A2/eV
-# Ex0_A2 = Ex0_A2-np.amin(Ex0_A2)
 
 # build the k_vec with the appropriate size of nKcm
 nKcm = Ex0_A2.shape[0]
@@ -71,33 +60,42 @@ k_vec_exciton = np.linspace(-(nKcm-1)/2*dk,+(nKcm-1)/2*dk,num=nKcm,endpoint=True
 for i in range(0,Ex0_A2.shape[1]):
 	axes.plot(k_vec_exciton, Ex0_A2[:,i], linewidth=3.0, linestyle="solid", color="blue", marker="")
 
+filename = directory+"Ex0_A2.dat"
+Ex0_A2 = np.loadtxt(filename, skiprows=0)
+Ex0_A2 = Ex0_A2/eV
 
-xmin = min(k_vec_exciton)
-xmax = max(k_vec_exciton)
+for i in range(0,Ex0_A2.shape[1]):
+	axes.plot(k_vec_exciton, Ex0_A2[:,i], linewidth=3.0, linestyle="solid", color="black", marker="")
+
+# xmin = min(k_vec_exciton)
+# xmax = max(k_vec_exciton)
+xmin = -0.5e9
+xmax = +0.5e9
 axes.set_xlim([xmin,xmax])
 
 ymin = np.amin(Ex0_A2)
 ymax = np.amax(Ex0_A2)
 # axes.set_ylim([ymin,ymax])
-# axes.set_ylim([ymin,ymin+0.18])
+axes.set_ylim([ymin,ymin+0.18])
 
-# ################################################################################
-# # load the electron dispersions for conduction band
-# directory = "/home/amirhossein/research/exciton/data/transfer_rates/final_result/"
-# cnt_name = "cnt1"
-# k_vec_electron = np.loadtxt(directory+cnt_name+".electron_k_vector.dat", skiprows=0)
-#
-# filename = directory+cnt_name+".electron_conduction_band.dat"
-# Ec = np.loadtxt(filename, skiprows=0)
-# Ec = Ec.T
-# Ec = Ec/eV
-# Ec = Ec-np.amin(Ec)
-#
-# ################################################################################
-# # plot the electron dispersions
-#
-# for i in range(0,Ec.shape[1]):
-# 	axes.plot(k_vec_electron,Ec[:,i], linewidth=3.0, linestyle="solid", color="black")
 
+################################################################################
+# plot the second-order exciton transfer rate
+
+axes = fig.add_subplot(1,2,2)
+
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/"
+data_temporary = np.loadtxt(directory+"Ep_to_A2.dat", skiprows=0)
+energy = data_temporary[0,:]
+transfer_rate = data_temporary[1,:]
+del data_temporary
+
+energy = energy + ymin
+
+axes.plot(transfer_rate, energy, linewidth=3.0, linestyle="solid", color="blue", marker="")
+axes.set_xscale('log')
+
+# axes.set_xlim([1e1,1e7])
+axes.set_ylim([ymin,ymin+0.18])
 
 input("Press Enter to exit...")

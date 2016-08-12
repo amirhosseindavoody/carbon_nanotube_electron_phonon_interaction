@@ -128,7 +128,8 @@ contains
 		end if
 
 		! create the name of directory in which the cnt information is saved
-		write(currcnt%directory,"( A, 'CNT(', I2.2, ',', I2.2, ')-nkg(', I4.4, ')-nr(', I4.4, ')-E_th(', F3.1, ')-Kcm_max(', F3.1, ')-i_sub(', I1.1, ')-Ckappa(', F3.1, ')/' )") trim(currcnt%directory), currcnt%n_ch, currcnt%m_ch, currcnt%nkg, currcnt%nr, currcnt%E_th/eV, currcnt%Kcm_max*1.d-9, currcnt%i_sub, currcnt%Ckappa
+		! write(currcnt%directory,"( A, 'CNT(', I2.2, ',', I2.2, ')-nkg(', I4.4, ')-nr(', I4.4, ')-E_th(', F3.1, ')-Kcm_max(', F3.1, ')-i_sub(', I1.1, ')-Ckappa(', F3.1, ')/' )") trim(currcnt%directory), currcnt%n_ch, currcnt%m_ch, currcnt%nkg, currcnt%nr, currcnt%E_th/eV, currcnt%Kcm_max*1.d-9, currcnt%i_sub, currcnt%Ckappa
+		write(currcnt%directory,'(A, A, I0, A, I0, A, I0, A, I0, A, I0, A, F0.1, A, F0.1, A, I0, A, F0.1, A)') trim(currcnt%directory), "exciton_", currcnt%n_ch, "_", currcnt%m_ch, "_nkg_", currcnt%nkg, "_dk_ratio_", currcnt%dk_dkx_ratio, "_nr_", currcnt%nr, "_Eth_", currcnt%E_th/eV, "_Kcm_max_", currcnt%Kcm_max*1.d-9, "_sub_", currcnt%i_sub, "_Ckappa_", currcnt%Ckappa, "/"
 
 		! check if the directory exists
 		folder_exists = .true.
@@ -202,27 +203,64 @@ contains
 			my_exciton%mu_r(1) = 0
 		endif
 
+! 		! read exciton energy and wavefunction information
+! 		if ((.not. allocated(my_exciton%ex)) .and. (.not. allocated(my_exciton%psi))) then
+! 			allocate(my_exciton%ex(1:my_exciton%ikr_high-my_exciton%ikr_low+1,my_exciton%iKcm_min:my_exciton%iKcm_max))
+! 			allocate(my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high, my_exciton%nx, my_exciton%iKcm_min:my_exciton%iKcm_max, my_exciton%n_mu_r))
+
+! 			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_energy_filename)
+! 			open(unit=100,file=trim(tmp_txt),status="old")
+! 			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_wavefunction_filename)
+! 			open(unit=101,file=trim(tmp_txt),status="old")
+
+! 			do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
+! 				do iX=1,my_exciton%nx
+! 					read(100,'(E16.8)', advance='no') my_exciton%ex(iX,iKcm)
+! 					do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+! 						read(101,'(E16.8,E16.8)', advance='no') my_exciton%psi(ikr,iX,iKcm,1)
+! 					enddo
+! 				enddo
+
+! 				read(100,'(E16.8)')
+! 				read(101,'(E16.8)')
+! 			enddo
+! 			close(100)
+! 			close(101)
+
+! 			!make sure the exciton wavefunctions are normalized
+! 			do iX=1,my_exciton%ikr_high-my_exciton%ikr_low+1
+! 				do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
+! 					tmpr = 0.d0
+! 					do ikr=my_exciton%ikr_low,my_exciton%ikr_high
+! 						tmpr = tmpr + (abs(my_exciton%psi(ikr,iX,iKcm,1)))**2
+! 					enddo
+! 					my_exciton%psi(:,iX,iKcm,1) = my_exciton%psi(:,iX,iKcm,1) / dcmplx(sqrt(tmpr))
+! 				enddo
+! 			enddo
+
+! 			!make the coefficients of electronic states for the cutting lines close to K' point in A-type excitons
+! 			if (ex_type .eq. 1) then
+! 				my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(-1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+! 				my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
+! 			elseif(ex_type .eq. 2) then
+! 				my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high,:,:,2) = dcmplx(+1.d0)*my_exciton%psi(my_exciton%ikr_high:my_exciton%ikr_low:-1,:,:,1)
+! 				my_exciton%psi = my_exciton%psi/dcmplx(sqrt(2.d0))
+! 			endif
+! 		endif
+
 		! read exciton energy and wavefunction information
 		if ((.not. allocated(my_exciton%ex)) .and. (.not. allocated(my_exciton%psi))) then
 			allocate(my_exciton%ex(1:my_exciton%ikr_high-my_exciton%ikr_low+1,my_exciton%iKcm_min:my_exciton%iKcm_max))
 			allocate(my_exciton%psi(my_exciton%ikr_low:my_exciton%ikr_high, my_exciton%nx, my_exciton%iKcm_min:my_exciton%iKcm_max, my_exciton%n_mu_r))
 
 			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_energy_filename)
-			open(unit=100,file=trim(tmp_txt),status="old")
+			open(unit=100,file=trim(tmp_txt),status="old", form='unformatted')
 			write(tmp_txt,'(A, A)') trim(currcnt%directory), trim(exciton_wavefunction_filename)
-			open(unit=101,file=trim(tmp_txt),status="old")
+			open(unit=101,file=trim(tmp_txt),status="old", form='unformatted')
 
-			do iKcm=my_exciton%iKcm_min, my_exciton%iKcm_max
-				do iX=1,my_exciton%nx
-					read(100,'(E16.8)', advance='no') my_exciton%ex(iX,iKcm)
-					do ikr=my_exciton%ikr_low,my_exciton%ikr_high
-						read(101,'(E16.8,E16.8)', advance='no') my_exciton%psi(ikr,iX,iKcm,1)
-					enddo
-				enddo
+			read(100) my_exciton%ex(:,:)
+			read(101) my_exciton%psi(:,:,:,1)
 
-				read(100,'(E16.8)')
-				read(101,'(E16.8)')
-			enddo
 			close(100)
 			close(101)
 

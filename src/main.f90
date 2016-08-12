@@ -40,7 +40,7 @@ program cnt_phonon_assisted_energy_transfer
 	call input_cnt_parameters(cnt1,trim(filename))
 	call cnt_geometry(cnt1)
 	call cnt_electron_band_structure(cnt1)
-	call cnt_phonon_dispersion(cnt1, save_dispersion=.true.)
+	! call cnt_phonon_dispersion(cnt1, save_dispersion=.true.)
 	call input_selected_exciton(cnt1)
 
 
@@ -51,7 +51,7 @@ program cnt_phonon_assisted_energy_transfer
 	call input_cnt_parameters(cnt2,trim(filename))
 	call cnt_geometry(cnt2)
 	call cnt_electron_band_structure(cnt2)
-	call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
+	! call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
 	call input_selected_exciton(cnt2)
 
 	call calculate_second_order_transition_rates(cnt1, cnt2)

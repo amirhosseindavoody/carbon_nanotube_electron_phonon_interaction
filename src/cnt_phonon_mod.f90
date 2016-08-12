@@ -41,7 +41,7 @@ contains
 		mu_min_used = 1-currcnt%Nu/2
 		save_dispersion_used = .false.
 
-		if(present(dq)) dq_used = currcnt%dk
+		if(present(dq)) dq_used = dq
 		if(present(iq_max)) iq_max_used = iq_max
 		if(present(iq_min)) iq_min_used = iq_min
 		if(present(mu_max)) mu_max_used = mu_max

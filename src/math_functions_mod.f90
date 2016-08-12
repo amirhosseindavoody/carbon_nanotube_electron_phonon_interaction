@@ -139,15 +139,15 @@ contains
 	end subroutine bisect_root
 
 	!***************************************************************************
-	! This subroutine finds ALL the crossing point of an array from value x0
+	! This subroutine finds ALL the crossing point of an array from value y0
 	! ya: input array
-	! x0: the value that we want find to find index that ya(ind)=x0
+	! y0: the value that we want find to find index that ya(ind)=y0
 	!***************************************************************************
 
-	subroutine find_all_roots (ya, l_bound, u_bound, x0, n_root, root_idx)
+	subroutine find_all_roots (ya, l_bound, u_bound, y0, n_root, root_idx)
 		integer, intent(in) :: l_bound
 		integer, intent(in) :: u_bound
-		real*8, intent(in) :: x0
+		real*8, intent(in) :: y0
 		real*8, dimension(l_bound:u_bound), intent(in) :: ya
 		integer, intent(out) :: n_root
 		integer, dimension(:), intent(out) :: root_idx
@@ -155,7 +155,7 @@ contains
 		integer :: i
 		real*8, dimension(l_bound:u_bound) :: tmpArray
 
-		tmpArray = ya - x0
+		tmpArray = ya - y0
 		root_idx = l_bound-1
 		n_root = 0
 
@@ -319,13 +319,37 @@ contains
 		real*8, dimension(l_bound:u_bound), intent(in) :: ya
 		real*8, intent(out) :: derivative
 
-		if (point_index .lt. l_bound+2 ) then
-			derivative = (-ya(point_index+2)+4.d0*ya(point_index+1)-3.d0*ya(point_index))/(2.d0*dx)
-		elseif (point_index .gt. u_bound-2) then
-			derivative = (3.d0*ya(point_index)-4.d0*ya(point_index-1)+ya(point_index-2))/(2.d0*dx)
+! 		if (point_index .lt. l_bound+2 ) then
+! 			derivative = (-ya(point_index+2)+4.d0*ya(point_index+1)-3.d0*ya(point_index))/(2.d0*dx)
+! 		elseif (point_index .gt. u_bound-2) then
+! 			derivative = (3.d0*ya(point_index)-4.d0*ya(point_index-1)+ya(point_index-2))/(2.d0*dx)
+! 		else
+! 			derivative = (-ya(point_index+2)+8.d0*ya(point_index+1)-8.d0*ya(point_index-1)+ya(point_index-2))/(12.d0*dx)
+! 		endif
+
+		
+
+! 		if (point_index .gt. 0.d0 ) then
+! 			derivative = (-ya(point_index+2)+4.d0*ya(point_index+1)-3.d0*ya(point_index))/(2.d0*dx)
+! 		else
+! 			derivative = (3.d0*ya(point_index)-4.d0*ya(point_index-1)+ya(point_index-2))/(2.d0*dx)
+! 		endif
+
+		if (point_index .gt. 0.d0) then
+			if (point_index .le. u_bound-6) then
+				derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
+			else
+				derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
+			endif
 		else
-			derivative = (-ya(point_index+2)+8.d0*ya(point_index+1)-8.d0*ya(point_index-1)+ya(point_index-2))/(12.d0*dx)
+			if (point_index .ge. l_bound+6) then
+				derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
+			else
+				derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
+			endif
 		endif
+
+		derivative = derivative/dx
 
 	end subroutine first_derivative
 

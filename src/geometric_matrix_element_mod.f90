@@ -57,6 +57,8 @@ contains
 
 		real*8 :: radius1, radius2
 
+		geometric_matrix_element = (0.d0, 0.d0)
+
 		if ((iKcm1 .ne. 0) .and. (iKcm2 .ne. 0)) then
 
 			radius1 = cnt_1%radius
@@ -88,8 +90,6 @@ contains
 
 			K1 = dble(iKcm1)*cnt_1%dkx
 			K2 = dble(iKcm2)*cnt_2%dkx
-
-			geometric_matrix_element = (0.d0, 0.d0)
 
 			do iPhi1 = 1,nPhi1
 				do iPhi2 = 1,nPhi2
@@ -130,6 +130,8 @@ contains
 
 		real*8 :: radius1, radius2
 
+		geometric_matrix_element = (0.d0, 0.d0)
+
 		if ((iKcm1 .ne. 0) .and. (iKcm2 .ne. 0)) then
 
 			radius1 = cnt_1%radius
@@ -153,8 +155,6 @@ contains
 
 			K1 = dble(iKcm1)*cnt_1%dkx
 			K2 = dble(iKcm2)*cnt_2%dkx
-
-			geometric_matrix_element = (0.d0, 0.d0)
 
 			arg1 = sqrt(K1**2+K2**2-2.d0*K1*K2*cos(theta))
 			do iPhi1 = 1,nPhi1
