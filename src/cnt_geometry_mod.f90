@@ -141,7 +141,7 @@ contains
 		currcnt%pos3d(2,:,:) = currcnt%posB3(:,:)
 
 		! write down important informations into the output file.************************************************************
-		write(log_input,'(A, A)') new_line('A'), "geometrical properties **********************************";	call write_log(log_input)
+		write(log_input,'(A, A, A, A)') new_line('A'), "geometrical properties", new_line('A'), "-----------------------------";	call write_log(log_input)
 		write(log_input,'(A, I0, A, I0,A)') "chirality = (",currcnt%n_ch," , ",currcnt%m_ch,")";		call write_log(trim(log_input))
 		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a1 = (",currcnt%a1(1)," , ",currcnt%a1(2),")";		call write_log(trim(log_input))
 		write(log_input,'(SP,A,ES10.3,A,ES10.3,A)') "a2 = (",currcnt%a2(1)," , ",currcnt%a2(2),")";		call write_log(trim(log_input))

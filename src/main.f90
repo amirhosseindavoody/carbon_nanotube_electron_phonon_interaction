@@ -14,7 +14,7 @@ program cnt_phonon_assisted_energy_transfer
 	use first_order_coulomb_transition_mod, only: calculate_first_order_transition_rates
 	use input_cnt_mod, only: input_cnt_parameters, input_exciton, input_selected_exciton
 	use partition_function_mod, only: calculate_partition_function
-	use second_order_coulomb_phonon_transition_mod, only: calculate_second_order_transition_rates
+	use second_order_coulomb_phonon_transition_mod, only: calculate_second_order_transition_rates_exciton_integration, calculate_second_order_transition_rates_phonon_integration
 	use sim_properties_mod, only: input_sim_properties, finalize_output_directory_name
 	use write_log_mod, only: write_log, log_input
 
@@ -35,7 +35,8 @@ program cnt_phonon_assisted_energy_transfer
 	call input_sim_properties(trim(filename))
 
 	write(cnt1%name,'(A)') "cnt1"
-	write(log_input,'(A, A, A)') new_line('A'), "carbon nanotube name: ", trim(cnt1%name);	call write_log(trim(log_input))
+	write(log_input,'(A, A, A, A, A, A, A)') new_line('A'), "**********************************************", new_line('A'), "carbon nanotube name: ", trim(cnt1%name), new_line('A'), "**********************************************"
+	call write_log(log_input)
 	call get_command_argument(1,filename)
 	call input_cnt_parameters(cnt1,trim(filename))
 	call cnt_geometry(cnt1)
@@ -46,7 +47,8 @@ program cnt_phonon_assisted_energy_transfer
 
 
 	write(cnt2%name,'(A)') "cnt2"
-	write(log_input,'(A, A, A)') new_line('A'), "carbon nanotube name: ", trim(cnt2%name);	call write_log(trim(log_input))
+	write(log_input,'(A, A, A, A, A, A, A)') new_line('A'), "**********************************************", new_line('A'), "carbon nanotube name: ", trim(cnt2%name), new_line('A'), "**********************************************"
+	call write_log(log_input)
 	call get_command_argument(2,filename)
 	call input_cnt_parameters(cnt2,trim(filename))
 	call cnt_geometry(cnt2)
@@ -54,7 +56,8 @@ program cnt_phonon_assisted_energy_transfer
 	! call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
 	call input_selected_exciton(cnt2)
 
-	call calculate_second_order_transition_rates(cnt1, cnt2)
+! 	call calculate_second_order_transition_rates_exciton_integration(cnt1, cnt2)
+	call calculate_second_order_transition_rates_phonon_integration(cnt1, cnt2)
 
 	! save information about simulation runtime
 	call CPU_time(end_time)

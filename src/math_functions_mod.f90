@@ -311,13 +311,16 @@ contains
 	! derivative: the calculated first derivative dy/dx
 	!***************************************************************************
 
-	subroutine first_derivative (ya, l_bound, u_bound, point_index, dx, derivative)
+	subroutine first_derivative (ya, l_bound, u_bound, point_index, dx, derivative, single)
 		integer, intent(in) :: l_bound
 		integer, intent(in) :: u_bound
 		integer, intent(in) ::point_index
 		real*8, intent(in) :: dx
 		real*8, dimension(l_bound:u_bound), intent(in) :: ya
 		real*8, intent(out) :: derivative
+		logical, optional :: single
+
+		logical :: single_used
 
 ! 		if (point_index .lt. l_bound+2 ) then
 ! 			derivative = (-ya(point_index+2)+4.d0*ya(point_index+1)-3.d0*ya(point_index))/(2.d0*dx)
@@ -335,18 +338,32 @@ contains
 ! 			derivative = (3.d0*ya(point_index)-4.d0*ya(point_index-1)+ya(point_index-2))/(2.d0*dx)
 ! 		endif
 
-		if (point_index .gt. 0.d0) then
-			if (point_index .le. u_bound-6) then
-				derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
+		single_used = .false.
+
+		if (present(single)) single_used = single
+
+		if ((point_index .gt. u_bound-4) .or. (point_index .lt. l_bound+4)) then
+			single_used = .true.
+		endif
+
+		if (single_used) then
+
+			if (point_index .gt. 0.d0) then
+				if (point_index .le. u_bound-6) then
+					derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
+				else
+					derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
+				endif
 			else
-				derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
+				if (point_index .ge. l_bound+6) then
+					derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
+				else
+					derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
+				endif
 			endif
+
 		else
-			if (point_index .ge. l_bound+6) then
-				derivative = (+49.d0/20.d0)*ya(point_index)+(-6.d0)*ya(point_index-1)+(+15.d0/2.d0)*ya(point_index-2)+(-20.d0/3.d0)*ya(point_index-3)+(+15.d0/4.d0)*ya(point_index-4)+(-6.d0/5.d0)*ya(point_index-5)+(+1.d0/6.d0)*ya(point_index-6)
-			else
-				derivative = (-49.d0/20.d0)*ya(point_index)+(+6.d0)*ya(point_index+1)+(-15.d0/2.d0)*ya(point_index+2)+(+20.d0/3.d0)*ya(point_index+3)+(-15.d0/4.d0)*ya(point_index+4)+(+6.d0/5.d0)*ya(point_index+5)+(-1.d0/6.d0)*ya(point_index+6)
-			endif
+			derivative = (1.d0/280.d0)*ya(point_index-4) + (-4.d0/105.d0)*ya(point_index-3) + (1.d0/5.d0)*ya(point_index-2) + (-4.d0/5.d0)*ya(point_index-1) + (4.d0/5.d0)*ya(point_index+1) + (-1.d0/5.d0)*ya(point_index+2) + (4.d0/105.d0)*ya(point_index+3) + (-1.d0/280.d0)*ya(point_index+4)
 		endif
 
 		derivative = derivative/dx

@@ -174,9 +174,13 @@ contains
 
 		call eig(6,D_tot,u_ph,omega)
 
-		do i=1,6
-			omega(i)=sqrt(abs(omega(i))/m_carbon_dispersion)
-		enddo
+! 		do i=1,6
+! 			omega(i)=sqrt(abs(omega(i))/m_carbon_dispersion)
+! 		enddo
+
+! 		omega=sign(sqrt(abs(omega)/m_carbon_dispersion), omega)
+
+		omega=sqrt(abs(omega)/m_carbon_dispersion)
 
 		! sort phonon energies
 		do i=6,2,-1
