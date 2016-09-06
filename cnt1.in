@@ -1,16 +1,16 @@
 directory, output= /home/amirhossein/research/exciton/data/exciton_dispersion/
 
-cnt, n_ch=	11
+cnt, n_ch=	10
 cnt, m_ch=	0
 cnt, nkg=	1001
-cnt, dk/dkx=	30
+cnt, dk/dkx=	10
 cnt, nr=		200
 cnt, E_th[eV]=	0.5
 cnt, Kcm_max[1/nm]=	1.5
 cnt, i_sub=	1
 cnt, Ckappa=	2.0
 cnt, kappa_coeff=	1.0
-cnt, selected_exciton=	A2_singlet
+cnt, selected_exciton=	Ep_singlet
 cnt, length[nm]=	inf
 cnt, center_position[nm]=	0
 

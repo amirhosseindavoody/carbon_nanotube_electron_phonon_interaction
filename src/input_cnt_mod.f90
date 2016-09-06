@@ -5,7 +5,7 @@
 module input_cnt_mod
 	implicit none
 	private
-	public :: input_cnt_parameters, input_exciton, input_selected_exciton
+	public :: input_cnt_parameters, input_exciton, input_selected_exciton, smooth_exciton_dispersion
 
 contains
 	!**************************************************************************************************************************
@@ -128,7 +128,6 @@ contains
 		end if
 
 		! create the name of directory in which the cnt information is saved
-		! write(currcnt%directory,"( A, 'CNT(', I2.2, ',', I2.2, ')-nkg(', I4.4, ')-nr(', I4.4, ')-E_th(', F3.1, ')-Kcm_max(', F3.1, ')-i_sub(', I1.1, ')-Ckappa(', F3.1, ')/' )") trim(currcnt%directory), currcnt%n_ch, currcnt%m_ch, currcnt%nkg, currcnt%nr, currcnt%E_th/eV, currcnt%Kcm_max*1.d-9, currcnt%i_sub, currcnt%Ckappa
 		write(currcnt%directory,'(A, A, I0, A, I0, A, I0, A, I0, A, I0, A, F0.1, A, F0.1, A, I0, A, F0.1, A)') trim(currcnt%directory), "exciton_", currcnt%n_ch, "_", currcnt%m_ch, "_nkg_", currcnt%nkg, "_dk_ratio_", currcnt%dk_dkx_ratio, "_nr_", currcnt%nr, "_Eth_", currcnt%E_th/eV, "_Kcm_max_", currcnt%Kcm_max*1.d-9, "_sub_", currcnt%i_sub, "_Ckappa_", currcnt%Ckappa, "/"
 
 		! check if the directory exists
@@ -353,5 +352,53 @@ contains
 		end select
 
 	end subroutine input_selected_exciton
+
+	!***************************************************************************
+	! smooth exciton dispersion
+	!***************************************************************************
+
+	subroutine smooth_exciton_dispersion(my_exciton, filename)
+		use cnt_class, only: exciton
+		use constants_mod, only: eV
+		use write_log_mod, only: write_log, log_input
+
+		type(exciton), target, intent(inout) :: my_exciton
+		character(len=*), intent(in) :: filename
+
+		integer :: ix, iKcm
+		real*8, dimension(:,:), allocatable :: smooth_dispersion
+		integer :: brack_len
+
+		allocate(smooth_dispersion(my_exciton%nx, lbound(my_exciton%ex, dim=2) : ubound(my_exciton%ex, dim=2)))
+		smooth_dispersion = my_exciton%ex(:,:)
+
+		brack_len = 11
+
+		do ix = 1, my_exciton%nx
+			do iKcm = lbound(my_exciton%ex, dim=2)+(brack_len-1)/2, ubound(my_exciton%ex, dim=2)-(brack_len-1)/2
+				smooth_dispersion(ix, iKcm) = sum( my_exciton%ex(ix,iKcm-(brack_len-1)/2 : iKcm+(brack_len-1)/2))/real(brack_len)
+			enddo
+		enddo
+
+		my_exciton%ex = smooth_dispersion
+
+		open(unit=100,file=trim(filename),status="unknown")
+
+		do iKcm = lbound(my_exciton%ex, dim=2), ubound(my_exciton%ex, dim=2)
+			write(100, '(E16.8)', advance='no') real(iKcm) * my_exciton%dKcm
+		enddo
+
+		write (100, '(A)')
+
+		do ix = 1, my_exciton%nx
+			do iKcm = lbound(my_exciton%ex, dim=2), ubound(my_exciton%ex, dim=2)
+				write(100, '(E16.8)', advance='no') my_exciton%ex(ix, iKcm)/eV
+			enddo
+			write(100, '(A)')
+		enddo
+
+		close(100)
+
+	end subroutine smooth_exciton_dispersion
 
 end module input_cnt_mod

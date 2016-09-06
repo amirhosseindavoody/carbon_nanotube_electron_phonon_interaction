@@ -17,9 +17,7 @@ eV_to_inverse_cm = 8065.54429
 hbar = 1.054e-34 #[Jouls.second]
 vF = 1.0e6
 
-directory = "/home/amirhossein/research/exciton/data/transfer_rates/transfer_10_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_to_11_0_A2_singlet_iSub_1_length_0nm_center_0nm_Ckappa_2.0_C2C_1.2nm_1.2nm_theta_0_90/"
-cnt_name = "cnt1"
-exciton_name = ("A1_singlet", "A2_singlet", "Ep_singlet", "Em_singlet")
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/trf_10_0_Ep_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_11_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
 
 ################################################################################
 # load the calculated scattering rates for emission and absorption process
@@ -28,39 +26,136 @@ fig = plt.figure()
 figure_list.append(fig)
 fig.canvas.draw()
 
-xmin = +100
-xmax = -100
+axes = fig.add_subplot(1,1,1)
 
-ymin = 8e8
-ymax = 1e15
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/trf_10_0_Ep_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+# data = np.loadtxt(directory+"phonon_assisted_scattering_rate_emission.Ep_singlet_to_A2_singlet.dat", skiprows=0)
+# energy_mesh_emission = data[0,:]/eV
+# scattering_rate_emission = data[1,:].T
+# axes.plot(energy_mesh_emission, 1.0e9*scattering_rate_emission[:], linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
 
-for i in range(0,3):
-	axes = fig.add_subplot(2,2,i+1)
+# input("10_Ep to 10_A2")
 
-	xmin = +100
-	xmax = -100
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/trf_10_0_Ep_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+data = np.loadtxt(directory+"phonon_assisted_scattering_rate_emission.Ep_singlet_to_A2_singlet.dat", skiprows=0)
+energy_mesh_emission = data[0,:]/eV
+scattering_rate_emission = data[1,:].T
+# axes.plot(energy_mesh_emission, 1.0e9*scattering_rate_emission[:], linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
+axes.plot(1.0e9*scattering_rate_emission[:], energy_mesh_emission, linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
 
-	ymin = 8e8
-	ymax = 1e15
-	for j in range(0,3):
+min_energy = np.amin(energy_mesh_emission)
+max_energy = np.amax(energy_mesh_emission)
 
-		data = np.loadtxt(directory+cnt_name+".exciton_phonon_scattering_rate_emission."+exciton_name[i]+"_to_"+exciton_name[j]+".dat", skiprows=0)
-		energy_mesh_emission = data[0,:]/eV
-		scattering_rate_emission = data[1,:].T
-		axes.plot(energy_mesh_emission, scattering_rate_emission[:], linewidth=5.0, linestyle="solid", marker="", markersize=10.0)
+axes.set_ylim([min_energy,max_energy])
 
-		# data = np.loadtxt(directory+cnt_name+".exciton_phonon_scattering_rate_absorption."+exciton_name[i]+"_to_"+exciton_name[j]+".dat", skiprows=0)
-		# energy_mesh_absorption = data[0,:]/eV
-		# scattering_rate_absorption = data[1,:].T
-		# axes.plot(energy_mesh_absorption, scattering_rate_absorption[:], linewidth=3.0, linestyle="dashed", marker="", markersize=10.0)
+# input("10_Ep to 11_A2")
 
-		xmin = min(xmin,np.amin(energy_mesh_emission))
-		xmax = max(xmax,np.amax(energy_mesh_emission))
 
-		axes.set_yscale('log')
-		axes.set_xlim([xmin,xmax])
-		# axes.set_ylim([ymin,ymax])
 
-		input(exciton_name[i]+" to "+exciton_name[j])
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/trf_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_11_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+# data = np.loadtxt(directory+"phonon_assisted_scattering_rate_emission.A2_singlet_to_A2_singlet.dat", skiprows=0)
+# energy_mesh_emission = data[0,:]/eV
+# scattering_rate_emission = data[1,:].T
+# axes.plot(energy_mesh_emission, 1.0e9*scattering_rate_emission[:], linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
+
+# input("10_A2 to 11_A2")
+
+# directory = "/home/amirhossein/research/exciton/data/transfer_rates/trf_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+# data = np.loadtxt(directory+"phonon_assisted_scattering_rate_emission.A2_singlet_to_A2_singlet.dat", skiprows=0)
+# energy_mesh_emission = data[0,:]/eV
+# scattering_rate_emission = data[1,:].T
+# axes.plot(energy_mesh_emission, 1.0e9*scattering_rate_emission[:], linewidth=5.0, linestyle="solid", marker="o", markersize=10.0)
+
+# input("10_A2 to 10_A2")
+
+# input("Press Enter to exit...")
+
+
+
+################################################################################
+# load the calculated scattering rates for emission and absorption process
+
+fig = plt.figure()
+figure_list.append(fig)
+fig.canvas.draw()
+
+axes = fig.add_subplot(1,1,1)
+
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/rr.trf_10_0_Ep_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+data = np.loadtxt(directory+"i_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+i_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, i_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="blue", marker="", markersize=10.0)
+
+data = np.loadtxt(directory+"m_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+m_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, m_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="red", marker="", markersize=10.0)
+
+data = np.loadtxt(directory+"f_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+f_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, f_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="green", marker="", markersize=10.0)
+
+
+# plot phonon dispersions
+
+################################################################################
+# load k-vector and phonon energy dispersion data.
+cnt_name = "cnt1"
+k_vec = np.loadtxt(directory+cnt_name+".phonon_k_vector.dat", skiprows=0)
+
+filename = directory+cnt_name+".phonon_energy.dat"
+phonon_energy = np.loadtxt(filename, skiprows=0)
+phonon_energy = phonon_energy.T
+phonon_energy = phonon_energy/eV
+phonon_energy = phonon_energy + min_energy
+
+################################################################################
+# plot all phonon dispersion energies
+# fig = plt.figure()
+# figure_list.append(fig)
+# axes = fig.add_subplot(111)
+# fig.canvas.draw()
+
+for i in range(0,phonon_energy.shape[1]):
+	axes.plot(k_vec,phonon_energy[:,i], linewidth=2.0, color="black", linestyle="solid")
+
+# xmin = min(k_vec)
+# xmax = max(k_vec)
+# axes.set_xlim([xmin,xmax])
+
+
+axes.set_xlim([-0.5,0.5])
+axes.set_ylim([min_energy,max_energy])
+
+
+################################################################################
+# load the calculated scattering rates for emission and absorption process
+
+fig = plt.figure()
+figure_list.append(fig)
+fig.canvas.draw()
+
+axes = fig.add_subplot(1,1,1)
+
+directory = "/home/amirhossein/research/exciton/data/transfer_rates/r.trf_10_0_Ep_singlet_sub_1_len_0_ctr_0_dk_ratio_10_to_10_0_A2_singlet_sub_1_len_0_ctr_0_dk_ratio_10_C2C_1.2_1.2_theta_0_90/"
+data = np.loadtxt(directory+"i_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+i_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, i_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="blue", marker="", markersize=10.0)
+
+data = np.loadtxt(directory+"m_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+m_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, m_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="red", marker="", markersize=10.0)
+
+data = np.loadtxt(directory+"f_exciton.dispersion.dat", skiprows=0)
+k_vec = data[0,:]*1e-9
+f_exciton_energy = (data[1:-1,:])
+axes.plot(k_vec, f_exciton_energy[0,:], linewidth=5.0, linestyle="solid", color="green", marker="", markersize=10.0)
+
+axes.set_xlim([-0.5,0.5])
+axes.set_ylim([min_energy,max_energy])
 
 input("Press Enter to exit...")

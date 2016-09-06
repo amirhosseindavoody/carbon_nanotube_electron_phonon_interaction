@@ -34,6 +34,7 @@ contains
 		integer :: i_tmp=0
 		logical :: folder_exists=.true.
 		integer, dimension(3) :: date, time
+		character(len=1000) :: cnt1_name_sec, cnt2_name_sec
 
 
 		! set some default values for simulation properties. These values are most likely going to be over written later.
@@ -109,28 +110,54 @@ contains
 		end do
 		close(100)
 
-		! create the temporary name of the output directory
+		! ! create the temporary name of the output directory
+		! folder_exists = .true.
+		! i_tmp = 0
+		! do while (folder_exists)
+		! 	i_tmp = i_tmp+1
+		! 	write(outdir_tmp,"(A, A, I0)") trim(outdir_final),"tmp_",i_tmp
+		! 	inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
+
+		! 	if (.not. folder_exists) then
+		! 		!create the output directory
+		! 		write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
+		! 		call system(trim(command), status=istat)
+		! 		if (istat .ne. 0) then
+		! 			folder_exists = .true.
+		! 		endif
+		! 	endif
+
+		! end do
+
+		call get_command_argument(1, buffer)
+		call create_cnt_name(buffer, cnt1_name_sec)
+
+		call get_command_argument(2, buffer)
+		call create_cnt_name(buffer, cnt2_name_sec)
+
+		write(outdir_tmp, '()') 
+
+		! write(outdir_tmp,'(A, A, A, A, A, A, F0.1, A, F0.1, A, I0, A, I0)') trim(outdir_final), "r.transfer_", trim(cnt1_name_sec), "_to_",  trim(cnt2_name_sec), "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		! write(outdir_final,'(A, A, A, A, A, A, F0.1, A, F0.1, A, I0, A, I0)') trim(outdir_final), "transfer_", trim(cnt1_name_sec), "_to_",  trim(cnt2_name_sec), "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		write(outdir_tmp,'(A, A, A, A, A, A, F0.1, A, F0.1, A, I0, A, I0)') trim(outdir_final), "r.trf_", trim(cnt1_name_sec), "_to_",  trim(cnt2_name_sec), "_C2C_", c2c_min*1.d9, "_", c2c_max*1.d9, "_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		write(outdir_final,'(A, A, A, A, A, A, F0.1, A, F0.1, A, I0, A, I0)') trim(outdir_final), "trf_", trim(cnt1_name_sec), "_to_",  trim(cnt2_name_sec), "_C2C_", c2c_min*1.d9, "_", c2c_max*1.d9, "_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		
+
+		! remove the tmp_output directory if it already exists
 		folder_exists = .true.
-		i_tmp = 0
-		do while (folder_exists)
-			i_tmp = i_tmp+1
-			write(outdir_tmp,"(A, A, I0)") trim(outdir_final),"tmp_",i_tmp
-			inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
+		inquire(file=trim(outdir_tmp)//'/.', exist=folder_exists)
 
-			if (.not. folder_exists) then
-				!create the output directory
-				write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
-				call system(trim(command), status=istat)
-				if (istat .ne. 0) then
-					folder_exists = .true.
-				endif
-			endif
+		if (folder_exists) then
+			write(command, "(A, A)") "rm -r ", trim(outdir_tmp)
+			call system(trim(command))
+		end if
 
-		end do
-
-		! !create the output directory
-		! write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
-		! call system(trim(command))
+		!create the output directory
+		write(command,'(A ,A, A)') "mkdir '", trim(outdir_tmp), "'"
+		call system(trim(command), status=istat)
+		if (istat .ne. 0) then
+			folder_exists = .true.
+		endif
 
 		! copy the input files to the output directory
 		call get_command_argument(1,buffer)
@@ -160,6 +187,132 @@ contains
 
 	end subroutine input_sim_properties
 
+
+	!***************************************************************************
+	! - this subroutine creates a name section for the input cnt. 
+	!***************************************************************************
+	subroutine create_cnt_name(filename, cnt_name)
+		use constants_mod, only: eV
+		use write_log_mod, only: write_log, log_input
+
+		character(len=*),intent(in) :: filename
+		character(len=*), intent(out) :: cnt_name
+
+		character(len=1000) :: buffer, label, command, value
+		integer :: ios
+		integer :: istat
+		integer :: pos_comma, pos_equal
+		logical :: flg_dielectric, folder_exists
+
+		integer :: n_ch, m_ch, nkg, nr, i_sub, dk_dkx_ratio
+		real*8 :: E_th, kappa, Kcm_max, Ckappa, kappa_coeff, length, center_position
+		character(len=1000) :: directory, selected_exciton_name
+
+		ios=0
+		istat=0
+		pos_comma=0
+		pos_equal=0
+
+		open(unit=101,file=trim(filename),status="old", action="read", iostat=istat)
+		if (istat .ne. 0) then
+			write(*,'(A,I2.2)') "istat = ", istat
+			write(*,'(A,A)') "Unable to read CNT input file: ", trim(filename)
+			call exit()
+		end if
+
+		n_ch=20
+		m_ch=0
+		nkg=0501
+		nr=200
+		E_th=1.5d0
+		Kcm_max=1.5d9
+		i_sub=1
+		kappa=2.d0
+		Ckappa=0.d0
+		kappa_coeff=0.d0
+		flg_dielectric=.true.  !when .true. dielectric function is calculated, when .false. dielectric function is read from file.
+
+		do while (ios == 0)
+			read (101,'(A)',iostat=ios) buffer
+			if (ios == 0) then
+				if (buffer(1:1) .ne. '#') then
+					pos_comma = scan(buffer,',')
+					pos_equal = scan(buffer,'=')
+					command = adjustl(buffer(1:pos_comma-1))
+					label = adjustl(buffer(pos_comma+1:pos_equal-1))
+					value = adjustl(buffer(pos_equal+1:))
+
+					! set the target cnt
+					select case (trim(command))
+					case('directory')
+						select case (trim(label))
+						case ('output')
+							directory = trim(value)
+						case default
+							write(*,*) "ERROR in 'directory' input arguments!!!"
+							write(*,*) "simulation STOPPED!!!"
+							call exit()
+						end select
+					case ('cnt')
+						select case (trim(label))
+						case ('n_ch')
+							read(value, *) n_ch
+						case ('m_ch')
+							read(value, *) m_ch
+						case ('nkg')
+							read(value, *) nkg
+						case ('dk/dkx')
+							read(value, *) dk_dkx_ratio
+						case ('nr')
+							read(value, *) nr
+						case ('E_th[eV]')
+							read(value, *) E_th
+							E_th = E_th * eV
+						case ('Kcm_max[1/nm]')
+							read(value, *) Kcm_max
+							Kcm_max = Kcm_max * 1.d9
+						case ('i_sub')
+							read(value, *) i_sub
+						case ('Ckappa')
+							read(value, *) Ckappa
+						case ('kappa_coeff')
+							read(value, *) kappa_coeff
+						case ('selected_exciton')
+							read(value, *) selected_exciton_name
+						case ('length[nm]')
+							read(value, *) length
+							length = length*1.d-9
+						case ('center_position[nm]')
+							read(value, *) center_position
+						case default
+							write(*,'(A, A, A, A)') "ERROR in interpreting this line:", new_line('A'), trim(buffer), new_line('A')
+						end select
+					case ('flg')
+						select case (trim(label))
+						case ('flg_dielectric')
+							read(value, *) flg_dielectric
+						case default
+							write(*,'(A, A, A, A)') "ERROR in interpreting this line:", new_line('A'), trim(buffer), new_line('A')
+						end select
+					end select
+				end if
+			else if (ios .gt. 0) then
+				write (*,'(A)') "Error in reading input file!"
+				call exit()
+			end if
+		end do
+		close(101)
+
+		! calculate kappa based on input parameters
+		if ((Ckappa .gt. 0.d0 ) .and. (kappa_coeff .gt. 0.d0)) then
+			kappa = Ckappa*kappa_coeff
+		end if
+
+		! write(cnt_name,'(I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0)') n_ch, "_", m_ch, "_", trim(selected_exciton_name), "_iSub_", i_sub, "_length_", nint(length*1.d9), "nm_center_", nint(center_position*1.d9), "nm_Ckappa_", Ckappa,"_dk_ratio_", dk_dkx_ratio
+		write(cnt_name,'(I0, A, I0, A, A, A, I0, A, I0, A, I0, A, I0)') n_ch, "_", m_ch, "_", trim(selected_exciton_name), "_sub_", i_sub, "_len_", nint(length*1.d9), "_ctr_", nint(center_position*1.d9), "_dk_ratio_", dk_dkx_ratio
+
+	end subroutine create_cnt_name
+
 	!***************************************************************************
 	! -	this subroutine renames the output directory from a temporary name to a
 	!	final name that indicates the simulation has run successfully.
@@ -173,8 +326,8 @@ contains
 		character(len=1000) :: command
 		integer :: istat
 
-		! write(outdir_final,"(A, A)") trim(outdir_final), "final_result"
-		write(outdir_final,'(A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, F0.1, A, F0.1, A, I0, A, I0 )') trim(outdir_final)//"transfer_", cnt_1%n_ch, "_", cnt_1%m_ch, "_", trim(cnt_1%selected_exciton%name), "_iSub_", cnt_1%i_sub, "_length_", nint(cnt_1%length*1.d9), "nm_center_", nint(cnt_1%center_position*1.d9), "nm_Ckappa_", cnt_1%Ckappa,"_dk_ratio_", cnt_1%dk_dkx_ratio, "_to_", cnt_2%n_ch, "_", cnt_2%m_ch, "_", trim(cnt_2%selected_exciton%name), "_iSub_", cnt_2%i_sub, "_length_", nint(cnt_2%length*1.d9), "nm_center_", nint(cnt_2%center_position*1.d9), "nm_Ckappa_", cnt_2%Ckappa, "_dk_ratio_", cnt_2%dk_dkx_ratio, "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
+		! ! write(outdir_final,"(A, A)") trim(outdir_final), "final_result"
+		! write(outdir_final,'(A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, I0, A, I0, A, A, A, I0, A, I0, A, I0, A, F0.1, A, I0, A, F0.1, A, F0.1, A, I0, A, I0 )') trim(outdir_final)//"transfer_", cnt_1%n_ch, "_", cnt_1%m_ch, "_", trim(cnt_1%selected_exciton%name), "_iSub_", cnt_1%i_sub, "_length_", nint(cnt_1%length*1.d9), "nm_center_", nint(cnt_1%center_position*1.d9), "nm_Ckappa_", cnt_1%Ckappa,"_dk_ratio_", cnt_1%dk_dkx_ratio, "_to_", cnt_2%n_ch, "_", cnt_2%m_ch, "_", trim(cnt_2%selected_exciton%name), "_iSub_", cnt_2%i_sub, "_length_", nint(cnt_2%length*1.d9), "nm_center_", nint(cnt_2%center_position*1.d9), "nm_Ckappa_", cnt_2%Ckappa, "_dk_ratio_", cnt_2%dk_dkx_ratio, "_C2C_", c2c_min*1.d9, "nm_", c2c_max*1.d9, "nm_theta_", nint(theta_min*180/pi), "_", nint(theta_max*180/pi)
 
 		! remove the final output directory if it already exists
 		folder_exists = .true.
