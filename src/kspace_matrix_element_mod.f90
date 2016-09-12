@@ -52,7 +52,7 @@ contains
 	subroutine calculate_Q_tilde(Q_tilde, cnt_1, cnt_2, i_exciton, f_exciton, ix1, iKcm1, ix2, iKcm2)
 		use cnt_class, only: cnt, exciton
 		use constants_mod, only: pi, eps0, q0, i1
-		! use write_log_mod, only: write_log, log_input
+		use write_log_mod, only: write_log, log_input
 
 		complex*16, intent(out) :: Q_tilde
 		type(cnt), intent(in) :: cnt_1, cnt_2
@@ -68,6 +68,9 @@ contains
 
 		real*8, dimension(2) :: Kcm1, Kcm2
 		real*8 , dimension(2,2) :: ds1, ds2 ! this are relative displacement of carbon atoms in graphene unit cell
+
+		integer :: iKcm1_used, iKcm2_used
+		complex*16 :: tmpc1, tmpc2
 
 		Q_tilde = (0.d0, 0.d0)
 
@@ -109,6 +112,42 @@ contains
 		enddo
 
 		Q_tilde = Q_tilde * dcmplx(q0**2/(4.d0*pi*eps0*sqrt(2.d0*pi/i_exciton%dkr * 2.d0*pi/f_exciton%dkr)))
+
+		! iKcm1_used = iKcm1
+
+		! tmpc1 = (0.d0, 0.d0)
+		! do imur1 = 1,i_exciton%n_mu_r
+		! 	mu_c1 = i_exciton%mu_r(imur1) + i_exciton%mu_cm
+		! 	mu_v1 = i_exciton%mu_r(imur1) - i_exciton%mu_cm
+
+		! 	do ikr1 = i_exciton%ikr_low, i_exciton%ikr_high
+		! 		ikc1 = ikr1 * i_exciton%dkr_dKcm_ratio + iKcm1_used
+		! 		ikv1 = ikr1 * i_exciton%dkr_dKcm_ratio - iKcm1_used
+
+		! 		do is = 1,2
+		! 			tmpc1 = tmpc1 + conjg(cnt_1%Cc(mu_c1,ikc1,is))*cnt_1%Cv(mu_v1,ikv1,is)*exp(i1*dcmplx(-2.d0*dot_product(Kcm1,ds1(is,:))))*conjg(i_exciton%psi(ikr1,ix1,iKcm1_used,imur1))
+		! 		end do
+		! 	enddo
+		! enddo
+
+		! iKcm2_used = iKcm2
+
+		! tmpc2 = (0.d0, 0.d0)
+		! do imur2 = 1,f_exciton%n_mu_r
+		! 	mu_c2 = f_exciton%mu_r(imur2) + f_exciton%mu_cm
+		! 	mu_v2 = f_exciton%mu_r(imur2) - f_exciton%mu_cm
+
+		! 	do ikr2 = f_exciton%ikr_low, f_exciton%ikr_high
+		! 		ikc2 = ikr2 * f_exciton%dkr_dKcm_ratio + iKcm2_used
+		! 		ikv2 = ikr2 * f_exciton%dkr_dKcm_ratio - iKcm2_used
+
+		! 		do isp = 1,2
+		! 			tmpc2 = tmpc2 + cnt_2%Cc(mu_c2,ikc2,isp)*conjg(cnt_2%Cv(mu_v2,ikv2,isp))*exp(i1*2.d0*dot_product(Kcm2,ds2(isp,:)))*f_exciton%psi(ikr2,ix2,iKcm2_used,imur2)
+		! 		end do				
+		! 	enddo
+		! enddo
+
+		! Q_tilde = tmpc1 * tmpc2 * dcmplx(q0**2/(4.d0*pi*eps0*sqrt(2.d0*pi/i_exciton%dkr * 2.d0*pi/f_exciton%dkr)))
 
 	end subroutine calculate_Q_tilde
 

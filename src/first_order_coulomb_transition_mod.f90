@@ -141,7 +141,8 @@ contains
 							iKcm1 = crossing_points(iC,3)
 							iKcm2 = crossing_points(iC,4)
 
-							call calculate_infinite_parallel_geometric_matrix_element(iKcm1, iKcm2, cnt_1, cnt_2, c2c_distance, geometric_matrix_element)
+							! call calculate_infinite_parallel_geometric_matrix_element(iKcm1, iKcm2, cnt_1, cnt_2, c2c_distance, geometric_matrix_element)
+							call calculate_infinite_parallel_geometric_matrix_element(geometric_matrix_element, cnt_1, cnt_2, cnt_1%selected_exciton%mu_cm, iKcm1, cnt_2%selected_exciton%mu_cm, iKcm2, c2c_distance)
 
 							matrix_element = geometric_matrix_element * kspace_matrix_element_crossing_points(iC)
 

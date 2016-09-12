@@ -10,7 +10,7 @@ cnt, Kcm_max[1/nm]=	1.5
 cnt, i_sub=	1
 cnt, Ckappa=	2.0
 cnt, kappa_coeff=	1.0
-cnt, selected_exciton=	Ep_singlet
+cnt, selected_exciton=	A2_singlet
 cnt, length[nm]=	inf
 cnt, center_position[nm]=	0
 

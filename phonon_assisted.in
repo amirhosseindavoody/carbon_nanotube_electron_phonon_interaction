@@ -1,4 +1,4 @@
-directory, output= /home/amirhossein/research/exciton/data/transfer_rates/
+directory, output= /home/amirhossein/research/exciton/data/transfer_rates/phonon_emission_coulomb_coupling/
 
 geometry, c2c_min[nm]= 1.2
 geometry, c2c_max[nm]= 1.2

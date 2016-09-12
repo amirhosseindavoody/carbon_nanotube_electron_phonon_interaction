@@ -318,6 +318,7 @@ contains
 
 		q_ph = dble(mu_ph) * currcnt%K1 + dble(iq_ph) * currcnt%dkx * currcnt%K2
 
+
 		do imu_r1 = 1,i_exciton%n_mu_r
 			do imu_r2 = 1,f_exciton%n_mu_r
 				mu_r1 = i_exciton%mu_r(imu_r1)
