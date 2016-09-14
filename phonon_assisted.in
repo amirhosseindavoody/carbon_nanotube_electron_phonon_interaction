@@ -1,4 +1,4 @@
-directory, output= /home/amirhossein/research/exciton/data/transfer_rates/phonon_emission_coulomb_coupling/
+directory, output= /home/amirhossein/research/exciton/data/transfer_rates/coulomb_coupling_phonon_emission_perpendicular/
 
 geometry, c2c_min[nm]= 1.2
 geometry, c2c_max[nm]= 1.2
@@ -13,3 +13,4 @@ geometry, len_per_perpendicular_tube[nm]= 10
 simulation, temperature[Kelvin]= 300
 
 simulation, energy_mesh_size= 20
+simulation, energy_mesh_length= 0.2

@@ -10,11 +10,11 @@ program cnt_phonon_assisted_energy_transfer
 	use cnt_geometry_mod, only: cnt_geometry
 	use cnt_phonon_mod, only: cnt_phonon_dispersion
 	use cnt_scattering_electron_phonon_mod, only: cnt_electron_phonon_scattering_rate_emission, cnt_electron_phonon_scattering_rate_absorption, cnt_electron_phonon_matrix_element, cnt_electron_phonon_scattering_states
-	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
+	use cnt_scattering_exciton_phonon_mod, only: cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption, calculate_total_exciton_phonon_scattering_rates
 	use first_order_coulomb_transition_mod, only: calculate_first_order_transition_rates
 	use input_cnt_mod, only: input_cnt_parameters, input_exciton, input_selected_exciton, smooth_exciton_dispersion
 	use partition_function_mod, only: calculate_partition_function
-	use second_order_coulomb_phonon_transition_mod, only: calculate_phonon_emission_Coulomb_coupling_transition_rates, calculate_Coulomb_coupling_phonon_emission_transition_rates, calculate_phonon_emission_Coulomb_coupling_parallel
+	use second_order_coulomb_phonon_transition_mod, only: calculate_phonon_emission_Coulomb_coupling_perpendicular, calculate_Coulomb_coupling_phonon_emission_perpendicular, calculate_phonon_emission_Coulomb_coupling_parallel, calculate_Coulomb_coupling_phonon_emission_parallel, calculate_phonon_absorption_Coulomb_coupling_parallel
 	use sim_properties_mod, only: input_sim_properties, finalize_output_directory_name
 	use write_log_mod, only: write_log, log_input
 
@@ -54,9 +54,14 @@ program cnt_phonon_assisted_energy_transfer
 	! call cnt_phonon_dispersion(cnt2, save_dispersion=.true.)
 	call input_selected_exciton(cnt2)
 
-	! call calculate_phonon_emission_Coulomb_coupling_transition_rates(cnt1, cnt2)
-	! call calculate_Coulomb_coupling_phonon_emission_transition_rates(cnt1, cnt2)
-	call calculate_phonon_emission_Coulomb_coupling_parallel(cnt1, cnt2)
+	! call calculate_total_exciton_phonon_scattering_rates(cnt1, cnt2)
+
+
+	! call calculate_phonon_emission_Coulomb_coupling_perpendicular(cnt1, cnt2)
+	call calculate_Coulomb_coupling_phonon_emission_perpendicular(cnt1, cnt2)
+	! call calculate_phonon_emission_Coulomb_coupling_parallel(cnt1, cnt2)
+	! call calculate_Coulomb_coupling_phonon_emission_parallel(cnt1, cnt2)
+	! call calculate_phonon_absorption_Coulomb_coupling_parallel(cnt1, cnt2)
 
 	! save information about simulation runtime
 	call CPU_time(end_time)

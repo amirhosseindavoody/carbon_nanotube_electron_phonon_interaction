@@ -2,7 +2,7 @@ module cnt_class
 	implicit none
 	private
 
-	public  :: cnt, exciton, free_cnt_memory
+	public  :: cnt, exciton, free_cnt_memory, free_exciton_memory
 
 	!***************************************************************************
 	!	-definition of exciton class (derived type) that is used in the cnt
@@ -170,5 +170,14 @@ contains
 		enddo
 
 	end subroutine free_cnt_memory
+
+	subroutine free_exciton_memory(my_exciton)
+		type(exciton), intent(inout) :: my_exciton
+
+		if(allocated(my_exciton%mu_r)) deallocate(my_exciton%mu_r)
+		if(allocated(my_exciton%ex)) deallocate(my_exciton%ex)
+		if(allocated(my_exciton%psi)) deallocate(my_exciton%psi)
+
+	end subroutine
 
 end module cnt_class

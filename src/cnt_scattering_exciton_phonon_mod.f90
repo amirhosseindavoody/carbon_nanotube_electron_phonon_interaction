@@ -1,27 +1,28 @@
 module cnt_scattering_exciton_phonon_mod
 	implicit none
 	private
-	public :: cnt_exciton_phonon_matrix_element, cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption
+	public :: cnt_exciton_phonon_matrix_element, cnt_exction_phonon_scattering_rate_emission, cnt_exction_phonon_scattering_rate_absorption, calculate_total_exciton_phonon_scattering_rates
 
 	real*8, private :: energy_mesh_min, energy_mesh_max
-	real*8, private :: energy_mesh_length = 0.45d0 ! this is the energy distance between energy_mesh_max and energy_mesh_min
+	real*8, dimension(:), allocatable, public :: i_exciton_phonon_scattering_rate, f_exciton_phonon_scattering_rate
 
 contains
 
 	!***************************************************************************
 	! calculate the exciton-phonon scattering rates due to phonon emission
 	!***************************************************************************
-	subroutine cnt_exction_phonon_scattering_rate_emission(currcnt, i_exciton, f_exciton)
+	subroutine cnt_exction_phonon_scattering_rate_emission(currcnt, i_exciton, f_exciton, scattering_rates)
 		use cnt_class, only: cnt, exciton
 		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature, energy_mesh_size
+		use sim_properties_mod, only: temperature, energy_mesh_size, energy_mesh_length
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
 		type(exciton), intent(in) :: i_exciton, f_exciton
+		real*8, dimension(:), intent(out) :: scattering_rates
 
 		integer :: i, j, k
 		real*8, dimension(:), allocatable :: tmp_real_array_1
@@ -49,13 +50,13 @@ contains
 
 		!***********************************************************************
 		! calculate CNT phonon energy dispersion for two brillouine zones.
-		call cnt_phonon_dispersion(currcnt, dq=2.d0*currcnt%dkx, iq_max=2*currcnt%iKcm_max_fine, iq_min=2*currcnt%iKcm_min_fine, mu_max=mu_ph, mu_min=mu_ph )
+		call cnt_phonon_dispersion(currcnt, dq=2.d0*currcnt%dkx, iq_max=2*currcnt%iKcm_max_fine, iq_min=2*currcnt%iKcm_min_fine, mu_max=+abs(mu_ph), mu_min=-abs(mu_ph) )
 
 		! create the electron energy mesh
 		allocate(energy_mesh(energy_mesh_size))
 
 		energy_mesh_min = minval(i_exciton%ex(:,:))
-		energy_mesh_max = energy_mesh_min + energy_mesh_length*eV
+		energy_mesh_max = energy_mesh_min + energy_mesh_length
 
 		do i=1,energy_mesh_size
 			energy_mesh(i) = energy_mesh_min + dble(i-1)*(energy_mesh_max-energy_mesh_min)/dble(energy_mesh_size-1)
@@ -116,11 +117,9 @@ contains
 
 			exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) / hb
 
-			write(log_input,'(A, A, A, A, I0, A, I0, A, E8.2)') trim(i_exciton%name), " to ", trim(f_exciton%name), " exciton-phonon scattering rates(", i, " / ", energy_mesh_size, "): ", exciton_phonon_scattering_rate(i)
-			call write_log(log_input)
+			! write(log_input,'(A, A, A, A, I0, A, I0, A, E8.2)') trim(i_exciton%name), " to ", trim(f_exciton%name), " exciton-phonon emission scattering rates(", i, " / ", energy_mesh_size, "): ", exciton_phonon_scattering_rate(i)
+			! call write_log(log_input)
 		enddo
-
-		! exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
 
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
@@ -139,6 +138,8 @@ contains
 
 		close(100)
 
+		scattering_rates(:) = exciton_phonon_scattering_rate(:)
+
 	end subroutine cnt_exction_phonon_scattering_rate_emission
 
 
@@ -146,17 +147,18 @@ contains
 	!***************************************************************************
 	! calculate the exciton-phonon scattering rates due to phonon absorption
 	!***************************************************************************
-	subroutine cnt_exction_phonon_scattering_rate_absorption(currcnt, i_exciton, f_exciton)
+	subroutine cnt_exction_phonon_scattering_rate_absorption(currcnt, i_exciton, f_exciton, scattering_rates)
 		use cnt_class, only: cnt, exciton
 		use cnt_phonon_mod, only: cnt_phonon_dispersion
 		use constants_mod
 		use graphene_mod, only: graphene_electron, graphene_electron_phonon_matrix_element
 		use math_functions_mod, only: find_all_roots, first_derivative
-		use sim_properties_mod, only: temperature, energy_mesh_size
+		use sim_properties_mod, only: temperature, energy_mesh_size, energy_mesh_length
 		use write_log_mod, only: write_log, log_input
 
 		type(cnt), intent(inout) :: currcnt
 		type(exciton), intent(in) :: i_exciton, f_exciton
+		real*8, dimension(:), intent(out) :: scattering_rates
 
 		integer :: i, j, k
 		real*8, dimension(:), allocatable :: tmp_real_array_1
@@ -184,13 +186,13 @@ contains
 
 		!***********************************************************************
 		! calculate CNT phonon energy dispersion for two brillouine zones.
-		call cnt_phonon_dispersion(currcnt, dq=2.d0*currcnt%dkx, iq_max=2*currcnt%iKcm_max_fine, iq_min=2*currcnt%iKcm_min_fine, mu_max=-mu_ph, mu_min=-mu_ph )
+		call cnt_phonon_dispersion(currcnt, dq=2.d0*currcnt%dkx, iq_max=2*currcnt%iKcm_max_fine, iq_min=2*currcnt%iKcm_min_fine, mu_max=+abs(mu_ph), mu_min=-abs(mu_ph) )
 
 		! create the electron energy mesh
 		allocate(energy_mesh(energy_mesh_size))
 
 		energy_mesh_min = minval(i_exciton%ex(:,:))
-		energy_mesh_max = energy_mesh_min + energy_mesh_length*eV
+		energy_mesh_max = energy_mesh_min + energy_mesh_length
 
 		do i=1,energy_mesh_size
 			energy_mesh(i) = energy_mesh_min + dble(i-1)*(energy_mesh_max-energy_mesh_min)/dble(energy_mesh_size-1)
@@ -213,9 +215,6 @@ contains
 		allocate(final_state_idx(currcnt%iKcm_max_fine-currcnt%iKcm_min_fine+1))
 
 		do i=1,energy_mesh_size
-
-			write(log_input,'(A, I0, A, I0)') "calculating exciton-phonon scattering rates: ", i, " / ", energy_mesh_size
-			call write_log(log_input)
 
 			do ix=1,i_exciton%nx
 				tmp_real_array_1 = i_exciton%ex(ix,:)
@@ -251,9 +250,13 @@ contains
 
 				enddo
 			enddo
-		enddo
 
-		exciton_phonon_scattering_rate = exciton_phonon_scattering_rate / hb
+			exciton_phonon_scattering_rate(i) = exciton_phonon_scattering_rate(i) / hb
+
+			! write(log_input,'(A, A, A, A, I0, A, I0, A, E8.2)') trim(i_exciton%name), " to ", trim(f_exciton%name), " exciton-phonon absorption scattering rates(", i, " / ", energy_mesh_size, "): ", exciton_phonon_scattering_rate(i)
+			! call write_log(log_input)
+
+		enddo
 
 		!***********************************************************************
 		!save the calculated exciton-phonon scattering rate
@@ -272,10 +275,158 @@ contains
 
 		close(100)
 
-		write(log_input,'(A)') "Exciton-phonon scattering rates due to phonon absorption calculated and saved!"
-		call write_log(log_input)
+		scattering_rates = exciton_phonon_scattering_rate
+
 	end subroutine cnt_exction_phonon_scattering_rate_absorption
 
+	!***************************************************************************
+	! This subroutine calculates the total scattering rates for i-exciton and f-exciton in that are used in calculation of second-order phonon assisted exciton transfer process
+	!***************************************************************************
+
+	subroutine calculate_total_exciton_phonon_scattering_rates (cnt_1, cnt_2)
+		use cnt_class, only: cnt, exciton, free_exciton_memory
+		use constants_mod
+		use input_cnt_mod, only: input_exciton
+		use sim_properties_mod, only: temperature, energy_mesh_size, energy_mesh_length
+		use write_log_mod, only: write_log, log_input
+
+		type(cnt), intent (inout), target :: cnt_1, cnt_2
+
+		real*8, dimension(:), allocatable :: tmp_scattering_rates
+		type(exciton), pointer :: exciton_1, exciton_2
+		integer :: i
+
+		! create the electron energy mesh
+		allocate(i_exciton_phonon_scattering_rate(energy_mesh_size))
+		allocate(f_exciton_phonon_scattering_rate(energy_mesh_size))
+		i_exciton_phonon_scattering_rate = 0.d0
+		f_exciton_phonon_scattering_rate = 0.d0
+
+		allocate(tmp_scattering_rates(energy_mesh_size))
+		tmp_scattering_rates = 0.d0
+
+		exciton_1 => cnt_1%selected_exciton
+		exciton_2 => cnt_1%excitons(1,0)
+		if (.not. allocated(exciton_2%ex)) then
+			call input_exciton(ex_type=1, alpha=0, currcnt=cnt_1, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
+		endif
+		call cnt_exction_phonon_scattering_rate_absorption(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		call cnt_exction_phonon_scattering_rate_emission(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		if (.not. associated(exciton_2, exciton_1)) then
+			call free_exciton_memory(exciton_2)
+		endif
+
+		exciton_1 => cnt_1%selected_exciton
+		exciton_2 => cnt_1%excitons(2,0)
+		if (.not. allocated(exciton_2%ex)) then
+			call input_exciton(ex_type=2, alpha=0, currcnt=cnt_1, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
+		endif
+		call cnt_exction_phonon_scattering_rate_absorption(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		call cnt_exction_phonon_scattering_rate_emission(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		if (.not. associated(exciton_2, exciton_1)) then
+			call free_exciton_memory(exciton_2)
+		endif
+
+		exciton_1 => cnt_1%selected_exciton
+		exciton_2 => cnt_1%excitons(3,0)
+		if (.not. allocated(exciton_2%ex)) then
+			call input_exciton(ex_type=3, alpha=0, currcnt=cnt_1, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
+		endif
+		call cnt_exction_phonon_scattering_rate_absorption(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		call cnt_exction_phonon_scattering_rate_emission(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		if (.not. associated(exciton_2, exciton_1)) then
+			call free_exciton_memory(exciton_2)
+		endif
+
+		exciton_1 => cnt_1%selected_exciton
+		exciton_2 => cnt_1%excitons(4,0)
+		if (.not. allocated(exciton_2%ex)) then
+			call input_exciton(ex_type=4, alpha=0, currcnt=cnt_1, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
+		endif
+		call cnt_exction_phonon_scattering_rate_absorption(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		call cnt_exction_phonon_scattering_rate_emission(cnt_1, exciton_1, exciton_2, tmp_scattering_rates)
+		i_exciton_phonon_scattering_rate = i_exciton_phonon_scattering_rate + tmp_scattering_rates
+		if (.not. associated(exciton_2, exciton_1)) then
+			call free_exciton_memory(exciton_2)
+		endif
+
+		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		! exciton_1 => cnt_2%selected_exciton
+		! exciton_2 => cnt_2%excitons(1,0)
+		! if (.not. allocated(exciton_2%ex)) then
+		! 	call input_exciton(ex_type=1, alpha=0, currcnt=cnt_2, exciton_energy_filename='Ex_A1.dat', exciton_wavefunction_filename='Psi_A1.dat')
+		! endif
+		! call cnt_exction_phonon_scattering_rate_absorption(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! call cnt_exction_phonon_scattering_rate_emission(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! if (.not. associated(exciton_2, exciton_1)) then
+		! 	call free_exciton_memory(exciton_2)
+		! endif
+
+		! exciton_1 => cnt_2%selected_exciton
+		! exciton_2 => cnt_2%excitons(2,0)
+		! if (.not. allocated(exciton_2%ex)) then
+		! 	call input_exciton(ex_type=2, alpha=0, currcnt=cnt_2, exciton_energy_filename='Ex0_A2.dat', exciton_wavefunction_filename='Psi0_A2.dat')
+		! endif
+		! call cnt_exction_phonon_scattering_rate_absorption(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! call cnt_exction_phonon_scattering_rate_emission(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! if (.not. associated(exciton_2, exciton_1)) then
+		! 	call free_exciton_memory(exciton_2)
+		! endif
+
+		! exciton_1 => cnt_2%selected_exciton
+		! exciton_2 => cnt_2%excitons(3,0)
+		! if (.not. allocated(exciton_2%ex)) then
+		! 	call input_exciton(ex_type=3, alpha=0, currcnt=cnt_2, exciton_energy_filename='Ex0_Ep.dat', exciton_wavefunction_filename='Psi0_Ep.dat')
+		! endif
+		! call cnt_exction_phonon_scattering_rate_absorption(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! call cnt_exction_phonon_scattering_rate_emission(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! if (.not. associated(exciton_2, exciton_1)) then
+		! 	call free_exciton_memory(exciton_2)
+		! endif
+
+		! exciton_1 => cnt_2%selected_exciton
+		! exciton_2 => cnt_2%excitons(4,0)
+		! if (.not. allocated(exciton_2%ex)) then
+		! 	call input_exciton(ex_type=4, alpha=0, currcnt=cnt_2, exciton_energy_filename='Ex0_Em.dat', exciton_wavefunction_filename='Psi0_Em.dat')
+		! endif
+		! call cnt_exction_phonon_scattering_rate_absorption(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! call cnt_exction_phonon_scattering_rate_emission(cnt_2, exciton_1, exciton_2, tmp_scattering_rates)
+		! f_exciton_phonon_scattering_rate = f_exciton_phonon_scattering_rate + tmp_scattering_rates
+		! if (.not. associated(exciton_2, exciton_1)) then
+		! 	call free_exciton_memory(exciton_2)
+		! endif
+
+		write(log_input, '(A)') "i_exciton scattering rates:"
+		call write_log(log_input)
+		do i=1, energy_mesh_size
+			write(log_input,'(A, A, I0, A, I0, A, E8.2, A, E8.2)') trim(cnt_1%selected_exciton%name), "total exciton-phonon scattering rates(", i, " / ", energy_mesh_size, "): ", i_exciton_phonon_scattering_rate(i), "   ", i_exciton_phonon_scattering_rate(i)*hb*2.d0*pi/eV
+			call write_log(log_input)
+		enddo
+
+		! write(log_input, '(A, A)') new_line('A'), "f_exciton scattering rates:"
+		! call write_log(log_input)
+		! do i=1, energy_mesh_size
+		! 	write(log_input,'(A, A, I0, A, I0, A, E8.2, A, E8.2)') trim(cnt_2%selected_exciton%name), "total exciton-phonon scattering rates(", i, " / ", energy_mesh_size, "): ", f_exciton_phonon_scattering_rate(i), "   ", f_exciton_phonon_scattering_rate(i)*hb*2.d0*pi/eV
+		! 	call write_log(log_input)
+		! enddo
+
+	end subroutine
 
 	!***************************************************************************
 	! calculate the exciton-phonon matrix element
@@ -343,7 +494,7 @@ contains
 
 		enddo
 
-		matrix_element = matrix_element * dcmplx(sqrt((g0**2)*A_u*hb/(16.d0*pi*m_carbon*currcnt%radius*currcnt%omega_phonon(mu_ph, half_iq_ph, ib)/hb)))
+		matrix_element = matrix_element * dcmplx(sqrt((g0**2)*A_u*hb/(16.d0*pi*m_carbon*currcnt%radius * currcnt%omega_phonon(mu_ph, half_iq_ph, ib)/hb)))
 
 	end subroutine cnt_exciton_phonon_matrix_element
 

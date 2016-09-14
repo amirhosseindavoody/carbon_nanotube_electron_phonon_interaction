@@ -15,6 +15,7 @@ module sim_properties_mod
 	integer :: n_theta
 
 	integer :: energy_mesh_size
+	real*8 :: energy_mesh_length
 
 contains
 
@@ -23,7 +24,7 @@ contains
 	!	the simulation for calculating scattering rate.
 	!***************************************************************************
 	subroutine input_sim_properties(filename)
-		use constants_mod, only: pi
+		use constants_mod, only: pi, eV
 		use write_log_mod, only : write_log, log_input
 
 		character(len=*) :: filename
@@ -100,6 +101,9 @@ contains
 							read(value,*) temperature
 						case ('energy_mesh_size')
 							read(value,*) energy_mesh_size
+						case ('energy_mesh_length')
+							read(value,*) energy_mesh_length
+							energy_mesh_length = energy_mesh_length*eV
 						end select
 					end select
 				end if
