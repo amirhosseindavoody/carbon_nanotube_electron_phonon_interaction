@@ -63,6 +63,10 @@ contains
 
 		real*8 :: tmp_scattering_rate
 
+		real*8 :: partition_function
+		real*8 :: dE, i_exciton_energy_derivative
+		real*8, dimension(:), allocatable :: occupation
+
 		c2c_distance = c2c_min
 
 		i_exciton => cnt_1%selected_exciton
@@ -107,6 +111,59 @@ contains
 
 		mu_ph = 2*(i_exciton%mu_cm-m_exciton%mu_cm)
 		call cnt_phonon_dispersion(cnt_1, dq=2.d0*i_exciton%dKcm, iq_max=i_exciton%iKcm_max, iq_min=i_exciton%iKcm_min, mu_max=mu_ph, mu_min=mu_ph, save_dispersion=.true. )
+
+		! calculate occupation number
+		partition_function = 0.d0
+		dE = energy_mesh(2) - energy_mesh(1)
+		allocate(occupation(energy_mesh_size))
+		occupation = 0.d0
+		do i = 1, energy_mesh_size
+			do ix1 = 1, 1 !i_exciton%nx
+				tmp_array_1 = i_exciton%ex(ix1,:)
+				call find_all_roots (tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), energy_mesh(i), n_initial_state, initial_state_idx)
+
+				do j=1, n_initial_state
+					iKcm1 = initial_state_idx(j)
+					if (iKcm1 .eq. 0) then
+						call first_derivative(tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), iKcm1+2, i_exciton%dKcm, i_exciton_energy_derivative, single=.true.)
+					else
+						call first_derivative(tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), iKcm1, i_exciton%dKcm, i_exciton_energy_derivative, single=.true.)
+					endif
+					partition_function = partition_function + dE / abs(i_exciton_energy_derivative) * exp(-i_exciton%ex(ix1,iKcm1)/kb/temperature)
+					! partition_function = partition_function + dE * exp(-i_exciton%ex(ix1,iKcm1)/kb/temperature)
+				enddo
+			enddo
+		enddo
+
+		do i = 1, energy_mesh_size
+			do ix1 = 1, 1 !i_exciton%nx
+				tmp_array_1 = i_exciton%ex(ix1,:)
+				call find_all_roots (tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), energy_mesh(i), n_initial_state, initial_state_idx)
+				do j=1, n_initial_state
+					iKcm1 = initial_state_idx(j)
+					
+					if (iKcm1 .eq. 0) then
+						call first_derivative(tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), iKcm1+2, i_exciton%dKcm, i_exciton_energy_derivative, single=.true.)
+					else
+						call first_derivative(tmp_array_1, lbound(tmp_array_1,dim=1), ubound(tmp_array_1, dim=1), iKcm1, i_exciton%dKcm, i_exciton_energy_derivative, single=.true.)
+					endif
+					! occupation(i) = occupation(i) + 1.d0 / abs(i_exciton_energy_derivative) * exp(-i_exciton%ex(ix1,iKcm1)/kb/temperature) / partition_function
+					! occupation(i) = occupation(i) + dE * exp(-i_exciton%ex(ix1,iKcm1)/kb/temperature) / partition_function
+					occupation(i) = occupation(i) + dE / abs(i_exciton_energy_derivative) * exp(-i_exciton%ex(ix1,iKcm1)/kb/temperature) / partition_function
+					! write(*,*) iKcm1, i_exciton_energy_derivative
+					! occupation(i) = occupation(i) + 1 / i_exciton_energy_derivative
+				enddo
+
+			enddo
+
+			write(log_input, '(A, A, I0, A, I0, A, E10.4, A, E10.4)') trim(i_exciton%name), "   ", i, "/", energy_mesh_size, "  energy=", energy_mesh(i)/eV, "   occupation = ",occupation(i)
+			call write_log(log_input)
+
+		enddo
+
+		write(*,*) "sum of occupations = ", sum(occupation)
+
+		call exit()
 
 
 		do i = 1, energy_mesh_size
@@ -522,8 +579,8 @@ contains
 
 		do i = 1, energy_mesh_size
 
-			do ix1 = 1, 2 !i_exciton%nx
-				do ix2= 1,2 !f_exciton%nx
+			do ix1 = 1, 10 !i_exciton%nx
+				do ix2= 1,10 !f_exciton%nx
 			
 					do ib= 1,6
 
@@ -557,7 +614,7 @@ contains
 									f_exciton_energy = i_exciton%ex(ix1,iKcm1)-cnt_1%omega_phonon(mu_ph,iq_ph_half,ib)
 
 									total_matrix_element = (0.d0, 0.d0)
-									do ix_m = 1,2 !m_exciton%nx
+									do ix_m = 1,10 !m_exciton%nx
 
 										call cnt_exciton_phonon_matrix_element(phonon_matrix_element, cnt_1, i_exciton, m_exciton, ix1, iKcm1, ix_m, iKcm_m, ib )
 										call calculate_Q_tilde(Q_tilde, cnt_1, cnt_2, m_exciton, f_exciton, ix_m, iKcm_m, ix2, iKcm2)
@@ -723,7 +780,7 @@ contains
 		if(allocated(initial_state_idx)) deallocate(initial_state_idx)
 		allocate(initial_state_idx(i_exciton%iKcm_max-i_exciton%iKcm_min+1))
 
-		mu_ph = 2*(i_exciton%mu_cm-m_exciton%mu_cm)
+		mu_ph = 2*(m_exciton%mu_cm-f_exciton%mu_cm)
 		call cnt_phonon_dispersion(cnt_2, dq=2.d0*i_exciton%dKcm, iq_max=i_exciton%iKcm_max, iq_min=i_exciton%iKcm_min, mu_max=mu_ph, mu_min=mu_ph, save_dispersion=.true. )
 
 		do i = 1, energy_mesh_size

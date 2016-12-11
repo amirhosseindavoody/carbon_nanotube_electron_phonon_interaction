@@ -57,8 +57,8 @@ program cnt_phonon_assisted_energy_transfer
 	! call calculate_total_exciton_phonon_scattering_rates(cnt1, cnt2)
 
 
-	! call calculate_phonon_emission_Coulomb_coupling_perpendicular(cnt1, cnt2)
-	call calculate_Coulomb_coupling_phonon_emission_perpendicular(cnt1, cnt2)
+	call calculate_phonon_emission_Coulomb_coupling_perpendicular(cnt1, cnt2)
+	! call calculate_Coulomb_coupling_phonon_emission_perpendicular(cnt1, cnt2)
 	! call calculate_phonon_emission_Coulomb_coupling_parallel(cnt1, cnt2)
 	! call calculate_Coulomb_coupling_phonon_emission_parallel(cnt1, cnt2)
 	! call calculate_phonon_absorption_Coulomb_coupling_parallel(cnt1, cnt2)
